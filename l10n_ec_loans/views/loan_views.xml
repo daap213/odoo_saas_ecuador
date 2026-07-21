@@ -4,13 +4,13 @@
         <field name="name">l10n_ec.loan.tree</field>
         <field name="model">l10n_ec.loan</field>
         <field name="arch" type="xml">
-            <tree string="Loans">
+            <list string="Loans">
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="loan_type"/>
                 <field name="amount_total"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -38,12 +38,12 @@
                     <notebook>
                         <page string="Installments">
                             <field name="installment_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="date_due"/>
                                     <field name="amount"/>
                                     <field name="is_paid" readonly="1"/>
                                     <field name="payslip_id" readonly="1"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -55,7 +55,7 @@
     <record id="action_l10n_ec_loan" model="ir.actions.act_window">
         <field name="name">Loans &amp; Advances</field>
         <field name="res_model">l10n_ec.loan</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <record id="action_l10n_ec_loan_import" model="ir.actions.act_window">
@@ -67,7 +67,7 @@
 
     <menuitem id="menu_l10n_ec_loan"
               name="Loans"
-              parent="l10n_ec_hr_payroll.menu_l10n_ec_hr_payroll_root"
+              parent="l10n_ec_hr_payroll.menu_l10n_ec_payroll_root"
               action="action_l10n_ec_loan"
               sequence="30"/>
 

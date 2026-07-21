@@ -100,17 +100,26 @@ Ir a **Configuración > Empresas** y configurar:
 
 ### 2. Cargar Certificado Digital
 
-Ir a **Contabilidad > Configuración > Ecuador SRI > Certificados**:
+Ir a **Facturación/Contabilidad > Configuración > Digital Signatures** (requiere permisos de administrador de facturación):
 
 1. Clic en **Crear**
 2. Subir archivo `.p12`
 3. Ingresar contraseña del certificado
-4. Configurar fecha de vencimiento
-5. Clic en **Activar**
+4. Clic en **Validate & Activate** — la fecha de vencimiento y los metadatos
+   se extraen automáticamente del certificado
+
+Luego, **asignar el certificado a la empresa**: ir a
+**Configuración > Empresas > (su empresa) > pestaña Ecuador SRI** y
+seleccionarlo en el campo *Firma electrónica (.p12)*.
+
+Un cron diario verifica el vencimiento: marca los certificados vencidos y
+crea una actividad de aviso cuando faltan 30 días o menos.
 
 ### 3. Selección de Ambiente
 
-Ir a **Configuración > Empresas > Ecuador SRI**:
+Ir a **Configuración > Empresas > (su empresa) > pestaña Ecuador SRI**. Al
+cambiar el ambiente, las URLs de los servicios web del SRI se actualizan
+automáticamente:
 
 | Ambiente | Uso | Servidor |
 |----------|-----|----------|

@@ -1,0 +1,129 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_portal
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-19 18:40+0000\n"
+"PO-Revision-Date: 2026-07-19 18:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "<i class=\"fa fa-download\"/> Download PDF"
+msgstr "<i class=\"fa fa-download\"/> Descargar PDF"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "<small class=\"text-right\">Status:</small>"
+msgstr "<small class=\"text-right\">Estado:</small>"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "<strong>Net Pay:</strong>"
+msgstr "<strong>Pago neto:</strong>"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "<strong>Period:</strong>"
+msgstr "<strong>Período:</strong>"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_loans
+msgid "Amount"
+msgstr "Importe"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "Deductions"
+msgstr "Deducciones"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_loans
+msgid "Description"
+msgstr "Descripción"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "Earnings"
+msgstr "Ingresos"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "IESS:"
+msgstr "IESS:"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_home_loan
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_home_menu_loan
+msgid "Loans"
+msgstr "Préstamos"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "Loans:"
+msgstr "Préstamos:"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslips
+msgid "Net Pay"
+msgstr "Pago neto"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "Overtime:"
+msgstr "Horas extra:"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_home_menu_payslip
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_home_payslip
+msgid "Payslips"
+msgstr "Roles de pago"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslips
+msgid "Period"
+msgstr "Período"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslips
+msgid "Reference"
+msgstr "Referencia"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_loans
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslips
+msgid "State"
+msgstr "Estado"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "Tax:"
+msgstr "Impuesto:"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_loans
+msgid "Type"
+msgstr "Tipo"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "Wage:"
+msgstr "Salario:"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "hours"
+msgstr "horas"
+
+#. module: l10n_ec_portal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_portal.portal_my_payslip_detail
+msgid "to"
+msgstr "a"

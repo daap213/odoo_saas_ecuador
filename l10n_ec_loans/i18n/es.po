@@ -1,0 +1,377 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_loans
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-19 18:40+0000\n"
+"PO-Revision-Date: 2026-07-19 18:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_needaction
+msgid "Action Needed"
+msgstr "Requiere acción"
+
+#. module: l10n_ec_loans
+#: model_terms:ir.ui.view,arch_db:l10n_ec_loans.view_l10n_ec_loan_form
+msgid "Activate"
+msgstr "Activar"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields.selection,name:l10n_ec_loans.selection__l10n_ec_loan__state__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_ids
+msgid "Activities"
+msgstr "Actividades"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Decoración de actividad de excepción"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_state
+msgid "Activity State"
+msgstr "Estado de la actividad"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Ícono del tipo de actividad"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__amount
+msgid "Amount"
+msgstr "Importe"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_attachment_count
+msgid "Attachment Count"
+msgstr "Número de adjuntos"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields.selection,name:l10n_ec_loans.selection__l10n_ec_loan__state__cancel
+msgid "Cancelled"
+msgstr "Cancelado"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields.selection,name:l10n_ec_loans.selection__l10n_ec_loan__loan_type__company
+msgid "Company Advance/Loan"
+msgstr "Anticipo/Préstamo de la compañía"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__create_date
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__payslip_id
+msgid "Deduced in Payslip"
+msgstr "Deducido en el rol de pagos"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__delimiter
+msgid "Delimiter"
+msgstr "Delimitador"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__name
+msgid "Description"
+msgstr "Descripción"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__display_name
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields.selection,name:l10n_ec_loans.selection__l10n_ec_loan__state__draft
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__date_due
+msgid "Due Date"
+msgstr "Fecha de vencimiento"
+
+#. module: l10n_ec_loans
+#: model:ir.model,name:l10n_ec_loans.model_l10n_ec_payslip
+msgid "Ecuadorian Payslip"
+msgstr "Rol de pagos ecuatoriano"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__employee_id
+msgid "Employee"
+msgstr "Empleado"
+
+#. module: l10n_ec_loans
+#: model:ir.model,name:l10n_ec_loans.model_l10n_ec_loan
+msgid "Employee Loan (IESS / Company)"
+msgstr "Préstamo del empleado (IESS / Compañía)"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__file_data
+msgid "File (CSV/TXT)"
+msgstr "Archivo (CSV/TXT)"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__filename
+msgid "Filename"
+msgstr "Nombre del archivo"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_follower_ids
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (Contactos)"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Ícono de Font Awesome, p. ej. fa-tasks"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__has_message
+msgid "Has Message"
+msgstr "Tiene mensaje"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__id
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__id
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields.selection,name:l10n_ec_loans.selection__l10n_ec_loan__loan_type__iess_hip
+msgid "IESS Hipotecario"
+msgstr "IESS Hipotecario"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields.selection,name:l10n_ec_loans.selection__l10n_ec_loan__loan_type__iess_qui
+msgid "IESS Quirografario"
+msgstr "IESS Quirografario"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_payslip__loan_deduction
+msgid "IESS/Company Loans"
+msgstr "Préstamos IESS/Compañía"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_exception_icon
+msgid "Icon"
+msgstr "Ícono"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Ícono para indicar una actividad de excepción."
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si está marcado, los nuevos mensajes requieren su atención."
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__message_has_error
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si está marcado, algunos mensajes tienen un error de entrega."
+
+#. module: l10n_ec_loans
+#: model:ir.ui.menu,name:l10n_ec_loans.menu_l10n_ec_loan_import
+msgid "Import IESS File"
+msgstr "Importar archivo IESS"
+
+#. module: l10n_ec_loans
+#: model:ir.model,name:l10n_ec_loans.model_l10n_ec_loan_import_wizard
+msgid "Import IESS Loan Planilla"
+msgstr "Importar planilla de préstamos IESS"
+
+#. module: l10n_ec_loans
+#: model:ir.actions.act_window,name:l10n_ec_loans.action_l10n_ec_loan_import
+msgid "Import IESS Planilla"
+msgstr "Importar planilla IESS"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__installment_ids
+#: model_terms:ir.ui.view,arch_db:l10n_ec_loans.view_l10n_ec_loan_form
+msgid "Installments"
+msgstr "Cuotas"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_is_follower
+msgid "Is Follower"
+msgstr "Es seguidor"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__write_date
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_import_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__loan_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_loans.view_l10n_ec_loan_form
+msgid "Loan"
+msgstr "Préstamo"
+
+#. module: l10n_ec_loans
+#: model:ir.model,name:l10n_ec_loans.model_l10n_ec_loan_line
+msgid "Loan Installment"
+msgstr "Cuota del préstamo"
+
+#. module: l10n_ec_loans
+#: model:ir.ui.menu,name:l10n_ec_loans.menu_l10n_ec_loan
+#: model_terms:ir.ui.view,arch_db:l10n_ec_loans.view_l10n_ec_loan_tree
+msgid "Loans"
+msgstr "Préstamos"
+
+#. module: l10n_ec_loans
+#: model:ir.actions.act_window,name:l10n_ec_loans.action_l10n_ec_loan
+msgid "Loans & Advances"
+msgstr "Préstamos y anticipos"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_has_error
+msgid "Message Delivery error"
+msgstr "Error de entrega de mensaje"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_ids
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Fecha límite de mi actividad"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Fecha límite de la siguiente actividad"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_summary
+msgid "Next Activity Summary"
+msgstr "Resumen de la siguiente actividad"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_type_id
+msgid "Next Activity Type"
+msgstr "Tipo de la siguiente actividad"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Número de acciones"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_has_error_counter
+msgid "Number of errors"
+msgstr "Número de errores"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Número de mensajes que requieren acción"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Número de mensajes con error de entrega"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan_line__is_paid
+#: model:ir.model.fields.selection,name:l10n_ec_loans.selection__l10n_ec_loan__state__paid
+msgid "Paid"
+msgstr "Pagado"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__activity_user_id
+msgid "Responsible User"
+msgstr "Usuario responsable"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error de entrega de SMS"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__date_start
+msgid "Start Date"
+msgstr "Fecha de inicio"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__state
+msgid "State"
+msgstr "Estado"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr "Estado basado en actividades\nVencida: La fecha de vencimiento ya pasó\nHoy: La fecha de la actividad es hoy\nPlanificada: Actividades futuras."
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__amount_total
+msgid "Total Amount"
+msgstr "Importe total"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__loan_type
+msgid "Type"
+msgstr "Tipo"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Tipo de la actividad de excepción registrada."
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,field_description:l10n_ec_loans.field_l10n_ec_loan__website_message_ids
+msgid "Website Messages"
+msgstr "Mensajes del sitio web"
+
+#. module: l10n_ec_loans
+#: model:ir.model.fields,help:l10n_ec_loans.field_l10n_ec_loan__website_message_ids
+msgid "Website communication history"
+msgstr "Historial de comunicaciones del sitio web"

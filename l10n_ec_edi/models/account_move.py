@@ -280,8 +280,8 @@ class AccountMove(models.Model):
             try:
                 signed_xml_bytes = signer.sign_xml(
                     xml_content.encode("utf-8"),
-                    certificate.content,
-                    certificate.password,
+                    certificate.sudo().content,
+                    certificate.sudo().password,
                 )
             except Exception as e:
                 raise UserError(_("Signing Error: %s") % str(e))

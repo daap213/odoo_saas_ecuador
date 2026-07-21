@@ -25,15 +25,33 @@
                         </group>
                     </group>
                 </sheet>
+                <chatter/>
             </form>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_certificate_list" model="ir.ui.view">
+        <field name="name">l10n_ec.certificate.list</field>
+        <field name="model">l10n_ec.certificate</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="subject_cn"/>
+                <field name="issuer_cn"/>
+                <field name="expiration_date"/>
+                <field name="days_until_expiry"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-danger="state in ('expired', 'invalid')"/>
+            </list>
         </field>
     </record>
 
     <record id="action_l10n_ec_certificate" model="ir.actions.act_window">
         <field name="name">Digital Signatures</field>
         <field name="res_model">l10n_ec.certificate</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_l10n_ec_certificate" parent="account.menu_finance_configuration" action="action_l10n_ec_certificate" sequence="100"/>
+    <menuitem id="menu_l10n_ec_certificate" parent="account.menu_finance_configuration" action="action_l10n_ec_certificate" sequence="100" groups="account.group_account_manager"/>
 </odoo>

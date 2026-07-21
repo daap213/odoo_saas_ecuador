@@ -37,6 +37,7 @@ class L10nEcCertificate(models.Model):
 
     _name = "l10n_ec.certificate"
     _description = "Ecuadorian Digital Signature (SRI)"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _check_company_auto = True
     _order = "state desc, expiration_date"
 
@@ -84,11 +85,22 @@ class L10nEcCertificate(models.Model):
         default="draft",
         string="Status",
         readonly=True,
+        tracking=True,
     )
 
     days_until_expiry = fields.Integer(
         string="Days Until Expiry", compute="_compute_days_until_expiry", store=False
     )
+
+    def _persist_state(self, state):
+        """Persist a failure state even when the caller raises afterwards.
+
+        A ValidationError rolls back the transaction, so writing ``state``
+        directly before raising would be lost. Write it through an
+        independent cursor instead.
+        """
+        with self.pool.cursor() as cr:
+            self.with_env(self.env(cr=cr)).write({"state": state})
 
     @api.depends("expiration_date")
     def _compute_days_until_expiry(self):
@@ -141,7 +153,7 @@ class L10nEcCertificate(models.Model):
                 )
             except ValueError as e:
                 if "password" in str(e).lower() or "mac" in str(e).lower():
-                    record.state = "invalid"
+                    record._persist_state("invalid")
                     raise ValidationError(
                         _(
                             "Invalid password for P12 certificate. "
@@ -182,7 +194,7 @@ class L10nEcCertificate(models.Model):
             # Check expiration
             today = fields.Date.today()
             if record.expiration_date and record.expiration_date < today:
-                record.state = "expired"
+                record._persist_state("expired")
                 raise ValidationError(
                     _("Certificate expired on %s. Please upload a valid certificate.")
                     % record.expiration_date
@@ -199,27 +211,59 @@ class L10nEcCertificate(models.Model):
     def action_check_expiry(self):
         """
         Cron job to check certificate expiration.
-        Marks certificates as expired and sends warnings.
+        Marks expired certificates and schedules a warning activity for the
+        billing administrators when a certificate expires within 30 days.
         """
         today = fields.Date.today()
-
-        # Find certificates expiring soon or already expired
-        expiring_soon = self.search(
+        candidates = self.search(
             [
                 ("state", "=", "active"),
                 ("expiration_date", "!=", False),
             ]
         )
 
-        for cert in expiring_soon:
+        for cert in candidates:
             if cert.expiration_date < today:
                 cert.state = "expired"
+                cert.message_post(
+                    body=_("Certificate expired on %s.") % cert.expiration_date
+                )
                 _logger.warning(
                     "Certificate '%s' for company '%s' has EXPIRED.",
                     cert.name,
                     cert.company_id.name,
                 )
             elif cert.days_until_expiry <= 30:
+                # One pending warning activity per certificate is enough
+                has_pending = self.env["mail.activity"].search_count(
+                    [
+                        ("res_model", "=", self._name),
+                        ("res_id", "=", cert.id),
+                    ],
+                    limit=1,
+                )
+                if not has_pending:
+                    managers = self.env.ref("account.group_account_manager").users
+                    user = next(
+                        (u for u in managers if not u._is_superuser()),
+                        self.env.user,
+                    )
+                    cert.activity_schedule(
+                        "mail.mail_activity_data_todo",
+                        date_deadline=cert.expiration_date,
+                        user_id=user.id,
+                        summary=_("Renew SRI digital certificate"),
+                        note=_(
+                            "The certificate '%(name)s' of company %(company)s "
+                            "expires in %(days)d days. Request a renewal from "
+                            "your certification provider."
+                        )
+                        % {
+                            "name": cert.name,
+                            "company": cert.company_id.name,
+                            "days": cert.days_until_expiry,
+                        },
+                    )
                 _logger.warning(
                     "Certificate '%s' expires in %d days.",
                     cert.name,

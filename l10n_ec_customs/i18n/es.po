@@ -1,0 +1,473 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_customs
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-19 18:12+0000\n"
+"PO-Revision-Date: 2026-07-19 18:12+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields.selection,name:l10n_ec_customs.selection__l10n_ec_import_dau__isd_rate__0
+msgid "0% - Exempt (goods, study abroad, health)"
+msgstr "0% - Exento (bienes, estudios en el exterior, salud)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields.selection,name:l10n_ec_customs.selection__l10n_ec_import_dau__isd_rate__0_025
+msgid "2.5% - Monetary remittances"
+msgstr "2.5% - Remesas de dinero"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields.selection,name:l10n_ec_customs.selection__l10n_ec_import_dau__isd_rate__0_05
+msgid "5% - Standard"
+msgstr "5% - Estándar"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_needaction
+msgid "Action Needed"
+msgstr "Requiere acción"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_ids
+msgid "Activities"
+msgstr "Actividades"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Decoración de actividad de excepción"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_state
+msgid "Activity State"
+msgstr "Estado de la actividad"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Ícono del tipo de actividad"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__ad_valorem_amount
+msgid "Ad Valorem"
+msgstr "Ad Valórem"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__ad_valorem
+msgid "Ad Valorem (%)"
+msgstr "Ad Valórem (%)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_attachment_count
+msgid "Attachment Count"
+msgstr "Número de adjuntos"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__cif_line
+msgid "CIF (Line)"
+msgstr "CIF (Línea)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__cif_value
+msgid "CIF Value"
+msgstr "Valor CIF"
+
+#. module: l10n_ec_customs
+#: model_terms:ir.ui.view,arch_db:l10n_ec_customs.view_l10n_ec_import_dau_form
+msgid "Calculate Taxes"
+msgstr "Calcular impuestos"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields.selection,name:l10n_ec_customs.selection__l10n_ec_import_dau__state__calculated
+msgid "Calculated"
+msgstr "Calculado"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__invoice_id
+msgid "Commercial Invoice"
+msgstr "Factura comercial"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__create_date
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__create_date
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__partner_id
+msgid "Customs Broker/Supplier"
+msgstr "Agente de aduana/Proveedor"
+
+#. module: l10n_ec_customs
+#: model:ir.model,name:l10n_ec_customs.model_l10n_ec_import_dau_line
+msgid "DAU Line"
+msgstr "Línea de DAU"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__name
+msgid "DAU Number"
+msgstr "Número de DAU"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__dau_id
+msgid "Dau"
+msgstr "DAU"
+
+#. module: l10n_ec_customs
+#: model:ir.model,name:l10n_ec_customs.model_l10n_ec_import_dau
+msgid "Declaración Aduanera Única (Import)"
+msgstr "Declaración Aduanera Única (Importación)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__date
+msgid "Declaration Date"
+msgstr "Fecha de declaración"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__description
+msgid "Description"
+msgstr "Descripción"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__display_name
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__display_name
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields.selection,name:l10n_ec_customs.selection__l10n_ec_import_dau__state__done
+msgid "Done"
+msgstr "Hecho"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields.selection,name:l10n_ec_customs.selection__l10n_ec_import_dau__state__draft
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: l10n_ec_customs
+#: model:ir.ui.menu,name:l10n_ec_customs.menu_l10n_ec_customs_root
+msgid "EC Customs"
+msgstr "Aduana EC"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__valor_fob_line
+msgid "FOB (Line)"
+msgstr "FOB (Línea)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__fob_value
+msgid "FOB Value"
+msgstr "Valor FOB"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__fodinfa
+msgid "FODINFA (%)"
+msgstr "FODINFA (%)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_follower_ids
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (Contactos)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Ícono de Font Awesome, por ejemplo fa-tasks"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__freight
+msgid "Freight"
+msgstr "Flete"
+
+#. module: l10n_ec_customs
+#: model_terms:ir.ui.view,arch_db:l10n_ec_customs.view_l10n_ec_import_dau_form
+msgid "General Values"
+msgstr "Valores generales"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__has_message
+msgid "Has Message"
+msgstr "Tiene mensaje"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__id
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__id
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__isd_applicable
+msgid "ISD Aplicable"
+msgstr "ISD aplicable"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__isd_exemption_reason
+msgid "ISD Exemption Reason"
+msgstr "Motivo de exención de ISD"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__isd_rate
+msgid "ISD Rate"
+msgstr "Tasa de ISD"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_exception_icon
+msgid "Icon"
+msgstr "Ícono"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Ícono para indicar una actividad de excepción."
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__isd_exemption_reason
+msgid "If 0%, document the legal exemption reason"
+msgstr "Si es 0%, documente el motivo legal de exención"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si está marcado, los nuevos mensajes requieren su atención."
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__message_has_error
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si está marcado, algunos mensajes tienen un error de entrega."
+
+#. module: l10n_ec_customs
+#: model:ir.actions.act_window,name:l10n_ec_customs.action_l10n_ec_import_dau
+#: model:ir.ui.menu,name:l10n_ec_customs.menu_l10n_ec_import_dau
+#: model_terms:ir.ui.view,arch_db:l10n_ec_customs.view_l10n_ec_import_dau_form
+msgid "Import DAU"
+msgstr "DAU de importación"
+
+#. module: l10n_ec_customs
+#: model_terms:ir.ui.view,arch_db:l10n_ec_customs.view_l10n_ec_import_dau_tree
+msgid "Import Declarations"
+msgstr "Declaraciones de importación"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__insurance
+msgid "Insurance"
+msgstr "Seguro"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_is_follower
+msgid "Is Follower"
+msgstr "Es seguidor"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__isd_applicable
+msgid "LORTI Art. 75: 5% standard, 2.5% monetary remittances, 0% exempt goods"
+msgstr "LORTI Art. 75: 5% estándar, 2.5% remesas de dinero, 0% bienes exentos"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__total_isd
+msgid "LORTI Art. 75: Applied to payment value (CIF + duties + taxes)"
+msgstr "LORTI Art. 75: Aplicado al valor del pago (CIF + aranceles + impuestos)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__write_date
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__write_date
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__line_ids
+#: model_terms:ir.ui.view,arch_db:l10n_ec_customs.view_l10n_ec_import_dau_form
+msgid "Lines"
+msgstr "Líneas"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_has_error
+msgid "Message Delivery error"
+msgstr "Error de entrega de mensaje"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_ids
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Fecha límite de mi actividad"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Fecha límite de la siguiente actividad"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_summary
+msgid "Next Activity Summary"
+msgstr "Resumen de la siguiente actividad"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_type_id
+msgid "Next Activity Type"
+msgstr "Tipo de la siguiente actividad"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Número de acciones"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_has_error_counter
+msgid "Number of errors"
+msgstr "Número de errores"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Número de mensajes que requieren acción"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Número de mensajes con error de entrega"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__product_id
+msgid "Product"
+msgstr "Producto"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__picking_id
+msgid "Related Receipt"
+msgstr "Recepción relacionada"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__activity_user_id
+msgid "Responsible User"
+msgstr "Usuario responsable"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error de entrega de SMS"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__specific_duty
+msgid "Specific Duty ($/Unit)"
+msgstr "Arancel específico ($/Unidad)"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__state
+msgid "State"
+msgstr "Estado"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr "Estado basado en actividades\nAtrasado: la fecha de vencimiento ya pasó\nHoy: la fecha de la actividad es hoy\nPlanificado: actividades futuras."
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_tariff_heading__name
+msgid "Tariff Code"
+msgstr "Código arancelario"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau_line__tariff_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_customs.view_l10n_ec_tariff_heading_form
+msgid "Tariff Heading"
+msgstr "Partida arancelaria"
+
+#. module: l10n_ec_customs
+#: model:ir.actions.act_window,name:l10n_ec_customs.action_l10n_ec_tariff_heading
+#: model_terms:ir.ui.view,arch_db:l10n_ec_customs.view_l10n_ec_tariff_heading_tree
+msgid "Tariff Headings"
+msgstr "Partidas arancelarias"
+
+#. module: l10n_ec_customs
+#: model:ir.model,name:l10n_ec_customs.model_l10n_ec_tariff_heading
+msgid "Tariff Headings (Partida Arancelaria)"
+msgstr "Partidas arancelarias (Partida Arancelaria)"
+
+#. module: l10n_ec_customs
+#: model:ir.ui.menu,name:l10n_ec_customs.menu_l10n_ec_tariff_heading
+msgid "Tariffs"
+msgstr "Aranceles"
+
+#. module: l10n_ec_customs
+#: model_terms:ir.ui.view,arch_db:l10n_ec_customs.view_l10n_ec_import_dau_form
+msgid "Taxes & Duties"
+msgstr "Impuestos y aranceles"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__total_ad_valorem
+msgid "Total Ad Valorem"
+msgstr "Total Ad Valórem"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__total_fodinfa
+msgid "Total FODINFA"
+msgstr "Total FODINFA"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__total_isd
+msgid "Total ISD"
+msgstr "Total ISD"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__total_iva
+msgid "Total IVA Importación"
+msgstr "Total IVA Importación"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Tipo de la actividad de excepción registrada."
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,field_description:l10n_ec_customs.field_l10n_ec_import_dau__website_message_ids
+msgid "Website Messages"
+msgstr "Mensajes del sitio web"
+
+#. module: l10n_ec_customs
+#: model:ir.model.fields,help:l10n_ec_customs.field_l10n_ec_import_dau__website_message_ids
+msgid "Website communication history"
+msgstr "Historial de comunicaciones del sitio web"

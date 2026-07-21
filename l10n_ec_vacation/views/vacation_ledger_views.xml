@@ -4,7 +4,7 @@
         <field name="name">l10n_ec.vacation.ledger.tree</field>
         <field name="model">l10n_ec.vacation.ledger</field>
         <field name="arch" type="xml">
-            <tree string="Vacation Ledger" create="false" edit="false">
+            <list string="Vacation Ledger" create="false" edit="false">
                 <field name="date"/>
                 <field name="employee_id"/>
                 <field name="description"/>
@@ -12,20 +12,20 @@
                 <field name="days_taken" sum="Total Taken"/>
                 <field name="days_paid" sum="Total Paid"/>
                 <field name="balance"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_l10n_ec_vacation_ledger" model="ir.actions.act_window">
         <field name="name">Vacation Ledger (Art. 69)</field>
         <field name="res_model">l10n_ec.vacation.ledger</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="context">{'search_default_group_employee': 1}</field>
     </record>
 
     <menuitem id="menu_l10n_ec_vacation_ledger"
               name="Vacation Ledger"
-              parent="l10n_ec_hr_payroll.menu_l10n_ec_hr_payroll_root"
+              parent="l10n_ec_hr_payroll.menu_l10n_ec_payroll_root"
               action="action_l10n_ec_vacation_ledger"
               sequence="20"/>
 </odoo>

@@ -1,0 +1,287 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_reports
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-19 18:40+0000\n"
+"PO-Revision-Date: 2026-07-19 18:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_103
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "<strong>Period:</strong>"
+msgstr "<strong>Período:</strong>"
+
+#. module: l10n_ec_reports
+#: model:ir.actions.act_window,name:l10n_ec_reports.action_l10n_ec_ats_wizard
+msgid "ATS Generator"
+msgstr "Generador de ATS"
+
+#. module: l10n_ec_reports
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_l10n_ec_ats
+msgid "ATS Report"
+msgstr "Reporte ATS"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__xml_data
+msgid "ATS XML"
+msgstr "XML del ATS"
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_ats_wizard
+msgid "Anexo Transaccional Simplificado (ATS) Wizard"
+msgstr "Asistente de Anexo Transaccional Simplificado (ATS)"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__04
+msgid "April"
+msgstr "Abril"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__08
+msgid "August"
+msgstr "Agosto"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_l10n_ec_ats_wizard_form
+msgid "Close"
+msgstr "Cerrar"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_103
+msgid "Code"
+msgstr "Código"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__12
+msgid "December"
+msgstr "Diciembre"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_103
+msgid "Description (Concept)"
+msgstr "Descripción (Concepto)"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_l10n_ec_ats_wizard_form
+msgid "Download ATS"
+msgstr "Descargar ATS"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__02
+msgid "February"
+msgstr "Febrero"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__xml_filename
+msgid "Filename"
+msgstr "Nombre del archivo"
+
+#. module: l10n_ec_reports
+#: model:ir.actions.report,name:l10n_ec_reports.action_report_form_103
+msgid "Form 103 (Draft)"
+msgstr "Formulario 103 (Borrador)"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_103
+msgid "Form 103: Withholding Tax Declarations (Draft)"
+msgstr "Formulario 103: Declaraciones de Impuesto de retención (Borrador)"
+
+#. module: l10n_ec_reports
+#: model:ir.actions.report,name:l10n_ec_reports.action_report_form_104
+msgid "Form 104 (Draft)"
+msgstr "Formulario 104 (Borrador)"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "Form 104: IVA &amp; ICE Declarations (Draft)"
+msgstr "Formulario 104: Declaraciones de IVA e ICE (Borrador)"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_l10n_ec_ats_wizard_form
+msgid "Generate ATS"
+msgstr "Generar ATS"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_l10n_ec_ats_wizard_form
+msgid "Generate ATS XML"
+msgstr "Generar XML del ATS"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "ICE (Consumos Especiales)"
+msgstr "ICE (Consumos Especiales)"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "ICE Tax Credit (Purchases)"
+msgstr "Crédito tributario de ICE (Compras)"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_ats_xml
+msgid "IVA"
+msgstr "IVA"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__01
+msgid "January"
+msgstr "Enero"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__07
+msgid "July"
+msgstr "Julio"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__06
+msgid "June"
+msgstr "Junio"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "Local Purchases (Inventory/Services)"
+msgstr "Compras locales (Inventario/Servicios)"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "Local Sales (Excludes Fixed Assets)"
+msgstr "Ventas locales (Excluye activos fijos)"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__03
+msgid "March"
+msgstr "Marzo"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__05
+msgid "May"
+msgstr "Mayo"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__date_month
+msgid "Month"
+msgstr "Mes"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_ats_xml
+msgid "NO"
+msgstr "NO"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__11
+msgid "November"
+msgstr "Noviembre"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__10
+msgid "October"
+msgstr "Octubre"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_l10n_ec_ats_wizard_form
+msgid "Print Form 103 (Draft)"
+msgstr "Imprimir Formulario 103 (Borrador)"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_l10n_ec_ats_wizard_form
+msgid "Print Form 104 (Draft)"
+msgstr "Imprimir Formulario 104 (Borrador)"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "Purchases"
+msgstr "Compras"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_ats_xml
+msgid "R"
+msgstr "R"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_103
+msgid "Rate %"
+msgstr "Tasa %"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_103
+msgid "Retained Amount"
+msgstr "Monto retenido"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "Sales"
+msgstr "Ventas"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_ats_wizard__date_month__09
+msgid "September"
+msgstr "Septiembre"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_103
+msgid "Tax Base"
+msgstr "Base imponible"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "Total ICE Payable (Sales)"
+msgstr "Total ICE a pagar (Ventas)"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "Total IVA Generated"
+msgstr "Total IVA generado"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.report_form_104
+msgid "Total IVA Input"
+msgstr "Total IVA en compras"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_ats_wizard__date_year
+msgid "Year"
+msgstr "Año"

@@ -1,0 +1,146 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_sut
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-19 18:40+0000\n"
+"PO-Revision-Date: 2026-07-19 18:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,help:l10n_ec_sut.field_l10n_ec_sut_report_wizard__fiscal_year_profit
+msgid "Auto-calculado desde cuentas de Ingresos - Gastos del período"
+msgstr "Auto-calculado desde cuentas de Ingresos - Gastos del período"
+
+#. module: l10n_ec_sut
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sut.view_l10n_ec_sut_report_wizard_form
+msgid "Cerrar"
+msgstr "Cerrar"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,help:l10n_ec_sut.field_l10n_ec_sut_report_wizard__company_profit
+msgid "Código Trabajo Art. 97: 15% de utilidad neta, auto-calculado"
+msgstr "Código Trabajo Art. 97: 15% de utilidad neta, auto-calculado"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields.selection,name:l10n_ec_sut.selection__l10n_ec_sut_report_wizard__report_type__14th
+msgid "Décimo Cuarto"
+msgstr "Décimo Cuarto"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields.selection,name:l10n_ec_sut.selection__l10n_ec_sut_report_wizard__report_type__13th
+msgid "Décimo Tercero"
+msgstr "Décimo Tercero"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__date_end
+msgid "End Date"
+msgstr "Fecha de fin"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__filename
+msgid "Filename"
+msgstr "Nombre del archivo"
+
+#. module: l10n_ec_sut
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sut.view_l10n_ec_sut_report_wizard_form
+msgid "Generar Reporte"
+msgstr "Generar Reporte"
+
+#. module: l10n_ec_sut
+#: model:ir.ui.menu,name:l10n_ec_sut.menu_l10n_ec_sut_report
+msgid "Generar Reportes SUT"
+msgstr "Generar Reportes SUT"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: l10n_ec_sut
+#: model:ir.model,name:l10n_ec_sut.model_l10n_ec_sut_report_wizard
+msgid "MDT SUT Report Generator"
+msgstr "Generador de reportes SUT del MDT"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__file_data
+msgid "Report File"
+msgstr "Archivo de reporte"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__report_type
+msgid "Report Type"
+msgstr "Tipo de reporte"
+
+#. module: l10n_ec_sut
+#: model:ir.actions.act_window,name:l10n_ec_sut.action_l10n_ec_sut_report
+msgid "Reportes SUT (MDT)"
+msgstr "Reportes SUT (MDT)"
+
+#. module: l10n_ec_sut
+#: model:ir.ui.menu,name:l10n_ec_sut.menu_l10n_ec_sut_root
+msgid "SUT (Ministerio Trabajo)"
+msgstr "SUT (Ministerio Trabajo)"
+
+#. module: l10n_ec_sut
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sut.view_l10n_ec_sut_report_wizard_form
+msgid "SUT Report Generator - MDT"
+msgstr "Generador de reportes SUT - MDT"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__date_start
+msgid "Start Date"
+msgstr "Fecha de inicio"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__fiscal_year_profit
+msgid "Utilidad Neta del Ejercicio"
+msgstr "Utilidad Neta del Ejercicio"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields,field_description:l10n_ec_sut.field_l10n_ec_sut_report_wizard__company_profit
+msgid "Utilidad a Repartir (15%)"
+msgstr "Utilidad a Repartir (15%)"
+
+#. module: l10n_ec_sut
+#: model:ir.model.fields.selection,name:l10n_ec_sut.selection__l10n_ec_sut_report_wizard__report_type__utilidades
+msgid "Utilidades"
+msgstr "Utilidades"
+
+#. module: l10n_ec_sut
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sut.view_l10n_ec_sut_report_wizard_form
+msgid "Utilidades (Art. 97-104)"
+msgstr "Utilidades (Art. 97-104)"

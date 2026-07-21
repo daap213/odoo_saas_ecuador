@@ -1,0 +1,180 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_ice
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-19 18:40+0000\n"
+"PO-Revision-Date: 2026-07-19 18:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields.selection,name:l10n_ec_ice.selection__l10n_ec_ice_category__type__ad_valorem
+msgid "Ad Valorem (Percentage of Price)"
+msgstr "Ad Valórem (Porcentaje del precio)"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__ad_valorem_rate
+msgid "Ad Valorem Rate (%)"
+msgstr "Tasa Ad Valórem (%)"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,help:l10n_ec_ice.field_l10n_ec_ice_category__code
+msgid "Codigo SRI (Tabla 6)"
+msgstr "Código SRI (Tabla 6)"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__name
+msgid "Description"
+msgstr "Descripción"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,help:l10n_ec_ice.field_l10n_ec_ice_category__specific_rate
+msgid "Dollar amount per unit/liter/gram"
+msgstr "Monto en dólares por unidad/litro/gramo"
+
+#. module: l10n_ec_ice
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ice.view_product_template_form_ice
+msgid "Ecuador ICE"
+msgstr "ICE Ecuador"
+
+#. module: l10n_ec_ice
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ice.view_l10n_ec_ice_category_tree
+msgid "ICE Categories"
+msgstr "Categorías ICE"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_product_product__l10n_ec_ice_category_id
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_product_template__l10n_ec_ice_category_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ice.view_l10n_ec_ice_category_form
+msgid "ICE Category"
+msgstr "Categoría ICE"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_account_tax__l10n_ec_ice_category_id
+msgid "ICE Category (SRI)"
+msgstr "Categoría ICE (SRI)"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_product_product__l10n_ec_ice_unit_content
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_product_template__l10n_ec_ice_unit_content
+msgid "ICE Content Unit"
+msgstr "Unidad de contenido ICE"
+
+#. module: l10n_ec_ice
+#: model:ir.model,name:l10n_ec_ice.model_l10n_ec_ice_category
+msgid "ICE Tax Category (SRI)"
+msgstr "Categoría de impuesto ICE (SRI)"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__type
+msgid "ICE Type"
+msgstr "Tipo de ICE"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_product_product__l10n_ec_pvp
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_product_template__l10n_ec_pvp
+msgid "PVP (ICE Base)"
+msgstr "PVP (Base ICE)"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,help:l10n_ec_ice.field_product_product__l10n_ec_pvp
+#: model:ir.model.fields,help:l10n_ec_ice.field_product_template__l10n_ec_pvp
+msgid ""
+"Precio de Venta al Publico suggested. Used as base for some Ad Valorem "
+"calculations."
+msgstr "Precio de Venta al Público sugerido. Se usa como base para algunos cálculos Ad Valórem."
+
+#. module: l10n_ec_ice
+#: model:ir.model,name:l10n_ec_ice.model_product_template
+msgid "Product"
+msgstr "Producto"
+
+#. module: l10n_ec_ice
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ice.view_l10n_ec_ice_category_form
+msgid "Rates"
+msgstr "Tasas"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,help:l10n_ec_ice.field_product_product__l10n_ec_ice_category_id
+#: model:ir.model.fields,help:l10n_ec_ice.field_product_template__l10n_ec_ice_category_id
+msgid "SRI Category for ICE tax calculation"
+msgstr "Categoría SRI para el cálculo del impuesto ICE"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__code
+msgid "SRI Code"
+msgstr "Código SRI"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,field_description:l10n_ec_ice.field_l10n_ec_ice_category__specific_rate
+msgid "Specific Rate ($)"
+msgstr "Tasa específica ($)"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields.selection,name:l10n_ec_ice.selection__l10n_ec_ice_category__type__specific
+msgid "Specific Rate (Amount per Unit)"
+msgstr "Tasa específica (Monto por unidad)"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields.selection,name:l10n_ec_ice.selection__l10n_ec_ice_category__type__specific_content
+msgid "Specific Rate with Content (Alcohol, Sugar)"
+msgstr "Tasa específica con contenido (Alcohol, Azúcar)"
+
+#. module: l10n_ec_ice
+#: model:ir.model,name:l10n_ec_ice.model_account_tax
+msgid "Tax"
+msgstr "Impuesto"
+
+#. module: l10n_ec_ice
+#: model:ir.model.constraint,message:l10n_ec_ice.constraint_l10n_ec_ice_category_code_uniq
+msgid "The SRI Code must be unique!"
+msgstr "¡El código SRI debe ser único!"
+
+#. module: l10n_ec_ice
+#: model:ir.model.fields,help:l10n_ec_ice.field_product_product__l10n_ec_ice_unit_content
+#: model:ir.model.fields,help:l10n_ec_ice.field_product_template__l10n_ec_ice_unit_content
+msgid "Used for Alcohol (degrees) or Sugar (grams/100g) or Capacity (Liters)"
+msgstr "Se usa para Alcohol (grados) o Azúcar (gramos/100g) o Capacidad (Litros)"

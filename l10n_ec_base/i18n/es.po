@@ -1,0 +1,2542 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-19 18:40+0000\n"
+"PO-Revision-Date: 2026-07-19 18:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_16
+msgid "24 de Mayo"
+msgstr "24 de Mayo"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_account_chart_template
+msgid "Account Chart Template"
+msgstr "Plantilla de plan de cuentas"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__active
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_04
+msgid "Activo Fijo - Costo o Gasto para declaración de IR"
+msgstr "Activo Fijo - Costo o Gasto para declaración de IR"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_03
+msgid "Activo Fijo - Crédito Tributario para declaración de IVA"
+msgstr "Activo Fijo - Crédito Tributario para declaración de IVA"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__retention_agent
+msgid "Agente de Retención"
+msgstr "Agente de Retención"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_province__decimo_cuarto_month__8
+msgid "Agosto"
+msgstr "Agosto"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_orellana_02
+msgid "Aguarico"
+msgstr "Aguarico"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_02
+msgid "Alausí"
+msgstr "Alausí"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_02
+msgid "Alfredo Baquerizo Moreno"
+msgstr "Alfredo Baquerizo Moreno"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_01
+msgid "Ambato"
+msgstr "Ambato"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_retention_code__applies_to__both
+msgid "Ambos"
+msgstr "Ambos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_imbabura_02
+msgid "Antonio Ante"
+msgstr "Antonio Ante"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__applies_to
+msgid "Aplica a"
+msgstr "Aplica a"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iess_patronal
+msgid "Aporte Patronal IESS (%)"
+msgstr "Aporte Patronal IESS (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iess_personal
+msgid "Aporte Personal IESS (%)"
+msgstr "Aporte Personal IESS (%)"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pastaza_04
+msgid "Arajuno"
+msgstr "Arajuno"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_napo_02
+msgid "Archidona"
+msgstr "Archidona"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_02
+msgid "Arenillas"
+msgstr "Arenillas"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_artesano_calificado
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_artesano_calificado
+msgid "Artesano Calificado"
+msgstr "Artesano Calificado"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_esmeraldas_06
+msgid "Atacames"
+msgstr "Atacames"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_03
+msgid "Atahualpa"
+msgstr "Atahualpa"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_canar_01
+msgid "Azogues"
+msgstr "Azogues"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_01
+msgid "Azuay"
+msgstr "Azuay"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__year
+msgid "Año Fiscal"
+msgstr "Año Fiscal"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_02
+msgid "Baba"
+msgstr "Baba"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_01
+msgid "Babahoyo"
+msgstr "Babahoyo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_03
+msgid "Balao"
+msgstr "Balao"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_04
+msgid "Balsas"
+msgstr "Balsas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_04
+msgid "Balzar"
+msgstr "Balzar"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_02
+msgid "Baños de Agua Santa"
+msgstr "Baños de Agua Santa"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_canar_02
+msgid "Biblián"
+msgstr "Biblián"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_retention_code__applies_to__goods
+msgid "Bienes"
+msgstr "Bienes"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_carchi_02
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_02
+#: model:l10n_ec.province,name:l10n_ec_base.province_02
+msgid "Bolívar"
+msgstr "Bolívar"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_10
+msgid "Buena Fe"
+msgstr "Buena Fe"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_bolivar_06
+msgid "Caluma"
+msgstr "Caluma"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_02
+msgid "Calvas"
+msgstr "Calvas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_15
+msgid "Camilo Ponce Enríquez"
+msgstr "Camilo Ponce Enríquez"
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_payroll_user
+msgid "Can create and compute payslips, export IESS files."
+msgstr "Puede crear y calcular roles de pago, y exportar archivos del IESS."
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_invoice_clerk
+msgid ""
+"Can create and post invoices, but cannot cancel or modify tax configuration."
+msgstr "Puede crear y validar facturas, pero no puede cancelar ni modificar la configuración de impuestos."
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_ar_clerk
+msgid "Can create customer invoices only."
+msgstr "Solo puede crear facturas de cliente."
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_warehouse_user
+msgid "Can create transfers and Guías de Remisión."
+msgstr "Puede crear transferencias y Guías de Remisión."
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_ap_clerk
+msgid "Can create vendor bills and retentions."
+msgstr "Puede crear facturas de proveedor y retenciones."
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__canasta_basica
+msgid "Canasta Básica Familiar ($)"
+msgstr "Canasta Básica Familiar ($)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__canasta_vital
+msgid "Canasta Vital ($)"
+msgstr "Canasta Vital ($)"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_canton
+msgid "Cantón Ecuador"
+msgstr "Cantón Ecuador"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__capital
+msgid "Capital"
+msgstr "Capital"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_04
+msgid "Carchi"
+msgstr "Carchi"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_napo_05
+msgid "Carlos Julio Arosemena Tola"
+msgstr "Carlos Julio Arosemena Tola"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_sucumbios_06
+msgid "Cascales"
+msgstr "Cascales"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_00
+msgid "Casos Especiales cuyo sustento no aplica a las opciones anteriores"
+msgstr "Casos Especiales cuyo sustento no aplica a las opciones anteriores"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_03
+msgid "Catamayo"
+msgstr "Catamayo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pichincha_02
+msgid "Cayambe"
+msgstr "Cayambe"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_canar_03
+#: model:l10n_ec.province,name:l10n_ec_base.province_03
+msgid "Cañar"
+msgstr "Cañar"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_04
+msgid "Celica"
+msgstr "Celica"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_07
+msgid "Centinela del Cóndor"
+msgstr "Centinela del Cóndor"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_uaf_certificate
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_uaf_certificate
+msgid "Certificado UAF"
+msgstr "Certificado UAF"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_uaf_certificate
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_uaf_certificate
+msgid ""
+"Certificado de la Unidad de Análisis Financiero (UAF). Requerido por DE "
+"045-2025 para contratistas del Estado."
+msgstr "Certificado de la Unidad de Análisis Financiero (UAF). Requerido por DE 045-2025 para contratistas del Estado."
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_03
+msgid "Cevallos"
+msgstr "Cevallos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_05
+msgid "Chaguarpamba"
+msgstr "Chaguarpamba"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_04
+msgid "Chambo"
+msgstr "Chambo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_05
+msgid "Chilla"
+msgstr "Chilla"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_bolivar_02
+msgid "Chillanes"
+msgstr "Chillanes"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_bolivar_03
+msgid "Chimbo"
+msgstr "Chimbo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_06
+msgid "Chimborazo"
+msgstr "Chimborazo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_02
+msgid "Chinchipe"
+msgstr "Chinchipe"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_03
+msgid "Chone"
+msgstr "Chone"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_11
+msgid "Chordeleg"
+msgstr "Chordeleg"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_05
+msgid "Chunchi"
+msgstr "Chunchi"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_05
+msgid "Colimes"
+msgstr "Colimes"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_03
+msgid "Colta"
+msgstr "Colta"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__cia_ltda
+msgid "Compañía Limitada (Cía. Ltda.)"
+msgstr "Compañía Limitada (Cía. Ltda.)"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.payment.method,name:l10n_ec_base.payment_15
+msgid "Compensación de deudas"
+msgstr "Compensación de deudas"
+
+#. module: l10n_ec_base
+#: model:l10n_latam.document.type,name:l10n_ec_base.ec_dt_41
+msgid "Comprobante de Reembolso"
+msgstr "Comprobante de Reembolso"
+
+#. module: l10n_ec_base
+#: model:l10n_latam.document.type,name:l10n_ec_base.ec_dt_07
+msgid "Comprobante de Retención"
+msgstr "Comprobante de Retención"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__name
+msgid "Concepto"
+msgstr "Concepto"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ajustes de configuración"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_config
+msgid "Configuración Parámetros Ecuador"
+msgstr "Configuración Parámetros Ecuador"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.identification.type,name:l10n_ec_base.ident_07
+msgid "Consumidor Final"
+msgstr "Consumidor Final"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_government_contractor
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_government_contractor
+msgid "Contratista del Estado"
+msgstr "Contratista del Estado"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_purchase_order__l10n_ec_is_government_contract
+msgid "Contrato Gubernamental"
+msgstr "Contrato Gubernamental"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__special_contributor
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_taxpayer_type__special
+#: model:l10n_ec.contributor.type,name:l10n_ec_base.contrib_especial
+msgid "Contribuyente Especial"
+msgstr "Contribuyente Especial"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__cooperativa
+msgid "Cooperativa"
+msgstr "Cooperativa"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_21
+msgid "Coronel Marcelino Maridueña"
+msgstr "Coronel Marcelino Maridueña"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_province__region__costa
+msgid "Costa"
+msgstr "Costa"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__canasta_basica
+msgid "Costo canasta básica según INEC"
+msgstr "Costo canasta básica según INEC"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_02
+msgid "Costo o Gasto para declaración de IR"
+msgstr "Costo o Gasto para declaración de IR"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_imbabura_03
+msgid "Cotacachi"
+msgstr "Cotacachi"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_05
+msgid "Cotopaxi"
+msgstr "Cotopaxi"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__create_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_01
+msgid "Crédito Tributario para declaración de IVA"
+msgstr "Crédito Tributario para declaración de IVA"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_01
+msgid "Cuenca"
+msgstr "Cuenca"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_10
+msgid "Cumandá"
+msgstr "Cumandá"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_sucumbios_07
+msgid "Cuyabeno"
+msgstr "Cuyabeno"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_identifier_type__cedula
+msgid "Cédula"
+msgstr "Cédula"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.identification.type,name:l10n_ec_base.ident_05
+msgid "Cédula de Identidad"
+msgstr "Cédula de Identidad"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__code
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__code
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__code
+msgid "Código"
+msgstr "Código"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__code
+msgid "Código CIIU"
+msgstr "Código CIIU"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_ciiu
+msgid "Código CIIU Ecuador"
+msgstr "Código CIIU Ecuador"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_tax_code
+msgid "Código Impuesto Ecuador"
+msgstr "Código Impuesto Ecuador"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__parent_id
+msgid "Código Padre"
+msgstr "Código Padre"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__code
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__code
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__code
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__code
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__code
+msgid "Código SRI"
+msgstr "Código SRI"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_retention_code
+msgid "Código de Retención Ecuador"
+msgstr "Código de Retención Ecuador"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_ciiu__code
+msgid "Código de actividad económica CIIU Rev. 4"
+msgstr "Código de actividad económica CIIU Rev. 4"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_payment_method__code
+msgid "Código según Ficha Técnica SRI"
+msgstr "Código según Ficha Técnica SRI"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_tax_code__code
+msgid "Código según ficha técnica SRI"
+msgstr "Código según ficha técnica SRI"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_config_settings__l10n_ec_penalty_cap_percent
+msgid "DE 045-2025: Porcentaje máximo de penalidad sobre el total"
+msgstr "DE 045-2025: Porcentaje máximo de penalidad sobre el total"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_config_settings__l10n_ec_penalty_rate_daily
+msgid "DE 045-2025: Tasa de penalidad por día de retraso"
+msgstr "DE 045-2025: Tasa de penalidad por día de retraso"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_06
+msgid "Daule"
+msgstr "Daule"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__name
+msgid "Descripción"
+msgstr "Descripción"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.payment.method,name:l10n_ec_base.payment_17
+msgid "Dinero electrónico"
+msgstr "Dinero electrónico"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__display_name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_10
+msgid "Distribución de Dividendos, Beneficios o Utilidades"
+msgstr "Distribución de Dividendos, Beneficios o Utilidades"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_07
+msgid "Durán"
+msgstr "Durán"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_canar_06
+msgid "Déleg"
+msgstr "Déleg"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__dias_adicionales_5_anos
+msgid "Días Adicionales por 5+ Años"
+msgstr "Días Adicionales por 5+ Años"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__dias_vacaciones
+msgid "Días Vacaciones Anuales"
+msgstr "Días Vacaciones Anuales"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__dias_adicionales_5_anos
+msgid "Días adicionales de vacaciones por cada año después de 5"
+msgstr "Días adicionales de vacaciones por cada año después de 5"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_purchase_order__l10n_ec_delay_days
+msgid "Días de Retraso"
+msgstr "Días de Retraso"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_purchase_order__l10n_ec_delay_days
+msgid "Días de retraso en la entrega"
+msgstr "Días de retraso en la entrega"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_bolivar_04
+msgid "Echeandía"
+msgstr "Echeandía"
+
+#. module: l10n_ec_base
+#: model:ir.ui.menu,name:l10n_ec_base.menu_l10n_ec_root
+msgid "Ecuador"
+msgstr "Ecuador"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_tax_calendar
+msgid "Ecuador Tax Calendar Calculator"
+msgstr "Calculadora del calendario tributario de Ecuador"
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_ap_clerk
+msgid "Ecuador: AP Clerk"
+msgstr "Ecuador: Auxiliar de cuentas por pagar"
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_ar_clerk
+msgid "Ecuador: AR Clerk"
+msgstr "Ecuador: Auxiliar de cuentas por cobrar"
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_accountant
+msgid "Ecuador: Accountant"
+msgstr "Ecuador: Contador"
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_hr_manager
+msgid "Ecuador: HR Manager"
+msgstr "Ecuador: Gerente de RR. HH."
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_it_admin
+msgid "Ecuador: IT Administrator"
+msgstr "Ecuador: Administrador de TI"
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_invoice_clerk
+msgid "Ecuador: Invoice Clerk"
+msgstr "Ecuador: Auxiliar de facturación"
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_payroll_user
+msgid "Ecuador: Payroll Specialist"
+msgstr "Ecuador: Especialista en nómina"
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_warehouse_manager
+msgid "Ecuador: Warehouse Manager"
+msgstr "Ecuador: Gerente de almacén"
+
+#. module: l10n_ec_base
+#: model:res.groups,name:l10n_ec_base.group_l10n_ec_warehouse_user
+msgid "Ecuador: Warehouse User"
+msgstr "Ecuador: Usuario de almacén"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_edad
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_edad
+msgid "Edad"
+msgstr "Edad"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_edad
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_edad
+msgid "Edad calculada automáticamente desde fecha de nacimiento"
+msgstr "Edad calculada automáticamente desde fecha de nacimiento"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_04
+msgid "El Carmen"
+msgstr "El Carmen"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_napo_03
+msgid "El Chaco"
+msgstr "El Chaco"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_08
+msgid "El Empalme"
+msgstr "El Empalme"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_06
+msgid "El Guabo"
+msgstr "El Guabo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_07
+msgid "El Oro"
+msgstr "El Oro"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_12
+msgid "El Pan"
+msgstr "El Pan"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_06
+msgid "El Pangui"
+msgstr "El Pangui"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_canar_05
+msgid "El Tambo"
+msgstr "El Tambo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_09
+msgid "El Triunfo"
+msgstr "El Triunfo"
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_ciiu_code_unique
+msgid "El código CIIU debe ser único."
+msgstr "El código CIIU debe ser único."
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_canton_code_unique
+msgid "El código de cantón debe ser único."
+msgstr "El código de cantón debe ser único."
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_payment_method_code_unique
+msgid "El código de forma de pago debe ser único."
+msgstr "El código de forma de pago debe ser único."
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_identification_type_code_unique
+msgid "El código de identificación debe ser único."
+msgstr "El código de identificación debe ser único."
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_tax_code_code_unique
+msgid "El código de impuesto debe ser único."
+msgstr "El código de impuesto debe ser único."
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_province_code_unique
+msgid "El código de provincia debe ser único."
+msgstr "El código de provincia debe ser único."
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_retention_code_code_type_unique
+msgid "El código de retención debe ser único por tipo."
+msgstr "El código de retención debe ser único por tipo."
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_tax_support_code_unique
+msgid "El código de sustento debe ser único."
+msgstr "El código de sustento debe ser único."
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_contributor_type_code_unique
+msgid "El código de tipo contribuyente debe ser único."
+msgstr "El código de tipo contribuyente debe ser único."
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_esmeraldas_02
+msgid "Eloy Alfaro"
+msgstr "Eloy Alfaro"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__company_id
+msgid "Empresa"
+msgstr "Empresa"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__ep
+msgid "Empresa Pública (E.P.)"
+msgstr "Empresa Pública (E.P.)"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.payment.method,name:l10n_ec_base.payment_21
+msgid "Endoso de títulos"
+msgstr "Endoso de títulos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_esmeraldas_01
+#: model:l10n_ec.province,name:l10n_ec_base.province_08
+msgid "Esmeraldas"
+msgstr "Esmeraldas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_carchi_03
+msgid "Espejo"
+msgstr "Espejo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_06
+msgid "Espíndola"
+msgstr "Espíndola"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__state_id
+msgid "Estado Odoo"
+msgstr "Estado Odoo"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__isd_exencion
+msgid "Exención ISD ($)"
+msgstr "Exención ISD ($)"
+
+#. module: l10n_ec_base
+#: model:account.tax.group,name:l10n_ec_base.tax_group_iva_exempt
+msgid "Exento de IVA"
+msgstr "Exento de IVA"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_taxpayer_type__exporter
+msgid "Exportador Habitual"
+msgstr "Exportador Habitual"
+
+#. module: l10n_ec_base
+#: model:l10n_latam.document.type,name:l10n_ec_base.ec_dt_01
+msgid "Factura"
+msgstr "Factura"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_uaf_certificate_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_uaf_certificate_date
+msgid "Fecha Emisión UAF"
+msgstr "Fecha Emisión UAF"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_uaf_certificate_expiry
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_uaf_certificate_expiry
+msgid "Fecha Vencimiento UAF"
+msgstr "Fecha Vencimiento UAF"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_fecha_constitucion
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_fecha_constitucion
+msgid "Fecha de Constitución"
+msgstr "Fecha de Constitución"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_fecha_nacimiento
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_fecha_nacimiento
+msgid "Fecha de Nacimiento"
+msgstr "Fecha de Nacimiento"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_fecha_constitucion
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_fecha_constitucion
+msgid "Fecha de constitución de la empresa"
+msgstr "Fecha de constitución de la empresa"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_uaf_certificate_date
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_uaf_certificate_date
+msgid "Fecha de emisión del certificado UAF"
+msgstr "Fecha de emisión del certificado UAF"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_fecha_nacimiento
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_fecha_nacimiento
+msgid "Fecha de nacimiento para calcular edad automáticamente"
+msgstr "Fecha de nacimiento para calcular edad automáticamente"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_uaf_certificate_expiry
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_uaf_certificate_expiry
+msgid "Fecha de vencimiento del certificado UAF"
+msgstr "Fecha de vencimiento del certificado UAF"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_05
+msgid "Flavio Alfaro"
+msgstr "Flavio Alfaro"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__fondos_reserva
+msgid "Fondos de Reserva (%)"
+msgstr "Fondos de Reserva (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_payment_method
+msgid "Forma de Pago SRI"
+msgstr "Forma de Pago SRI"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_orellana_01
+msgid "Francisco de Orellana"
+msgstr "Francisco de Orellana"
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_hr_manager
+msgid "Full HR access including salary modification and contract termination."
+msgstr "Acceso completo de RR. HH., incluyendo modificación de salario y terminación de contrato."
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_accountant
+msgid "Full accounting access including cancellation and SRI retry."
+msgstr "Acceso contable completo, incluyendo cancelación y reintento al SRI."
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_warehouse_manager
+msgid "Full stock access including cancellation."
+msgstr "Acceso completo de inventario, incluyendo cancelación."
+
+#. module: l10n_ec_base
+#: model:res.groups,comment:l10n_ec_base.group_l10n_ec_it_admin
+msgid "Full system configuration including P12 certificate management."
+msgstr "Configuración completa del sistema, incluyendo gestión de certificado P12."
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__fundacion
+msgid "Fundación sin Fines de Lucro"
+msgstr "Fundación sin Fines de Lucro"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_20
+msgid "Galápagos"
+msgstr "Galápagos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_24
+msgid "General Antonio Elizalde"
+msgstr "General Antonio Elizalde"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_02
+msgid "Girón"
+msgstr "Girón"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_sucumbios_02
+msgid "Gonzalo Pizarro"
+msgstr "Gonzalo Pizarro"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_07
+msgid "Gonzanamá"
+msgstr "Gonzanamá"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_14
+msgid "Guachapala"
+msgstr "Guachapala"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_03
+msgid "Gualaceo"
+msgstr "Gualaceo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_02
+msgid "Gualaquiza"
+msgstr "Gualaquiza"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_06
+msgid "Guamote"
+msgstr "Guamote"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_07
+msgid "Guano"
+msgstr "Guano"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_bolivar_01
+msgid "Guaranda"
+msgstr "Guaranda"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_01
+msgid "Guayaquil"
+msgstr "Guayaquil"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_09
+msgid "Guayas"
+msgstr "Guayas"
+
+#. module: l10n_ec_base
+#: model:l10n_latam.document.type,name:l10n_ec_base.ec_dt_06
+msgid "Guía de Remisión"
+msgstr "Guía de Remisión"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_07
+msgid "Huamboya"
+msgstr "Huamboya"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_07
+msgid "Huaquillas"
+msgstr "Huaquillas"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_tax_code__tax_type__ice
+msgid "ICE"
+msgstr "ICE"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__id
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iess_iece
+msgid "IECE (%)"
+msgstr "IECE (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_tax_code__tax_type__isd
+msgid "ISD"
+msgstr "ISD"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__isd
+msgid "ISD (%)"
+msgstr "ISD (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_tax_code__tax_type__iva
+msgid "IVA"
+msgstr "IVA"
+
+#. module: l10n_ec_base
+#: model:account.tax.group,name:l10n_ec_base.tax_group_iva_0
+msgid "IVA 0%"
+msgstr "IVA 0%"
+
+#. module: l10n_ec_base
+#: model:account.tax.group,name:l10n_ec_base.tax_group_iva
+msgid "IVA 15%"
+msgstr "IVA 15%"
+
+#. module: l10n_ec_base
+#: model:account.tax.group,name:l10n_ec_base.tax_group_iva_5
+msgid "IVA 5% (Construcción)"
+msgstr "IVA 5% (Construcción)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iva_construccion
+msgid "IVA Construcción (%)"
+msgstr "IVA Construcción (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iva_general
+msgid "IVA General (%)"
+msgstr "IVA General (%)"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_imbabura_01
+msgid "Ibarra"
+msgstr "Ibarra"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.identification.type,name:l10n_ec_base.ident_08
+msgid "Identificación del Exterior"
+msgstr "Identificación del Exterior"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_identifier_type
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_identifier_type
+msgid "Identifier Type"
+msgstr "Tipo de identificador"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_10
+msgid "Imbabura"
+msgstr "Imbabura"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__tax_id
+msgid "Impuesto Odoo"
+msgstr "Impuesto Odoo"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__isd
+msgid "Impuesto Salida de Divisas"
+msgstr "Impuesto Salida de Divisas"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_tax_code__tax_id
+msgid "Impuesto de Odoo asociado"
+msgstr "Impuesto de Odoo asociado"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_uaf_valid
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_uaf_valid
+msgid "Indica si el certificado UAF está vigente"
+msgstr "Indica si el certificado UAF está vigente"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_purchase_order__l10n_ec_penalty_capped
+msgid "Indica si la penalidad alcanzó el límite máximo"
+msgstr "Indica si la penalidad alcanzó el límite máximo"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__iess_iece
+msgid "Instituto Ecuatoriano de Crédito Educativo"
+msgstr "Instituto Ecuatoriano de Crédito Educativo"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_province__region__insular
+msgid "Insular"
+msgstr "Insular"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_07
+msgid "Inventario - Costo o Gasto para declaración de IR"
+msgstr "Inventario - Costo o Gasto para declaración de IR"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_06
+msgid "Inventario - Crédito Tributario para declaración de IVA"
+msgstr "Inventario - Crédito Tributario para declaración de IVA"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_galapagos_02
+msgid "Isabela"
+msgstr "Isabela"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_25
+msgid "Isidro Ayora"
+msgstr "Isidro Ayora"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_20
+msgid "Jama"
+msgstr "Jama"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_21
+msgid "Jaramijó"
+msgstr "Jaramijó"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_06
+msgid "Jipijapa"
+msgstr "Jipijapa"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_07
+msgid "Junín"
+msgstr "Junín"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_artesano_calificado
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_artesano_calificado
+msgid "LORTI Art. 56: IVA 0% en servicios de artesanos calificados por JNDA"
+msgstr "LORTI Art. 56: IVA 0% en servicios de artesanos calificados por JNDA"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_tercera_edad
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_tercera_edad
+msgid "LORTI Art. 74: Se activa automáticamente si edad ≥ 65 años"
+msgstr "LORTI Art. 74: Se activa automáticamente si edad ≥ 65 años"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_nueva_empresa
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_nueva_empresa
+msgid "LORTI Art. 9.1 bis: Exoneración de IR por 3 años para nuevas empresas"
+msgstr "LORTI Art. 9.1 bis: Exoneración de IR por 3 años para nuevas empresas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_esmeraldas_08
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_santodomingo_02
+msgid "La Concordia"
+msgstr "La Concordia"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_orellana_03
+msgid "La Joya de los Sachas"
+msgstr "La Joya de los Sachas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_santaelena_02
+msgid "La Libertad"
+msgstr "La Libertad"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_cotopaxi_02
+msgid "La Maná"
+msgstr "La Maná"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_canar_04
+msgid "La Troncal"
+msgstr "La Troncal"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_sucumbios_01
+msgid "Lago Agrio"
+msgstr "Lago Agrio"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_14
+msgid "Las Lajas"
+msgstr "Las Lajas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_bolivar_07
+msgid "Las Naves"
+msgstr "Las Naves"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_payment_method__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__write_date
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_support__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_cotopaxi_01
+msgid "Latacunga"
+msgstr "Latacunga"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_ciiu__section
+msgid "Letra de sección CIIU"
+msgstr "Letra de sección CIIU"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_03
+msgid "Limón Indanza"
+msgstr "Limón Indanza"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_05
+msgid "Liquidación Gastos de Viaje, Hospedaje y Alimentación"
+msgstr "Liquidación Gastos de Viaje, Hospedaje y Alimentación"
+
+#. module: l10n_ec_base
+#: model:l10n_latam.document.type,name:l10n_ec_base.ec_dt_03
+msgid "Liquidación de Compra"
+msgstr "Liquidación de Compra"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_10
+msgid "Logroño"
+msgstr "Logroño"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_01
+#: model:l10n_ec.province,name:l10n_ec_base.province_11
+msgid "Loja"
+msgstr "Loja"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_22
+msgid "Lomas de Sargentillo"
+msgstr "Lomas de Sargentillo"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__length
+msgid "Longitud"
+msgstr "Longitud"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_identification_type__length
+msgid "Longitud del número de identificación"
+msgstr "Longitud del número de identificación"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_orellana_04
+msgid "Loreto"
+msgstr "Loreto"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_12
+msgid "Los Ríos"
+msgstr "Los Ríos"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__limite_consumidor_final
+msgid "Límite Consumidor Final ($)"
+msgstr "Límite Consumidor Final ($)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_config_settings__l10n_ec_penalty_cap_percent
+msgid "Límite Máximo Penalidad (%)"
+msgstr "Límite Máximo Penalidad (%)"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_08
+msgid "Macará"
+msgstr "Macará"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_01
+msgid "Machala"
+msgstr "Machala"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_13
+msgid "Manabí"
+msgstr "Manabí"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_08
+msgid "Manta"
+msgstr "Manta"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_province__state_id
+msgid "Mapeo a res.country.state"
+msgstr "Mapeo a res.country.state"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_08
+msgid "Marcabelí"
+msgstr "Marcabelí"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_government_contractor
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_government_contractor
+msgid "Marcar si es proveedor de entidades gubernamentales"
+msgstr "Marcar si es proveedor de entidades gubernamentales"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_province__decimo_cuarto_month__3
+msgid "Marzo"
+msgstr "Marzo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pichincha_03
+msgid "Mejía"
+msgstr "Mejía"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pastaza_02
+msgid "Mera"
+msgstr "Mera"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__decimo_cuarto_month
+msgid "Mes Décimo Cuarto"
+msgstr "Mes Décimo Cuarto"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_10
+msgid "Milagro"
+msgstr "Milagro"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_carchi_04
+msgid "Mira"
+msgstr "Mira"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_12
+msgid "Mocache"
+msgstr "Mocache"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_04
+msgid "Mocha"
+msgstr "Mocha"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_03
+msgid "Montalvo"
+msgstr "Montalvo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_09
+msgid "Montecristi"
+msgstr "Montecristi"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_purchase_order__l10n_ec_penalty_amount
+msgid "Monto Penalidad"
+msgstr "Monto Penalidad"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__limite_consumidor_final
+msgid "Monto máximo factura sin datos cliente"
+msgstr "Monto máximo factura sin datos cliente"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_carchi_05
+msgid "Montúfar"
+msgstr "Montúfar"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_01
+msgid "Morona"
+msgstr "Morona"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_14
+msgid "Morona Santiago"
+msgstr "Morona Santiago"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_esmeraldas_03
+msgid "Muisne"
+msgstr "Muisne"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iess_techo_sbu_multiplicador
+msgid "Multiplicador Techo IESS (en SBU)"
+msgstr "Multiplicador Techo IESS (en SBU)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__iess_techo_sbu_multiplicador
+msgid "Máximo de SBUs para cálculo IESS"
+msgstr "Máximo de SBUs para cálculo IESS"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_04
+msgid "Nabón"
+msgstr "Nabón"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_03
+msgid "Nangaritza"
+msgstr "Nangaritza"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_15
+msgid "Napo"
+msgstr "Napo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_11
+msgid "Naranjal"
+msgstr "Naranjal"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_12
+msgid "Naranjito"
+msgstr "Naranjito"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__level
+msgid "Nivel"
+msgstr "Nivel"
+
+#. module: l10n_ec_base
+#: model:account.tax.group,name:l10n_ec_base.tax_group_no_iva
+msgid "No Objeto de IVA"
+msgstr "No Objeto de IVA"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_23
+msgid "Nobol"
+msgstr "Nobol"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__name
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__name
+msgid "Nombre"
+msgstr "Nombre"
+
+#. module: l10n_ec_base
+#: model:l10n_latam.document.type,name:l10n_ec_base.ec_dt_04
+msgid "Nota de Crédito"
+msgstr "Nota de Crédito"
+
+#. module: l10n_ec_base
+#: model:l10n_latam.document.type,name:l10n_ec_base.ec_dt_05
+msgid "Nota de Débito"
+msgstr "Nota de Débito"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__notes
+msgid "Notas"
+msgstr "Notas"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_nueva_empresa
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_nueva_empresa
+msgid "Nueva Empresa"
+msgstr "Nueva Empresa"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_discapacidad_carnet
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_discapacidad_carnet
+msgid "Nº Carnet CONADIS"
+msgstr "Nº Carnet CONADIS"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_discapacidad_carnet
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_discapacidad_carnet
+msgid "Número de carnet del CONADIS"
+msgstr "Número de carnet del CONADIS"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__ong
+msgid "ONG / Organismo Internacional"
+msgstr "ONG / Organismo Internacional"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__obligado_contabilidad
+msgid "Obligado Contabilidad"
+msgstr "Obligado Contabilidad"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_16
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_18
+msgid "Olmedo"
+msgstr "Olmedo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_22
+msgid "Orellana"
+msgstr "Orellana"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_province__region__oriente
+msgid "Oriente"
+msgstr "Oriente"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_imbabura_04
+msgid "Otavalo"
+msgstr "Otavalo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.payment.method,name:l10n_ec_base.payment_20
+msgid "Otros con utilización del sistema financiero"
+msgstr "Otros con utilización del sistema financiero"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_10
+msgid "Oña"
+msgstr "Oña"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_11
+msgid "Pablo Sexto"
+msgstr "Pablo Sexto"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_10
+msgid "Paján"
+msgstr "Paján"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_08
+msgid "Palanda"
+msgstr "Palanda"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_09
+msgid "Palenque"
+msgstr "Palenque"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_13
+msgid "Palestina"
+msgstr "Palestina"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_08
+msgid "Pallatanga"
+msgstr "Pallatanga"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_04
+msgid "Palora"
+msgstr "Palora"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_09
+msgid "Paltas"
+msgstr "Paltas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_cotopaxi_03
+msgid "Pangua"
+msgstr "Pangua"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_09
+msgid "Paquisha"
+msgstr "Paquisha"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_09
+msgid "Pasaje"
+msgstr "Pasaje"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_identifier_type__pasaporte
+#: model:l10n_ec.identification.type,name:l10n_ec_base.ident_06
+msgid "Pasaporte"
+msgstr "Pasaporte"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pastaza_01
+#: model:l10n_ec.province,name:l10n_ec_base.province_16
+msgid "Pastaza"
+msgstr "Pastaza"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_05
+msgid "Patate"
+msgstr "Patate"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_05
+msgid "Paute"
+msgstr "Paute"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_17
+msgid "Pedernales"
+msgstr "Pedernales"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_14
+msgid "Pedro Carbo"
+msgstr "Pedro Carbo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pichincha_04
+msgid "Pedro Moncayo"
+msgstr "Pedro Moncayo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pichincha_07
+msgid "Pedro Vicente Maldonado"
+msgstr "Pedro Vicente Maldonado"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_purchase_order__l10n_ec_penalty_capped
+msgid "Penalidad Limitada"
+msgstr "Penalidad Limitada"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_purchase_order__l10n_ec_penalty_amount
+msgid "Penalidad calculada por retraso"
+msgstr "Penalidad calculada por retraso"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_09
+msgid "Penipe"
+msgstr "Penipe"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__persona
+#: model:l10n_ec.contributor.type,name:l10n_ec_base.contrib_persona_natural
+msgid "Persona Natural"
+msgstr "Persona Natural"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.contributor.type,name:l10n_ec_base.contrib_persona_natural_obligado
+msgid "Persona Natural Obligada a Llevar Contabilidad"
+msgstr "Persona Natural Obligada a Llevar Contabilidad"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_discapacidad
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_discapacidad
+msgid "Persona con Discapacidad"
+msgstr "Persona con Discapacidad"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_discapacidad
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_discapacidad
+msgid ""
+"Persona con discapacidad calificada por CONADIS. Derecho a devolución de IVA"
+" según Ley de Discapacidades Art. 78."
+msgstr "Persona con discapacidad calificada por CONADIS. Derecho a devolución de IVA según Ley de Discapacidades Art. 78."
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_11
+#: model:l10n_ec.province,name:l10n_ec_base.province_17
+msgid "Pichincha"
+msgstr "Pichincha"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_imbabura_05
+msgid "Pimampiro"
+msgstr "Pimampiro"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_14
+msgid "Pindal"
+msgstr "Pindal"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_10
+msgid "Piñas"
+msgstr "Piñas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_19
+msgid "Playas"
+msgstr "Playas"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_discapacidad_porcentaje
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_discapacidad_porcentaje
+msgid "Porcentaje Discapacidad"
+msgstr "Porcentaje Discapacidad"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__iess_patronal
+msgid "Porcentaje base que aporta el empleador"
+msgstr "Porcentaje base que aporta el empleador"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_discapacidad_porcentaje
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_discapacidad_porcentaje
+msgid ""
+"Porcentaje de discapacidad según carnet CONADIS (30% mínimo para beneficios)"
+msgstr "Porcentaje de discapacidad según carnet CONADIS (30% mínimo para beneficios)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__iess_personal
+msgid "Porcentaje que aporta el empleado"
+msgstr "Porcentaje que aporta el empleado"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_11
+msgid "Portovelo"
+msgstr "Portovelo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_01
+msgid "Portoviejo"
+msgstr "Portoviejo"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_canton__province_id
+msgid "Provincia"
+msgstr "Provincia"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_province
+msgid "Provincia Ecuador"
+msgstr "Provincia Ecuador"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_06
+msgid "Pucará"
+msgstr "Pucará"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_04
+msgid "Puebloviejo"
+msgstr "Puebloviejo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_19
+msgid "Puerto López"
+msgstr "Puerto López"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pichincha_08
+msgid "Puerto Quito"
+msgstr "Puerto Quito"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_cotopaxi_04
+msgid "Pujilí"
+msgstr "Pujilí"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_purchase_order
+msgid "Purchase Order"
+msgstr "Orden de compra"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_sucumbios_03
+msgid "Putumayo"
+msgstr "Putumayo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_10
+msgid "Puyango"
+msgstr "Puyango"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_06
+msgid "Quero"
+msgstr "Quero"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_05
+msgid "Quevedo"
+msgstr "Quevedo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_napo_04
+msgid "Quijos"
+msgstr "Quijos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_15
+msgid "Quilanga"
+msgstr "Quilanga"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_esmeraldas_04
+msgid "Quinindé"
+msgstr "Quinindé"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_13
+msgid "Quinsaloma"
+msgstr "Quinsaloma"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pichincha_01
+msgid "Quito"
+msgstr "Quito"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_taxpayer_type__rimpe_e
+#: model:l10n_ec.contributor.type,name:l10n_ec_base.contrib_rimpe_emprendedor
+msgid "RIMPE Emprendedor"
+msgstr "RIMPE Emprendedor"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_taxpayer_type__rimpe_p
+#: model:l10n_ec.contributor.type,name:l10n_ec_base.contrib_rimpe_negocio
+msgid "RIMPE Negocio Popular"
+msgstr "RIMPE Negocio Popular"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.contributor.type,name:l10n_ec_base.contrib_rise
+msgid "RISE (Régimen Simplificado)"
+msgstr "RISE (Régimen Simplificado)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_identifier_type__ruc
+#: model:l10n_ec.identification.type,name:l10n_ec_base.ident_04
+msgid "RUC"
+msgstr "RUC"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__recargo_extraordinaria
+msgid "Recargo Hora Extraordinaria (%)"
+msgstr "Recargo Hora Extraordinaria (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__recargo_nocturna
+msgid "Recargo Hora Nocturna (%)"
+msgstr "Recargo Hora Nocturna (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__recargo_suplementaria
+msgid "Recargo Hora Suplementaria (%)"
+msgstr "Recargo Hora Suplementaria (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__recargo_extraordinaria
+msgid "Recargo feriados y fines de semana"
+msgstr "Recargo feriados y fines de semana"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__recargo_nocturna
+msgid "Recargo jornada nocturna 19:00-06:00"
+msgstr "Recargo jornada nocturna 19:00-06:00"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__recargo_suplementaria
+msgid "Recargo por hora extra después de jornada normal"
+msgstr "Recargo por hora extra después de jornada normal"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_09
+msgid "Reembolso por Siniestros"
+msgstr "Reembolso por Siniestros"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_province__region
+msgid "Región"
+msgstr "Región"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_related_party
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_related_party
+msgid "Related Party (ATS)"
+msgstr "Parte relacionada (ATS)"
+
+#. module: l10n_ec_base
+#: model:account.tax.group,name:l10n_ec_base.tax_group_ret_ir
+msgid "Retención Fuente IR"
+msgstr "Retención Fuente IR"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_retention_code__type__ir
+msgid "Retención IR"
+msgstr "Retención IR"
+
+#. module: l10n_ec_base
+#: model:account.tax.group,name:l10n_ec_base.tax_group_ret_iva
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_retention_code__type__iva
+msgid "Retención IVA"
+msgstr "Retención IVA"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_chimborazo_01
+msgid "Riobamba"
+msgstr "Riobamba"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_esmeraldas_07
+msgid "Rioverde"
+msgstr "Rioverde"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_12
+msgid "Rocafuerte"
+msgstr "Rocafuerte"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pichincha_05
+msgid "Rumiñahui"
+msgstr "Rumiñahui"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_taxpayer_type__general
+msgid "Régimen General"
+msgstr "Régimen General"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_contributor_type__rimpe
+msgid "Régimen RIMPE"
+msgstr "Régimen RIMPE"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iess_secap
+msgid "SECAP (%)"
+msgstr "SECAP (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__sbu
+msgid "Salario Básico Unificado"
+msgstr "Salario Básico Unificado"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__sbu
+msgid "Salario básico del año. Fuente: Ministerio del Trabajo"
+msgstr "Salario básico del año. Fuente: Ministerio del Trabajo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_cotopaxi_05
+msgid "Salcedo"
+msgstr "Salcedo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_santaelena_03
+msgid "Salinas"
+msgstr "Salinas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_17
+msgid "Salitre"
+msgstr "Salitre"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_15
+msgid "Samborondón"
+msgstr "Samborondón"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_galapagos_01
+msgid "San Cristóbal"
+msgstr "San Cristóbal"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_07
+msgid "San Fernando"
+msgstr "San Fernando"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_18
+msgid "San Jacinto de Yaguachi"
+msgstr "San Jacinto de Yaguachi"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_08
+msgid "San Juan Bosco"
+msgstr "San Juan Bosco"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_esmeraldas_05
+msgid "San Lorenzo"
+msgstr "San Lorenzo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_bolivar_05
+msgid "San Miguel"
+msgstr "San Miguel"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pichincha_06
+msgid "San Miguel de Los Bancos"
+msgstr "San Miguel de Los Bancos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_imbabura_06
+msgid "San Miguel de Urcuquí"
+msgstr "San Miguel de Urcuquí"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_carchi_06
+msgid "San Pedro de Huaca"
+msgstr "San Pedro de Huaca"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_07
+msgid "San Pedro de Pelileo"
+msgstr "San Pedro de Pelileo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_22
+msgid "San Vicente"
+msgstr "San Vicente"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_13
+msgid "Santa Ana"
+msgstr "Santa Ana"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_pastaza_03
+msgid "Santa Clara"
+msgstr "Santa Clara"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_galapagos_03
+msgid "Santa Cruz"
+msgstr "Santa Cruz"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_santaelena_01
+#: model:l10n_ec.province,name:l10n_ec_base.province_24
+msgid "Santa Elena"
+msgstr "Santa Elena"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_08
+msgid "Santa Isabel"
+msgstr "Santa Isabel"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_16
+msgid "Santa Lucía"
+msgstr "Santa Lucía"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_12
+msgid "Santa Rosa"
+msgstr "Santa Rosa"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_05
+msgid "Santiago"
+msgstr "Santiago"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_08
+msgid "Santiago de Píllaro"
+msgstr "Santiago de Píllaro"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_santodomingo_01
+msgid "Santo Domingo"
+msgstr "Santo Domingo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_23
+msgid "Santo Domingo de los Tsáchilas"
+msgstr "Santo Domingo de los Tsáchilas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_cotopaxi_06
+msgid "Saquisilí"
+msgstr "Saquisilí"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_11
+msgid "Saraguro"
+msgstr "Saraguro"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_purchase_order__l10n_ec_is_government_contract
+msgid "Se aplica régimen de penalidades DE 045-2025"
+msgstr "Se aplica régimen de penalidades DE 045-2025"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_ciiu__section
+msgid "Sección"
+msgstr "Sección"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.contributor.type,name:l10n_ec_base.contrib_sector_publico
+msgid "Sector Público"
+msgstr "Sector Público"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__iess_secap
+msgid "Servicio Ecuatoriano de Capacitación"
+msgstr "Servicio Ecuatoriano de Capacitación"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_sri_ruc_service
+msgid "Servicio de Consulta RUC SRI Ecuador"
+msgstr "Servicio de Consulta RUC SRI Ecuador"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_retention_code__applies_to__services
+msgid "Servicios"
+msgstr "Servicios"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_13
+msgid "Sevilla de Oro"
+msgstr "Sevilla de Oro"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_sucumbios_04
+msgid "Shushufindi"
+msgstr "Shushufindi"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_province__region__sierra
+msgid "Sierra"
+msgstr "Sierra"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_cotopaxi_07
+msgid "Sigchos"
+msgstr "Sigchos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_guayas_20
+msgid "Simón Bolívar"
+msgstr "Simón Bolívar"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.payment.method,name:l10n_ec_base.payment_01
+msgid "Sin utilización del sistema financiero (Efectivo)"
+msgstr "Sin utilización del sistema financiero (Efectivo)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_identification_type__validation_type__none
+msgid "Sin validación"
+msgstr "Sin validación"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.contributor.type,name:l10n_ec_base.contrib_sociedad
+msgid "Sociedad"
+msgstr "Sociedad"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__sa
+msgid "Sociedad Anónima (S.A.)"
+msgstr "Sociedad Anónima (S.A.)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__sas
+msgid "Sociedad por Acciones Simplificada (S.A.S.)"
+msgstr "Sociedad por Acciones Simplificada (S.A.S.)"
+
+#. module: l10n_ec_base
+#: model:ir.model.constraint,message:l10n_ec_base.constraint_l10n_ec_config_year_company_unique
+msgid "Solo puede existir una configuración por año y empresa."
+msgstr "Solo puede existir una configuración por año y empresa."
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_12
+msgid "Sozoranga"
+msgstr "Sozoranga"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_14
+msgid "Sucre"
+msgstr "Sucre"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_sucumbios_05
+#: model:l10n_ec.province,name:l10n_ec_base.province_21
+msgid "Sucumbíos"
+msgstr "Sucumbíos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_06
+msgid "Sucúa"
+msgstr "Sucúa"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_canar_07
+msgid "Suscal"
+msgstr "Suscal"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_tax_support
+msgid "Sustento Tributario SRI"
+msgstr "Sustento Tributario SRI"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_azuay_09
+msgid "Sígsig"
+msgstr "Sígsig"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_09
+msgid "Taisha"
+msgstr "Taisha"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__iva_general
+msgid "Tarifa general IVA"
+msgstr "Tarifa general IVA"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_l10n_ec_config__iva_construccion
+msgid "Tarifa reducida para construcción (Ley 2024)"
+msgstr "Tarifa reducida para construcción (Ley 2024)"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.payment.method,name:l10n_ec_base.payment_19
+msgid "Tarjeta de crédito"
+msgstr "Tarjeta de crédito"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.payment.method,name:l10n_ec_base.payment_16
+msgid "Tarjeta de débito"
+msgstr "Tarjeta de débito"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.payment.method,name:l10n_ec_base.payment_18
+msgid "Tarjeta prepago"
+msgstr "Tarjeta prepago"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__rate
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__rate
+msgid "Tasa (%)"
+msgstr "Tasa (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_config_settings__l10n_ec_penalty_rate_daily
+msgid "Tasa Penalidad Diaria (%)"
+msgstr "Tasa Penalidad Diaria (%)"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_taxpayer_type
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_taxpayer_type
+msgid "Taxpayer Type"
+msgstr "Tipo de contribuyente"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iess_techo
+msgid "Techo Aportación IESS"
+msgstr "Techo Aportación IESS"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_napo_01
+msgid "Tena"
+msgstr "Tena"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_tercera_edad
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_tercera_edad
+msgid "Tercera Edad"
+msgstr "Tercera Edad"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_retention_code__type
+msgid "Tipo"
+msgstr "Tipo"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_tax_code__tax_type
+msgid "Tipo Impuesto"
+msgstr "Tipo Impuesto"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_identification_type__validation_type
+msgid "Tipo Validación"
+msgstr "Tipo Validación"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_contributor_type
+msgid "Tipo de Contribuyente SRI"
+msgstr "Tipo de Contribuyente SRI"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_entity_type
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_entity_type
+msgid "Tipo de Entidad"
+msgstr "Tipo de Entidad"
+
+#. module: l10n_ec_base
+#: model:ir.model,name:l10n_ec_base.model_l10n_ec_identification_type
+msgid "Tipo de Identificación SRI"
+msgstr "Tipo de Identificación SRI"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_entity_type
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_entity_type
+msgid "Tipo de entidad jurídica para tratamiento tributario"
+msgstr "Tipo de entidad jurídica para tratamiento tributario"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_tungurahua_09
+msgid "Tisaleo"
+msgstr "Tisaleo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_moronasantiago_12
+msgid "Tiwintza"
+msgstr "Tiwintza"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_manabi_15
+msgid "Tosagua"
+msgstr "Tosagua"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__iess_total_empleador
+msgid "Total Aporte Empleador (%)"
+msgstr "Total Aporte Empleador (%)"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_carchi_01
+msgid "Tulcán"
+msgstr "Tulcán"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_18
+msgid "Tungurahua"
+msgstr "Tungurahua"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,help:l10n_ec_base.field_res_partner__l10n_ec_identifier_type
+#: model:ir.model.fields,help:l10n_ec_base.field_res_users__l10n_ec_identifier_type
+msgid "Type of Ecuadorian Identification"
+msgstr "Tipo de identificación ecuatoriana"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_uaf_certificate_filename
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_uaf_certificate_filename
+msgid "UAF Filename"
+msgstr "Nombre de archivo UAF"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_partner__l10n_ec_uaf_valid
+#: model:ir.model.fields,field_description:l10n_ec_base.field_res_users__l10n_ec_uaf_valid
+msgid "UAF Válido"
+msgstr "UAF Válido"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_06
+msgid "Urdaneta"
+msgstr "Urdaneta"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_11
+msgid "Valencia"
+msgstr "Valencia"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_identification_type__validation_type__cedula
+msgid "Validación Cédula"
+msgstr "Validación Cédula"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__l10n_ec_identification_type__validation_type__ruc
+msgid "Validación RUC"
+msgstr "Validación RUC"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_l10n_ec_config__hora_trabajo
+msgid "Valor Hora Trabajo"
+msgstr "Valor Hora Trabajo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.tax.support,name:l10n_ec_base.sustento_08
+msgid "Valor pagado para solicitar Reembolso de Gastos"
+msgstr "Valor pagado para solicitar Reembolso de Gastos"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_07
+msgid "Ventanas"
+msgstr "Ventanas"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_losrios_08
+msgid "Vinces"
+msgstr "Vinces"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_04
+msgid "Yacuambi"
+msgstr "Yacuambi"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_05
+msgid "Yantzaza"
+msgstr "Yantzaza"
+
+#. module: l10n_ec_base
+#: model:ir.model.fields.selection,name:l10n_ec_base.selection__res_partner__l10n_ec_entity_type__zede
+msgid "ZEDE - Zona Especial"
+msgstr "ZEDE - Zona Especial"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_zamorachinchipe_01
+msgid "Zamora"
+msgstr "Zamora"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.province,name:l10n_ec_base.province_19
+msgid "Zamora Chinchipe"
+msgstr "Zamora Chinchipe"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_loja_13
+msgid "Zapotillo"
+msgstr "Zapotillo"
+
+#. module: l10n_ec_base
+#: model:l10n_ec.canton,name:l10n_ec_base.canton_eloro_13
+msgid "Zaruma"
+msgstr "Zaruma"
