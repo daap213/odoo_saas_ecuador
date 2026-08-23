@@ -6,7 +6,7 @@
 
 {
     "name": "🇪🇨 Ecuador - Localización Completa",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Localizations",
     "summary": "Instala TODA la localización Ecuador con un solo clic - SRI 2026, IESS, Aduanas",
     "description": """

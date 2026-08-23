@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Ecuador - ICE (Impuesto Consumos Especiales)",
-    "version": "1.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Localizations",
     "summary": "Manage specific and ad valorem ICE taxes",
     "description": """

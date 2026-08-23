@@ -156,8 +156,8 @@ class AccountEdiFormat(models.Model):
                 # The signer expect bytes, xml_content is str
                 signed_xml_bytes = signer.sign_xml(
                     xml_content.encode("utf-8"),
-                    certificate.sudo().content,  # This is binary (base64)
-                    certificate.sudo().password,
+                    certificate.content,  # This is binary (base64)
+                    certificate.password,
                 )
 
                 # Transmit

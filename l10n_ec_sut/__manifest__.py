@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Ecuador - SUT Reports (MDT)",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Human Resources/Legal",
     "summary": "Generate TXT/XML for Ministry of Labor (Salarios en Línea)",
     "description": """

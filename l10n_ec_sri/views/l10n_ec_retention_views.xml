@@ -69,7 +69,7 @@
     <record id="action_l10n_ec_retention" model="ir.actions.act_window">
         <field name="name">Withholdings</field>
         <field name="res_model">l10n_ec.retention</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <!-- Menu Item (Under Accounting / Vendors) -->

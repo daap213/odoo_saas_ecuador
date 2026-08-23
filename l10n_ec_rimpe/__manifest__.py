@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Ecuador - RIMPE Regime",
-    "version": "1.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Localizations",
     "summary": "Manage RIMPE (Emprendedores & Negocios Populares)",
     "description": """

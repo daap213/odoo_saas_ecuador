@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="xml_invoice_v_2_26">
+<template id="xml_invoice">
 <factura id="comprobante" version="2.1.0">
     <infoTributaria>
-        <ambiente><t t-esc="record.company_id.l10n_ec_sri_environment"/></ambiente>
+        <ambiente><t t-esc="'2' if record.company_id.l10n_ec_sri_environment == 'production' else '1'"/></ambiente>
         <tipoEmision>1</tipoEmision>
         <razonSocial><t t-esc="record.company_id.name"/></razonSocial>
         <nombreComercial><t t-esc="record.company_id.name"/></nombreComercial>
@@ -19,13 +19,28 @@
         <fechaEmision><t t-esc="record.invoice_date.strftime('%d/%m/%Y')"/></fechaEmision>
         <dirEstablecimiento><t t-esc="record.company_id.street"/></dirEstablecimiento>
         <obligadoContabilidad><t t-if="record.company_id.l10n_ec_forced_accounting">SI</t><t t-else="">NO</t></obligadoContabilidad>
-        <tipoIdentificacionComprador>05</tipoIdentificacionComprador>
+        <tipoIdentificacionComprador><t t-esc="
+            '07' if not record.partner_id.vat or record.partner_id.vat in ('9999999999999', 'CF', 'consumidor final')
+            else '04' if len(record.partner_id.vat) == 13
+            else '05' if len(record.partner_id.vat) == 10
+            else '06'
+        "/></tipoIdentificacionComprador>
         <razonSocialComprador><t t-esc="record.partner_id.name"/></razonSocialComprador>
-        <identificacionComprador><t t-esc="record.partner_id.vat"/></identificacionComprador>
+        <identificacionComprador><t t-esc="
+            '9999999999999' if not record.partner_id.vat or record.partner_id.vat in ('9999999999999', 'CF', 'consumidor final')
+            else record.partner_id.vat
+        "/></identificacionComprador>
         <totalSinImpuestos><t t-esc="'{:.2f}'.format(record.amount_untaxed)"/></totalSinImpuestos>
         <totalDescuento>0.00</totalDescuento>
         <totalConImpuestos>
-             <!-- Loop Taxes -->
+            <t t-foreach="sri_totals" t-as="tot">
+                <totalImpuesto>
+                    <codigo><t t-esc="tot['codigo']"/></codigo>
+                    <codigoPorcentaje><t t-esc="tot['codigoPorcentaje']"/></codigoPorcentaje>
+                    <baseImponible><t t-esc="tot['baseImponible']"/></baseImponible>
+                    <valor><t t-esc="tot['valor']"/></valor>
+                </totalImpuesto>
+            </t>
         </totalConImpuestos>
         <propina>0.00</propina>
         <importeTotal><t t-esc="'{:.2f}'.format(record.amount_total)"/></importeTotal>
@@ -34,13 +49,21 @@
     <detalles>
         <detalle t-foreach="record.invoice_line_ids" t-as="line">
             <codigoPrincipal><t t-esc="line.product_id.default_code or 'GEN'"/></codigoPrincipal>
-            <descripcion><t t-esc="line.name"/></descripcion>
+            <descripcion><t t-esc="' '.join((line.name or '').splitlines())"/></descripcion>
             <cantidad><t t-esc="line.quantity"/></cantidad>
             <precioUnitario><t t-esc="line.price_unit"/></precioUnitario>
             <descuento>0.00</descuento>
             <precioTotalSinImpuesto><t t-esc="line.price_subtotal"/></precioTotalSinImpuesto>
             <impuestos>
-                 <!-- Tax Logic -->
+                <t t-foreach="sri_line_taxes.get(line.id, [])" t-as="imp">
+                    <impuesto>
+                        <codigo><t t-esc="imp['codigo']"/></codigo>
+                        <codigoPorcentaje><t t-esc="imp['codigoPorcentaje']"/></codigoPorcentaje>
+                        <tarifa><t t-esc="imp['tarifa']"/></tarifa>
+                        <baseImponible><t t-esc="imp['baseImponible']"/></baseImponible>
+                        <valor><t t-esc="imp['valor']"/></valor>
+                    </impuesto>
+                </t>
             </impuestos>
         </detalle>
     </detalles>

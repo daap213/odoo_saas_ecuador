@@ -6,7 +6,7 @@
 
 {
     "name": "Ecuador - Control de Calidad",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Manufacturing/Quality",
     "summary": "Control de calidad para Ecuador - Ley Calidad Art. 31-40, ARCSA Res. 067",
     "description": """

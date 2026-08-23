@@ -1,3 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_l10n_ec_certificate,l10n_ec.certificate,model_l10n_ec_certificate,base.group_user,1,0,0,0
-access_l10n_ec_certificate_manager,l10n_ec.certificate.manager,model_l10n_ec_certificate,account.group_account_manager,1,1,1,1
+access_l10n_ec_certificate,l10n_ec.certificate,model_l10n_ec_certificate,base.group_user,1,1,1,1

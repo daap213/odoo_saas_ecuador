@@ -6,7 +6,7 @@
 
 {
     "name": "Ecuador - Customs (Imports/Exports)",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Operations/Customs",
     "summary": "DAU, Tariff Codes, FODINFA, Import IVA",
     "description": """
@@ -30,9 +30,10 @@ Complete customs management for Ecuador (SENAE):
     "author": "Somatech.dev, Odoo Community Association (OCA)",
     "website": "https://github.com/somatechlat/odoo_saas_ecuador",
     "license": "LGPL-3",
-    "depends": ["stock", "account", "purchase", "l10n_ec_base"],
+    "depends": ["stock", "account", "purchase"],
     "data": [
         "security/ir.model.access.csv",
+        "data/l10n_ec_customs_data.xml",
         "views/l10n_ec_customs_views.xml",
     ],
     "images": ["static/description/banner.png"],

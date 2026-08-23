@@ -6,7 +6,7 @@
 
 {
     "name": "Ecuador - Activos Fijos",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Localizations/Assets",
     "summary": "Gestión de activos fijos para Ecuador - LORTI Art. 28",
     "description": """

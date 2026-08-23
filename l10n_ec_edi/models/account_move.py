@@ -219,8 +219,8 @@ class AccountMove(models.Model):
 
             # Use AccessKey helper
             company = move.company_id
-            # Environment: 1=Test, 2=Prod
-            env = "2" if company.l10n_ec_sri_environment == "production" else "1"
+            # SRI spec: 1=PRODUCCION, 2=PRUEBAS (al reves del comentario original)
+            env = "1" if company.l10n_ec_sri_environment == "production" else "2"
             # Get establishment/emission point from company or default
             estab = getattr(company, "l10n_ec_establishment", "001") or "001"
             pto = getattr(company, "l10n_ec_emission_point", "001") or "001"
@@ -280,16 +280,17 @@ class AccountMove(models.Model):
             try:
                 signed_xml_bytes = signer.sign_xml(
                     xml_content.encode("utf-8"),
-                    certificate.sudo().content,
-                    certificate.sudo().password,
+                    certificate.content,
+                    certificate.password,
                 )
             except Exception as e:
                 raise UserError(_("Signing Error: %s") % str(e))
 
             # 5. Send to SRI
             service = self.env["l10n_ec.sri.service"]
+            # SRI spec: 1=PRODUCCION, 2=PRUEBAS
             env_code = (
-                "2" if move.company_id.l10n_ec_sri_environment == "production" else "1"
+                "1" if move.company_id.l10n_ec_sri_environment == "production" else "2"
             )
 
             response = service.send_document(signed_xml_bytes, env_code)

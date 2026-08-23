@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Ecuador - Bank Cash Management (Pichincha/Guayaquil)",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Human Resources/Payroll",
     "summary": "Generate TXT files for Bulk Payroll Payments",
     "description": """

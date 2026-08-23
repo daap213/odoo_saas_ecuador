@@ -70,7 +70,11 @@ class AccountMove(models.Model):
             if response.get("status") == "AUTORIZADO":
                 move.l10n_ec_sri_status = "authorized"
                 if response.get("date"):
-                    move.l10n_ec_authorization_date = response["date"]
+                    from datetime import timezone as _tz
+                    d = response["date"]
+                    if hasattr(d, 'tzinfo') and d.tzinfo is not None:
+                        d = d.astimezone(_tz.utc).replace(tzinfo=None)
+                    move.l10n_ec_authorization_date = d
 
                 if response.get("authorized_xml"):
                     move.l10n_ec_xml_data = base64.b64encode(

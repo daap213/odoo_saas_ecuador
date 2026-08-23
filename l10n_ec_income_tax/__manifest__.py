@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Ecuador - Income Tax Engine 2026 (Impuesto Renta)",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Localizations",
     "summary": "Progressive Tax Table & Family Loads Rebate (Resolution 00000043)",
     "description": """

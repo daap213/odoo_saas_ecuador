@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Ecuador - Vacation Ledger (Art. 69)",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Human Resources",
     "summary": "Statutory Vacation Accrual (15 days + Seniority Bonus)",
     "description": """

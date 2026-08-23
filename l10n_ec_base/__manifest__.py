@@ -6,7 +6,7 @@
 
 {
     "name": "Ecuador - Base Localization (NEC 2026)",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Localizations",
     "summary": "Chart of Accounts, Tax Templates, and Identity Validation (SRI 2026)",
     "description": """
@@ -29,6 +29,7 @@ This module provides the base localization for Ecuador:
     "depends": [
         "base",
         "account",
+        "purchase",
         "l10n_latam_invoice_document",
     ],
     "data": [

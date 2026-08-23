@@ -32,7 +32,6 @@
                 - Puede ver logs de retenciones
                 - NO puede modificar ni crear documentos
             </field>
-            <field name="category_id" ref="module_category_l10n_ec"/>
         </record>
 
         <!-- ================================================================
@@ -47,7 +46,6 @@
                 - ATS
                 - Guía de Remisión
             </field>
-            <field name="category_id" ref="module_category_l10n_ec"/>
             <field name="implied_ids" eval="[(4, ref('account.group_account_user'))]"/>
         </record>
 
@@ -59,7 +57,6 @@
             <field name="comment">
                 Administración de certificados, configuración SRI.
             </field>
-            <field name="category_id" ref="module_category_l10n_ec"/>
             <field name="implied_ids" eval="[(4, ref('group_ec_accountant'))]"/>
         </record>
 

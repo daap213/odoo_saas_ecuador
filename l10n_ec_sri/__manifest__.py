@@ -6,7 +6,7 @@
 
 {
     "name": "Ecuador SRI Electronic Invoicing",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Localizations/SRI",
     "summary": "Full SRI Electronic Invoicing Compliance (2025-2026)",
     "description": """
@@ -42,6 +42,7 @@ Complete SRI (Servicio de Rentas Internas) integration:
         "data/ir_sequence_data.xml",
         "views/account_move_views.xml",
         "views/account_move_purchase_views.xml",
+        "views/account_move_xml_template.xml",
         "views/l10n_ec_retention_views.xml",
         "views/l10n_ec_retention_xml_template.xml",
     ],

@@ -6,7 +6,7 @@
 
 {
     "name": "Ecuador - Withholding Management (Retenciones)",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Localizations",
     "summary": "Vendor Bill Withholding, SRI Authorization, 5-Day Rule",
     "description": """

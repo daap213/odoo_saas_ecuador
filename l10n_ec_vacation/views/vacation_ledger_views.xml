@@ -25,7 +25,7 @@
 
     <menuitem id="menu_l10n_ec_vacation_ledger"
               name="Vacation Ledger"
-              parent="l10n_ec_hr_payroll.menu_l10n_ec_payroll_root"
+              parent="l10n_ec_hr_payroll.menu_l10n_ec_hr_payroll_root"
               action="action_l10n_ec_vacation_ledger"
               sequence="20"/>
 </odoo>

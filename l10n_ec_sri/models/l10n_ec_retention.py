@@ -120,7 +120,11 @@ class L10nEcRetention(models.Model):
             if response.get("status") == "AUTORIZADO":
                 ret.l10n_ec_sri_status = "authorized"
                 if response.get("date"):
-                    ret.l10n_ec_authorization_date = response["date"]
+                    from datetime import timezone as _tz
+                    d = response["date"]
+                    if hasattr(d, 'tzinfo') and d.tzinfo is not None:
+                        d = d.astimezone(_tz.utc).replace(tzinfo=None)
+                    ret.l10n_ec_authorization_date = d
             elif response.get("status") == "NO AUTORIZADO":
                 ret.l10n_ec_sri_status = "rejected"
 

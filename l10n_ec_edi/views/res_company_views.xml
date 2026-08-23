@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_company_form_l10n_ec_edi" model="ir.ui.view">
-        <field name="name">res.company.form.l10n.ec.edi</field>
+    <!-- Extiende el form de res.company para mostrar campos SRI Ecuador -->
+    <record id="view_res_company_form_l10n_ec_edi" model="ir.ui.view">
+        <field name="name">res.company.form.l10n_ec_edi</field>
         <field name="model">res.company</field>
         <field name="inherit_id" ref="base.view_company_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//notebook" position="inside">
-                <page string="Ecuador SRI" name="l10n_ec_sri">
-                    <group>
-                        <group string="Facturación electrónica">
-                            <field name="l10n_ec_sri_environment" widget="radio"
-                                   string="Ambiente"/>
-                            <field name="l10n_ec_certificate_id"
-                                   string="Firma electrónica (.p12)"/>
-                            <field name="l10n_ec_commercial_name"
-                                   string="Nombre comercial"/>
+            <!-- Agrega un notebook con una pagina para Ecuador SRI -->
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page string="SRI Ecuador" name="l10n_ec_sri" groups="account.group_account_manager">
+                        <group>
+                            <group string="Configuración General">
+                                <field name="l10n_ec_commercial_name" string="Nombre Comercial"/>
+                                <field name="l10n_ec_special_resolution" string="Resolución Contribuyente Especial"/>
+                                <field name="l10n_ec_forced_accounting" string="Obligado a llevar Contabilidad"/>
+                            </group>
+                            <group string="Firma Electrónica">
+                                <field name="l10n_ec_certificate_id" string="Certificado de Firma SRI"/>
+                                <field name="l10n_ec_sri_environment" string="Ambiente SRI"/>
+                            </group>
                         </group>
-                        <group string="Contribuyente">
-                            <field name="l10n_ec_withhold_agent"
-                                   string="Agente de retención"/>
-                            <field name="l10n_ec_withhold_resolution"
-                                   string="No. resolución de retención"
-                                   invisible="not l10n_ec_withhold_agent"/>
-                            <field name="l10n_ec_special_resolution"
-                                   string="Resolución contribuyente especial"/>
-                            <field name="l10n_ec_forced_accounting"
-                                   string="Obligado a llevar contabilidad"/>
+                        <group string="URLs Web Service SRI">
+                            <field name="l10n_ec_sri_reception_url" string="URL Recepción" placeholder="https://celcer.sri.gob.ec/.../RecepcionComprobantesOffline?wsdl"/>
+                            <field name="l10n_ec_sri_authorization_url" string="URL Autorización" placeholder="https://celcer.sri.gob.ec/.../AutorizacionComprobantesOffline?wsdl"/>
                         </group>
-                    </group>
-                    <group string="Servicios web del SRI" groups="base.group_system">
-                        <field name="l10n_ec_sri_reception_url" string="URL de recepción"/>
-                        <field name="l10n_ec_sri_authorization_url" string="URL de autorización"/>
-                    </group>
-                </page>
+                        <group string="Retención">
+                            <group>
+                                <field name="l10n_ec_withhold_agent" string="Agente de Retención"/>
+                                <field name="l10n_ec_withhold_resolution" string="Número de Resolución" invisible="not l10n_ec_withhold_agent"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
             </xpath>
         </field>
     </record>
