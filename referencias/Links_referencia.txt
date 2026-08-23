@@ -1,0 +1,19 @@
+--SRI Referencias
+https://www.sri.gob.ec/facturacion-electronica
+https://www.sri.gob.ec/doc-gaceta-tributaria-biblioteca-resoluciones
+https://www.jezl-auditores.com/tributario/117-resoluciones-y-circulares-sri-2026-2025
+https://www.sri.gob.ec/web/intersri/home
+https://www.sri.gob.ec/normativa-tributaria1
+
+--ODOO SRI referencias y proyectos base
+https://www.odoo.com/documentation/19.0/es_419/applications/finance/fiscal_localizations/ecuador.html
+https://www.youtube.com/watch?v=571z1SOx9-Y
+https://github.com/OCA/l10n-ecuador/tree/18.0
+https://github.com/OCA/l10n-ecuador/tree/19.0
+https://github.com/odixan/l10n-ecuador
+https://github.com/JhonRomero26/l10n-ecuador
+https://github.com/somatechlat/odoo_saas_ecuador
+https://github.com/jmcuenca/odoo_saas_ecuador/tree/19.0
+
+--Otras Referencias ODOOO SRI
+https://firmas.com.ec/blog/firma-electronica-con-odoo
