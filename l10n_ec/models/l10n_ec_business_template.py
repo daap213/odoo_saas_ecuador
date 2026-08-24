@@ -186,9 +186,12 @@ class L10nEcBusinessTemplate(models.Model):
             if size == "medium" and not product.for_medium:
                 continue
 
+            # Odoo 19: product.template.type solo admite consu / service / combo.
+            # El valor 'product' (almacenable) desapareció; ahora "almacenable" es
+            # type='consu' + is_storable=True, que aporta el módulo stock.
             vals = {
                 "name": product.name,
-                "type": product.product_type,
+                "type": "service" if product.product_type == "service" else "consu",
                 "list_price": product.list_price,
                 "standard_price": product.cost,
                 "categ_id": category_map.get(
@@ -198,6 +201,9 @@ class L10nEcBusinessTemplate(models.Model):
                 "available_in_pos": self.enable_pos,
                 "barcode": product.barcode or False,
             }
+            if product.product_type == "product":
+                # 'is_storable' lo añade el módulo stock, del que depende l10n_ec.
+                vals["is_storable"] = True
 
             # Add taxes
             if product.tax_type == "iva_15":

@@ -18,7 +18,7 @@
                 <page string="SRI Electronics" name="sri_electronics">
                     <group>
                         <group>
-                            <field name="l10n_ec_sri_status" widget="Badge"
+                            <field name="l10n_ec_sri_status" widget="badge"
                                    decoration-success="l10n_ec_sri_status == 'authorized'"
                                    decoration-danger="l10n_ec_sri_status == 'rejected'"
                                    decoration-info="l10n_ec_sri_status == 'sent'"/>

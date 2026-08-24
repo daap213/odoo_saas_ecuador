@@ -8,7 +8,11 @@ class L10nEcPayslip(models.Model):
 
     name = fields.Char(readonly=True)  # e.g. "Cedula - Month/Year"
     employee_id = fields.Many2one("hr.employee", required=True)
-    contract_id = fields.Many2one("hr.contract", required=True)
+    # Odoo 19: hr.contract desapareció; el equivalente es hr.version.
+    contract_id = fields.Many2one(
+        "hr.version", string="Contrato", required=True,
+        domain="[('employee_id', '=', employee_id)]",
+    )
 
     date_start = fields.Date(required=True)
     date_end = fields.Date(required=True)
@@ -64,10 +68,24 @@ class L10nEcPayslip(models.Model):
 
     @api.depends("contract_id")
     def _compute_wage(self):
+        # hr.version.wage está restringido a hr.group_hr_manager, pero el ACL de
+        # l10n_ec.payslip permite crear a hr.group_hr_user: sin sudo() un HR officer
+        # obtiene AccessError en cuanto se crea el rol de pago.
         for rec in self:
-            rec.wage = rec.contract_id.wage if rec.contract_id else 0.0
+            rec.wage = rec.contract_id.sudo().wage if rec.contract_id else 0.0
 
-    @api.depends("wage", "overtime_hours", "supplementary_hours", "commission", "bonus")
+    # overtime_hours y supplementary_hours NO van aquí: _compute_overtime_from_attendance()
+    # los ESCRIBE desde dentro de este mismo método, así que incluirlos creaba una
+    # dependencia sobre sí mismo y un recálculo en bucle. En cambio sí faltaban
+    # iess_personal, total_benefits_cash y advances, que el método lee para net_wage.
+    @api.depends(
+        "wage",
+        "commission",
+        "bonus",
+        "iess_personal",
+        "total_benefits_cash",
+        "advances",
+    )
     def _compute_totals(self):
         for rec in self:
             # Superiority Feature: Auto-calculate Overtime from Attendance
@@ -315,8 +333,11 @@ class L10nEcPayslip(models.Model):
         self._check_overtime_limits()
         self.write({"state": "done"})
 
-    @api.model
-    def create(self, vals):
-        res = super(L10nEcPayslip, self).create(vals)
-        res.name = f"{res.employee_id.name} - {res.date_start}"
-        return res
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Odoo 19: create() siempre recibe una lista, y el recordset devuelto puede
+        # tener varios registros: hay que nombrarlos uno a uno.
+        records = super().create(vals_list)
+        for record in records:
+            record.name = f"{record.employee_id.name} - {record.date_start}"
+        return records

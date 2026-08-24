@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
-from odoo import models
+"""Comprobante de retención (codDoc 07) — Ficha Técnica SRI 2.34."""
 import logging
+import re
+
+from odoo import _, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
+
+_RETENTION_NUMBER_RE = re.compile(r"^(\d{3})-(\d{3})-(\d{9})$")
 
 
 class L10nEcSriRetentionXml(models.AbstractModel):
@@ -10,75 +16,81 @@ class L10nEcSriRetentionXml(models.AbstractModel):
     _description = "SRI Retention XML Generator"
 
     def render_xml(self, retention):
+        """XML del comprobante de retención, con prólogo UTF-8.
+
+        La clave de acceso se genera UNA vez y se conserva. Antes se regeneraba en
+        cada llamada a render_xml —y encima con un código numérico aleatorio—, así
+        que dos renders del mismo comprobante producían dos claves distintas.
         """
-        Render the XML for Comprobante de Retencion.
-        Uses the shared 49-digit access key generator from the main XML engine.
-        """
-        # 1. Reuse Access Key Config
-        # We need to adapt the 'record' expected by generate_access_key
-        # The generator expects: invoice_date, l10n_latam_document_type_id, journal_id
-        # Retention itself acts as the document.
-
-        # NOTE: Retention needs its own Access Key logic or we adapt the helper.
-        # For strict Odoo native pattern, we often duplicate or abstract the helper.
-        # Here we will call the helper but ensure the record has the fields.
-
-        # We must generate the key HERE because the helper might depend on fields 'retention' doesn't map 1:1 with 'move'.
-        # Use the shared modulo 11 helper from l10n_ec.sri.xml.
-        # Retention implements its own key generation for document type 07.
-
-        # We'll assume the l10n_ec.sri.xml model is generic enough or we extend it.
-        # Let's inspect l10n_ec_sri_xml.py again? I recall it used 'record.invoice_date' etc.
-        # Retention has 'date_issue'. We might need a bridge.
-
-        pkey = self._generate_retention_access_key(retention)
-        retention.l10n_ec_sri_access_key = pkey
-
-        values = {
-            "record": retention,
-            "access_key": pkey,
-            "company": retention.company_id,
-            "partner": retention.partner_id,
-            "formatted_date": retention.date_issue.strftime("%d/%m/%Y"),
-            # Period: MM/YYYY of the fiscal period
-            "periodo_fiscal": retention.date_issue.strftime("%m/%Y"),
-        }
-
-        return self.env["ir.qweb"]._render("l10n_ec_sri.xml_retention", values)
-
-    def _generate_retention_access_key(self, record):
-        """
-        Specific Access Key Gen for Retention (Doc Type 07).
-        """
-        # 1. Extraction
-        date_inv = record.date_issue.strftime("%d%m%Y")
-        doc_type = "07"  # SRM Code for Comprobante de Retención
-        ruc = record.company_id.vat
-        env = record.company_id.l10n_ec_sri_environment
-
-        # Retention Sequence is usually 001-001-00000001
-        try:
-            # We assume name format '001-001-000000001'
-            parts = record.name.split("-")
-            serie = f"{parts[0]}{parts[1]}"
-            sequential = parts[2]
-        except:
-            # Fallback if sequence is simple integer
-            serie = "001001"
-            sequential = (
-                f"{int(record.name):09d}" if record.name.isdigit() else "000000001"
+        if not retention.l10n_ec_sri_access_key:
+            retention.l10n_ec_sri_access_key = self._generate_retention_access_key(
+                retention
             )
 
-        # Random 8 digits
-        import random
+        establishment, emission_point, sequential = self._split_number(retention)
+        values = {
+            "record": retention,
+            "access_key": retention.l10n_ec_sri_access_key,
+            "company": retention.company_id,
+            "partner": retention.partner_id,
+            "establishment": establishment,
+            "emission_point": emission_point,
+            "sequential": sequential,
+            "environment": self._get_environment(retention.company_id),
+            "formatted_date": retention.date_issue.strftime("%d/%m/%Y"),
+            "periodo_fiscal": retention.date_issue.strftime("%m/%Y"),
+        }
+        body = self.env["ir.qweb"]._render("l10n_ec_sri.xml_retention", values)
+        return '<?xml version="1.0" encoding="UTF-8"?>\n' + str(body)
 
-        code_numeric = f"{random.randint(1, 99999999):08d}"
-        emission_type = "1"
+    def _get_environment(self, company):
+        """Tabla 4: 1 = Pruebas, 2 = Producción.
 
-        # 2. Construction
-        base_key = f"{date_inv}{doc_type}{ruc}{env}{serie}{sequential}{code_numeric}{emission_type}"
+        Aquí estaba uno de los fallos más graves del módulo: se metía en la clave de
+        acceso el valor CRUDO del campo de selección, es decir la cadena literal
+        'test' o 'production'. La clave dejaba de ser numérica y el módulo 11
+        reventaba: la retención electrónica no podía emitirse nunca.
+        """
+        return "2" if company.l10n_ec_sri_environment == "production" else "1"
 
-        # 3. Check Digit (Reuse from main xml engine)
-        verifier = self.env["l10n_ec.sri.xml"]._get_modulo_11(base_key)
+    def _split_number(self, record):
+        """(estab, ptoEmi, secuencial) a partir del número del comprobante."""
+        number = (record.name or "").strip()
+        match = _RETENTION_NUMBER_RE.match(number)
+        if match:
+            return match.groups()
 
-        return f"{base_key}{verifier}"
+        journal_defaults = ("001", "001")
+        digits = re.sub(r"\D", "", number)
+        if not digits:
+            raise UserError(_(
+                "No se puede derivar el secuencial de la retención '%s'.", number
+            ))
+        return journal_defaults[0], journal_defaults[1], digits[-9:].zfill(9)
+
+    def _generate_retention_access_key(self, record):
+        """Clave de acceso de 49 dígitos para el comprobante de retención."""
+        company = record.company_id
+        ruc = (company.vat or "").strip()
+        if not ruc.isdigit() or len(ruc) != 13:
+            raise UserError(_(
+                "El RUC de la compañía debe tener 13 dígitos numéricos (actual: '%s').",
+                ruc or "",
+            ))
+
+        establishment, emission_point, sequential = self._split_number(record)
+
+        base_key = "{date}{doc}{ruc}{env}{estab}{pto}{seq}{numeric}{emission}".format(
+            date=record.date_issue.strftime("%d%m%Y"),
+            doc="07",
+            ruc=ruc,
+            env=self._get_environment(company),
+            estab=establishment,
+            pto=emission_point,
+            seq=sequential,
+            # Determinista, igual que en la factura: un reenvío debe reutilizar la
+            # misma clave (Ficha §5.10), no generar una nueva.
+            numeric=sequential[-8:].zfill(8),
+            emission="1",
+        )
+        return base_key + self.env["l10n_ec.sri.xml"]._get_modulo_11(base_key)

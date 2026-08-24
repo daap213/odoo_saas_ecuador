@@ -26,33 +26,26 @@ class L10nEcPayslip(models.Model):
             total = sum(installments.mapped("amount"))
             rec.loan_deduction = total
 
-    # Override total computation to include loans
+    # Al sobrescribir un compute, el @api.depends nuevo REEMPLAZA al de la clase base:
+    # hay que repetir las dependencias del padre y añadir la propia (loan_deduction).
+    # Tampoco se listan total_income ni income_tax: los escribe este mismo método a
+    # través de super(), así que dependerían de sí mismos.
     @api.depends(
-        "total_income",
-        "total_benefits_cash",
+        "wage",
+        "commission",
+        "bonus",
         "iess_personal",
-        "income_tax",
+        "total_benefits_cash",
         "advances",
         "loan_deduction",
     )
     def _compute_totals(self):
-        # We need to call super or re-implement.
-        # Since we modified the original logic widely, let's re-implement strictly.
+        # super() calcula total_income, income_tax y net_wage. Es obligatorio llamarlo:
+        # total_income también declara compute="_compute_totals", y si este override no
+        # lo asignara Odoo lanzaría "Compute method failed to assign total_income".
+        super()._compute_totals()
         for rec in self:
-            # Re-calc Totals (Copy of original + loan_deduction)
-            # Note: This overrides the previous method entirely if we use same @api.depends
-            # But since 'loan_deduction' is new, we should just subtract it from net_wage?
-            # No, net_wage compute needs to know about it.
-
-            # Re-triggering the base logic is messy if we don't fully override.
-            # We will just subtract it here:
-            rec.net_wage = (
-                (rec.total_income + rec.total_benefits_cash)
-                - rec.iess_personal
-                - rec.income_tax
-                - rec.advances
-                - rec.loan_deduction
-            )
+            rec.net_wage -= rec.loan_deduction
 
     def action_confirm(self):
         # Mark installments as paid

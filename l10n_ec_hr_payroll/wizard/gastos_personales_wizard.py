@@ -50,19 +50,27 @@ class L10nEcGastosPersonalesWizard(models.TransientModel):
 
     def action_apply_to_contract(self):
         self.ensure_one()
-        # Find active contract for the employee
-        contract = self.env["hr.contract"].search(
-            [("employee_id", "=", self.employee_id.id), ("state", "=", "open")], limit=1
-        )
-
-        if not contract:
+        # Odoo 19: hr.contract ya no existe y hr.version no tiene estado 'open'.
+        # hr.employee._inherits = {'hr.version': 'version_id'}, así que escribir el
+        # campo sobre el empleado lo delega a su versión de contrato vigente.
+        employee = self.employee_id
+        # OJO: no vale comprobar `employee.version_id` — es required=True, así que
+        # siempre existe y la guarda nunca saltaría. Lo que hay que verificar es que
+        # el empleado tenga de verdad un contrato vigente, y en Odoo 19 eso se mira
+        # por fechas: hr.version no tiene campo `state`, e `is_current` es computado
+        # sin `search=`, así que tampoco sirve en un dominio.
+        today = fields.Date.context_today(self)
+        version = employee.version_id
+        started = version.contract_date_start and version.contract_date_start <= today
+        not_ended = not version.contract_date_end or version.contract_date_end >= today
+        if not (started and not_ended):
             raise UserError(
-                _("No active contract found for %s. Cannot update projected expenses.")
-                % self.employee_id.name
+                _("El empleado %s no tiene un contrato vigente a fecha de hoy. "
+                  "No se pueden actualizar los gastos proyectados.")
+                % employee.name
             )
 
-        # Update the field on the contract
-        contract.write({"l10n_ec_projected_expenses": self.total_projected})
+        employee.write({"l10n_ec_projected_expenses": self.total_projected})
 
         return {
             "type": "ir.actions.client",

@@ -26,6 +26,7 @@ class L10nEcWithholdingTax(models.Model):
 
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ("code_uniq", "unique(code, type)", "Tax Code must be unique per type!")
-    ]
+    _code_uniq = models.Constraint(
+        "UNIQUE(code, type)",
+        "Tax Code must be unique per type!",
+    )

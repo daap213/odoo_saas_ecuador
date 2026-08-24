@@ -1,6 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_l10n_ec_loan_user,l10n_ec.loan.user,model_l10n_ec_loan,base.group_user,1,0,0,0
-access_l10n_ec_loan_manager,l10n_ec.loan.manager,model_l10n_ec_loan,base.group_system,1,1,1,1
-access_l10n_ec_loan_line_user,l10n_ec.loan.line.user,model_l10n_ec_loan_line,base.group_user,1,0,0,0
-access_l10n_ec_loan_line_manager,l10n_ec.loan.line.manager,model_l10n_ec_loan_line,base.group_system,1,1,1,1
-access_l10n_ec_loan_import_wizard_user,l10n_ec.loan.import.wizard.user,model_l10n_ec_loan_import_wizard,base.group_user,1,1,1,1
+access_l10n_ec_loan_hr_user,l10n_ec.loan.hr.user,model_l10n_ec_loan,hr.group_hr_user,1,1,1,0
+access_l10n_ec_loan_hr_manager,l10n_ec.loan.hr.manager,model_l10n_ec_loan,hr.group_hr_manager,1,1,1,1
+access_l10n_ec_loan_line_hr_user,l10n_ec.loan.line.hr.user,model_l10n_ec_loan_line,hr.group_hr_user,1,1,1,0
+access_l10n_ec_loan_line_hr_manager,l10n_ec.loan.line.hr.manager,model_l10n_ec_loan_line,hr.group_hr_manager,1,1,1,1
+access_l10n_ec_loan_import_wizard,l10n_ec.loan.import.wizard,model_l10n_ec_loan_import_wizard,hr.group_hr_manager,1,1,1,1

@@ -149,22 +149,16 @@ class AccountEdiFormat(models.Model):
 
             try:
                 # Use AbstractModels from l10n_ec_edi
-                signer = self.env["l10n_ec.sri.signer"]
                 service = self.env["l10n_ec.sri.service"]
 
-                # Sign
-                # The signer expect bytes, xml_content is str
-                signed_xml_bytes = signer.sign_xml(
-                    xml_content.encode("utf-8"),
-                    certificate.content,  # This is binary (base64)
-                    certificate.password,
-                )
+                # Sign (lectura privilegiada del .p12 encapsulada en el certificado)
+                signed_xml_bytes = certificate.sign_xml(xml_content.encode("utf-8"))
 
                 # Transmit
                 env_code = (
                     "1" if invoice.company_id.l10n_ec_sri_environment == "test" else "2"
                 )
-                response_data = service.send_document(signed_xml_bytes, env_code)
+                response_data = service.send_document(invoice.company_id, signed_xml_bytes)
 
                 # Process Response
                 if response_data.get("status") == "RECIBIDA":

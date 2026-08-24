@@ -40,9 +40,10 @@ class L10nEcPaymentMethod(models.Model):
     )
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ('code_unique', 'unique(code)', 'El código de forma de pago debe ser único.'),
-    ]
+    _code_unique = models.Constraint(
+        "UNIQUE(code)",
+        "El código de forma de pago debe ser único.",
+    )
 
 
 class L10nEcIdentificationType(models.Model):
@@ -80,9 +81,10 @@ class L10nEcIdentificationType(models.Model):
     )
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ('code_unique', 'unique(code)', 'El código de identificación debe ser único.'),
-    ]
+    _code_unique = models.Constraint(
+        "UNIQUE(code)",
+        "El código de identificación debe ser único.",
+    )
 
 
 class L10nEcTaxSupport(models.Model):
@@ -107,9 +109,10 @@ class L10nEcTaxSupport(models.Model):
     )
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ('code_unique', 'unique(code)', 'El código de sustento debe ser único.'),
-    ]
+    _code_unique = models.Constraint(
+        "UNIQUE(code)",
+        "El código de sustento debe ser único.",
+    )
 
 
 class L10nEcProvince(models.Model):
@@ -170,9 +173,10 @@ class L10nEcProvince(models.Model):
             else:
                 rec.decimo_cuarto_month = '8'  # Agosto
 
-    _sql_constraints = [
-        ('code_unique', 'unique(code)', 'El código de provincia debe ser único.'),
-    ]
+    _code_unique = models.Constraint(
+        "UNIQUE(code)",
+        "El código de provincia debe ser único.",
+    )
 
 
 class L10nEcCanton(models.Model):
@@ -202,9 +206,10 @@ class L10nEcCanton(models.Model):
     )
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ('code_unique', 'unique(code)', 'El código de cantón debe ser único.'),
-    ]
+    _code_unique = models.Constraint(
+        "UNIQUE(code)",
+        "El código de cantón debe ser único.",
+    )
 
 
 class L10nEcCIIU(models.Model):
@@ -248,9 +253,10 @@ class L10nEcCIIU(models.Model):
         for rec in self:
             rec.level = len(rec.code) if rec.code else 0
 
-    _sql_constraints = [
-        ('code_unique', 'unique(code)', 'El código CIIU debe ser único.'),
-    ]
+    _code_unique = models.Constraint(
+        "UNIQUE(code)",
+        "El código CIIU debe ser único.",
+    )
 
 
 class L10nEcContributorType(models.Model):
@@ -286,6 +292,7 @@ class L10nEcContributorType(models.Model):
     )
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ('code_unique', 'unique(code)', 'El código de tipo contribuyente debe ser único.'),
-    ]
+    _code_unique = models.Constraint(
+        "UNIQUE(code)",
+        "El código de tipo contribuyente debe ser único.",
+    )

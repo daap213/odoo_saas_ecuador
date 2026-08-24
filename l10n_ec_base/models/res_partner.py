@@ -202,6 +202,32 @@ class ResPartner(models.Model):
                     % partner.name
                 )
 
+    @api.onchange("l10n_ec_identifier_type")
+    def _onchange_l10n_ec_identifier_type(self):
+        """Sincroniza el tipo de identificación LATAM al elegir el tipo ecuatoriano.
+
+        base_vat valida el campo `vat` contra el formato del país salvo que el
+        partner declare un l10n_latam.identification.type marcado como NO-VAT. Sin
+        esta sincronización, registrar a un extranjero con pasaporte falla con un
+        ValidationError de base_vat aunque la validación propia del módulo lo acepte.
+
+        NOTA: l10n_ec_identifier_type duplica lo que ya modela
+        l10n_latam_identification_type_id. La solución de fondo es adoptar el campo
+        LATAM y retirar este; mientras tanto, esto evita el fallo al usuario.
+        """
+        for partner in self:
+            if not partner.l10n_ec_identifier_type:
+                continue
+            is_vat_type = partner.l10n_ec_identifier_type in ("ruc", "cedula")
+            domain = [("is_vat", "=", is_vat_type)]
+            country = partner.country_id or self.env.ref("base.ec", False)
+            if country:
+                domain = ["|", ("country_id", "=", country.id),
+                          ("country_id", "=", False)] + domain
+            id_type = self.env["l10n_latam.identification.type"].search(domain, limit=1)
+            if id_type:
+                partner.l10n_latam_identification_type_id = id_type
+
     @api.constrains("vat", "l10n_ec_identifier_type", "country_id")
     def _check_l10n_ec_vat(self):
         """

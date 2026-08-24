@@ -1,8 +1,11 @@
 from odoo import models, fields
 
 
-class HrContract(models.Model):
-    _inherit = "hr.contract"
+class HrVersion(models.Model):
+    # Odoo 19 eliminó el módulo hr_contract: los datos contractuales viven ahora en
+    # hr.version, dentro de hr, y hr.employee los expone por delegación
+    # (_inherits = {'hr.version': 'version_id'}).
+    _inherit = "hr.version"
 
     l10n_ec_regime = fields.Selection(
         [

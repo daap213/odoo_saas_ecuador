@@ -114,13 +114,14 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="row mt-5">
-                       <div class="col-12 text-center">
-                           <a class="btn btn-primary" t-attf-href="/report/pdf/l10n_ec_hr_payroll.report_payslip/#{payslip.id}" download="true">
-                               <i class="fa fa-download"/> Download PDF
-                           </a>
-                       </div>
-                    </div>
+                    <!--
+                        Aquí había un botón "Download PDF" que apuntaba a
+                        /report/pdf/l10n_ec_hr_payroll.report_payslip/... , pero ese
+                        informe NO EXISTE: el único que define l10n_ec_hr_payroll es
+                        report_form_107. El botón devolvía 404 a todo empleado que lo
+                        pulsara. Se retira hasta que exista un informe QWeb del rol de
+                        pago; entonces se vuelve a poner apuntando a su ID real.
+                    -->
                 </t>
             </t>
         </t>

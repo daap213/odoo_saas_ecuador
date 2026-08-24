@@ -17,3 +17,6 @@ https://github.com/jmcuenca/odoo_saas_ecuador/tree/19.0
 
 --Otras Referencias ODOOO SRI
 https://firmas.com.ec/blog/firma-electronica-con-odoo
+
+--Odoo documentacion
+https://www.odoo.com/documentation/19.0/es_419/developer.html

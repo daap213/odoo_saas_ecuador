@@ -3,4 +3,3 @@ access_l10n_ec_tax_table_user,l10n_ec.tax.table.user,model_l10n_ec_tax_table,bas
 access_l10n_ec_tax_table_manager,l10n_ec.tax.table.manager,model_l10n_ec_tax_table,base.group_system,1,1,1,1
 access_l10n_ec_family_basket_user,l10n_ec.family.basket.user,model_l10n_ec_family_basket,base.group_user,1,0,0,0
 access_l10n_ec_family_basket_manager,l10n_ec.family.basket.manager,model_l10n_ec_family_basket,base.group_system,1,1,1,1
-access_l10n_ec_gastos_personales_wizard_user,l10n_ec.gastos.personales.wizard.user,model_l10n_ec_gastos_personales_wizard,base.group_user,1,1,1,1

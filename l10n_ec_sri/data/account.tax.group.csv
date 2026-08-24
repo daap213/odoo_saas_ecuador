@@ -1,5 +1,0 @@
-id,name,sequence,country_id:id
-tax_group_iva,IVA,1,base.ec
-tax_group_renta,Retención Renta,2,base.ec
-tax_group_ice,ICE,3,base.ec
-tax_group_isd,ISD,4,base.ec

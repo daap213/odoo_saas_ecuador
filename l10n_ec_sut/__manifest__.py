@@ -17,7 +17,9 @@ Generates compliance files for the **Sistema Único de Trabajo (SUT)**:
 Ensures Art. 13 and Art. 14 compliance reporting.
     """,
     "author": "Somatech.dev",
-    "depends": ["l10n_ec_hr_payroll"],
+    # account: sut_report_wizard.py consulta account_move_line / account_account /
+    # account_move con SQL directo; sin este depends las tablas no existen.
+    "depends": ["l10n_ec_hr_payroll", "account"],
     "data": [
         "security/ir.model.access.csv",
         "wizard/sut_report_wizard_view.xml",

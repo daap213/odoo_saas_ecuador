@@ -31,4 +31,7 @@ class L10nEcIceCategory(models.Model):
 
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [("code_uniq", "unique(code)", "The SRI Code must be unique!")]
+    _code_uniq = models.Constraint(
+        "UNIQUE(code)",
+        "The SRI Code must be unique!",
+    )

@@ -1,20 +1,21 @@
-from odoo.tests.common import TransactionCase
+from odoo.tests import TransactionCase, tagged
 from datetime import datetime
 
 
+@tagged("post_install", "-at_install", "l10n_ec", "payroll")
 class TestSuperiorityFeatures(TransactionCase):
 
     def setUp(self):
-        super(TestSuperiorityFeatures, self).setUp()
+        super().setUp()
         self.employee = self.env["hr.employee"].create({"name": "Test Worker"})
-        self.contract = self.env["hr.contract"].create(
-            {
-                "name": "Test Contract",
-                "employee_id": self.employee.id,
-                "wage": 500.0,
-                "state": "open",
-            }
-        )
+        # Odoo 19: hr.contract ya no existe. hr.employee._inherits = {'hr.version':
+        # 'version_id'}, así que el empleado ya trae su versión de contrato creada.
+        # wage y contract_date_start están limitados a hr.group_hr_manager -> sudo().
+        self.contract = self.employee.version_id.sudo()
+        self.contract.write({
+            "wage": 500.0,
+            "contract_date_start": "2025-01-01",
+        })
         self.payslip_model = self.env["l10n_ec.payslip"]
         self.attendance_model = self.env["hr.attendance"]
 

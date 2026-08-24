@@ -251,10 +251,10 @@ class L10nEcConfig(models.Model):
         """Obtiene tasa IVA general del año."""
         return self.get_current_config(year).iva_general
 
-    _sql_constraints = [
-        ('year_company_unique', 'unique(year, company_id)',
-         'Solo puede existir una configuración por año y empresa.'),
-    ]
+    _year_company_unique = models.Constraint(
+        "UNIQUE(year, company_id)",
+        "Solo puede existir una configuración por año y empresa.",
+    )
 
 
 class L10nEcRetentionCode(models.Model):
@@ -301,10 +301,10 @@ class L10nEcRetentionCode(models.Model):
 
     notes = fields.Text(string='Notas')
 
-    _sql_constraints = [
-        ('code_type_unique', 'unique(code, type)',
-         'El código de retención debe ser único por tipo.'),
-    ]
+    _code_type_unique = models.Constraint(
+        "UNIQUE(code, type)",
+        "El código de retención debe ser único por tipo.",
+    )
 
     @api.model
     def get_rate_by_code(self, code, retention_type='ir'):
@@ -363,7 +363,7 @@ class L10nEcTaxCode(models.Model):
     )
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ('code_unique', 'unique(code)',
-         'El código de impuesto debe ser único.'),
-    ]
+    _code_unique = models.Constraint(
+        "UNIQUE(code)",
+        "El código de impuesto debe ser único.",
+    )

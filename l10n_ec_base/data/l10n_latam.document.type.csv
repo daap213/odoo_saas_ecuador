@@ -1,8 +1,0 @@
-id,name,code,country_id:id,internal_type,doc_code_prefix
-ec_dt_01,Factura,01,base.ec,invoice,FAC
-ec_dt_03,Liquidación de Compra,03,base.ec,invoice,LIQ
-ec_dt_04,Nota de Crédito,04,base.ec,credit_note,NC
-ec_dt_05,Nota de Débito,05,base.ec,debit_note,ND
-ec_dt_06,Guía de Remisión,06,base.ec,invoice,GR
-ec_dt_07,Comprobante de Retención,07,base.ec,invoice,RET
-ec_dt_41,Comprobante de Reembolso,41,base.ec,invoice,REEM

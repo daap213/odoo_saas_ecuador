@@ -30,7 +30,24 @@ This module provides the base localization for Ecuador:
         "base",
         "account",
         "purchase",
+        # purchase_stock: models/purchase_order.py calcula multas por retraso de
+        # entrega y depende de purchase.order.picking_ids, campo que NO aporta
+        # `purchase` sino `purchase_stock`. Sin esto el registro no carga:
+        # "Wrong @depends on '_compute_penalty' ... 'picking_ids' not found".
+        "purchase_stock",
         "l10n_latam_invoice_document",
+        # l10n_ec OFICIAL (Odoo Community, autor TRESCLOUD). Aporta el plan de
+        # cuentas 'ec', los tipos de documento LATAM con su internal_type correcto,
+        # account.journal.l10n_ec_entity / .l10n_ec_emission (establecimiento y
+        # punto de emisión) y account.tax.group.l10n_ec_type (la clasificación SRI
+        # de la que ahora sale el codigoPorcentaje). Se declara explícitamente en
+        # lugar de depender de su auto_install.
+        #
+        # Este módulo ya NO define su propia plantilla @template("ec"): coincidía en
+        # el nombre de tres métodos con la oficial, el MRO se quedaba con una sola y
+        # el plan de cuentas ecuatoriano no se podía instalar
+        # ("You cannot have a receivable/payable account that is not reconcilable").
+        "l10n_ec",
     ],
     "data": [
         "security/l10n_ec_groups.xml",
@@ -40,8 +57,6 @@ This module provides the base localization for Ecuador:
         "data/l10n_ec_catalogs_data.xml",
         "data/l10n_ec_provinces.xml",
         "data/l10n_ec.canton.csv",
-        "data/account_chart_template.xml",
-        "data/l10n_latam.document.type.csv",
         "views/res_partner_views.xml",
         "views/res_company_views.xml",
     ],

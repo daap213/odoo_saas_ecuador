@@ -33,6 +33,7 @@ Features:
     "depends": ["mrp", "stock"],
     "data": [
         "security/ir.model.access.csv",
+        "data/ir_sequence_data.xml",
         "views/quality_views.xml",
     ],
     "installable": True,

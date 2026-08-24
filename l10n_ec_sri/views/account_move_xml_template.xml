@@ -1,72 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Factura electrónica — Ficha Técnica SRI 2.34, ANEXO 3 (versión 1.1.0).
+
+    Se declara 1.1.0 y no 2.1.0: los anexos 8 y 9 (2.0.0/2.1.0) son de propósito
+    específico —rubros de terceros y factura sustitutiva de guía de remisión— y la
+    propia Ficha dice que "caso contrario se deberá utilizar los formatos de factura
+    establecidos en el anexo 1 y anexo 3". La 1.1.0 es la 1.0.0 más 6 decimales en
+    cantidad y precio unitario.
+
+    El orden de las etiquetas es significativo: el XSD del SRI es de secuencia, así
+    que mover un elemento provoca el error 35 "Documento inválido".
+
+    Todos los valores llegan ya calculados y formateados desde
+    l10n_ec.sri.xml._get_invoice_values, para que la clave de acceso y el cuerpo del
+    comprobante compartan una única fuente y no puedan discrepar (error 58).
+-->
 <odoo>
 <template id="xml_invoice">
-<factura id="comprobante" version="2.1.0">
+<factura id="comprobante" version="1.1.0">
     <infoTributaria>
-        <ambiente><t t-esc="'2' if record.company_id.l10n_ec_sri_environment == 'production' else '1'"/></ambiente>
+        <ambiente t-out="components['environment']"/>
         <tipoEmision>1</tipoEmision>
-        <razonSocial><t t-esc="record.company_id.name"/></razonSocial>
-        <nombreComercial><t t-esc="record.company_id.name"/></nombreComercial>
-        <ruc><t t-esc="record.company_id.vat"/></ruc>
-        <claveAcceso><t t-esc="access_key"/></claveAcceso>
-        <codDoc>01</codDoc>
-        <estab>001</estab>
-        <ptoEmi>001</ptoEmi>
-        <secuencial><t t-esc="record.name.split('-')[-1]"/></secuencial>
-        <dirMatriz><t t-esc="record.company_id.street"/></dirMatriz>
+        <razonSocial t-out="clip(company.name, 300)"/>
+        <nombreComercial t-if="company.l10n_ec_commercial_name"
+                         t-out="clip(company.l10n_ec_commercial_name, 300)"/>
+        <ruc t-out="company.vat"/>
+        <claveAcceso t-out="access_key"/>
+        <codDoc t-out="components['document_code']"/>
+        <estab t-out="components['establishment']"/>
+        <ptoEmi t-out="components['emission_point']"/>
+        <secuencial t-out="components['sequential']"/>
+        <dirMatriz t-out="clip(company.street, 300)"/>
+        <!-- Anexo 21: número de resolución, sin ceros a la izquierda, máximo 8 -->
+        <agenteRetencion t-if="company.l10n_ec_withhold_agent and company.l10n_ec_withhold_resolution"
+                         t-out="clip(company.l10n_ec_withhold_resolution.lstrip('0'), 8)"/>
+        <!-- Anexo 22: texto literal exigido por la Ficha, 27 o 45 caracteres -->
+        <contribuyenteRimpe t-if="rimpe_legend" t-out="rimpe_legend"/>
     </infoTributaria>
     <infoFactura>
-        <fechaEmision><t t-esc="record.invoice_date.strftime('%d/%m/%Y')"/></fechaEmision>
-        <dirEstablecimiento><t t-esc="record.company_id.street"/></dirEstablecimiento>
-        <obligadoContabilidad><t t-if="record.company_id.l10n_ec_forced_accounting">SI</t><t t-else="">NO</t></obligadoContabilidad>
-        <tipoIdentificacionComprador><t t-esc="
-            '07' if not record.partner_id.vat or record.partner_id.vat in ('9999999999999', 'CF', 'consumidor final')
-            else '04' if len(record.partner_id.vat) == 13
-            else '05' if len(record.partner_id.vat) == 10
-            else '06'
-        "/></tipoIdentificacionComprador>
-        <razonSocialComprador><t t-esc="record.partner_id.name"/></razonSocialComprador>
-        <identificacionComprador><t t-esc="
-            '9999999999999' if not record.partner_id.vat or record.partner_id.vat in ('9999999999999', 'CF', 'consumidor final')
-            else record.partner_id.vat
-        "/></identificacionComprador>
-        <totalSinImpuestos><t t-esc="'{:.2f}'.format(record.amount_untaxed)"/></totalSinImpuestos>
-        <totalDescuento>0.00</totalDescuento>
+        <fechaEmision t-out="record.invoice_date.strftime('%d/%m/%Y')"/>
+        <dirEstablecimiento t-out="clip(company.street, 300)"/>
+        <contribuyenteEspecial t-if="company.l10n_ec_special_resolution"
+                               t-out="clip(company.l10n_ec_special_resolution, 13)"/>
+        <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+        <tipoIdentificacionComprador t-out="buyer_id_type"/>
+        <razonSocialComprador t-out="clip(partner.name, 300)"/>
+        <identificacionComprador t-out="clip(buyer_identification, 20)"/>
+        <direccionComprador t-if="partner.street" t-out="clip(partner.street, 300)"/>
+        <totalSinImpuestos t-out="money(record.amount_untaxed)"/>
+        <totalDescuento t-out="total_discount"/>
         <totalConImpuestos>
-            <t t-foreach="sri_totals" t-as="tot">
-                <totalImpuesto>
-                    <codigo><t t-esc="tot['codigo']"/></codigo>
-                    <codigoPorcentaje><t t-esc="tot['codigoPorcentaje']"/></codigoPorcentaje>
-                    <baseImponible><t t-esc="tot['baseImponible']"/></baseImponible>
-                    <valor><t t-esc="tot['valor']"/></valor>
-                </totalImpuesto>
-            </t>
+            <totalImpuesto t-foreach="sri_totals" t-as="tot">
+                <codigo t-out="tot['codigo']"/>
+                <codigoPorcentaje t-out="tot['codigoPorcentaje']"/>
+                <baseImponible t-out="tot['baseImponible']"/>
+                <valor t-out="tot['valor']"/>
+            </totalImpuesto>
         </totalConImpuestos>
         <propina>0.00</propina>
-        <importeTotal><t t-esc="'{:.2f}'.format(record.amount_total)"/></importeTotal>
+        <importeTotal t-out="money(record.amount_total)"/>
         <moneda>DOLAR</moneda>
+        <!-- Obligatorio. Su ausencia hacía fallar el esquema (error 35). -->
+        <pagos>
+            <pago t-foreach="payments" t-as="pay">
+                <formaPago t-out="pay['formaPago']"/>
+                <total t-out="pay['total']"/>
+            </pago>
+        </pagos>
     </infoFactura>
     <detalles>
-        <detalle t-foreach="record.invoice_line_ids" t-as="line">
-            <codigoPrincipal><t t-esc="line.product_id.default_code or 'GEN'"/></codigoPrincipal>
-            <descripcion><t t-esc="' '.join((line.name or '').splitlines())"/></descripcion>
-            <cantidad><t t-esc="line.quantity"/></cantidad>
-            <precioUnitario><t t-esc="line.price_unit"/></precioUnitario>
-            <descuento>0.00</descuento>
-            <precioTotalSinImpuesto><t t-esc="line.price_subtotal"/></precioTotalSinImpuesto>
+        <detalle t-foreach="lines" t-as="line">
+            <codigoPrincipal t-out="clip(line.product_id.default_code or 'GEN', 25)"/>
+            <codigoAuxiliar t-if="line.product_id.barcode"
+                            t-out="clip(line.product_id.barcode, 25)"/>
+            <descripcion t-out="clip(' '.join((line.name or '').split()), 300)"/>
+            <cantidad t-out="quantity(line.quantity)"/>
+            <precioUnitario t-out="quantity(line.price_unit)"/>
+            <descuento t-out="money(line.price_unit * line.quantity * (line.discount or 0.0) / 100.0)"/>
+            <precioTotalSinImpuesto t-out="money(line.price_subtotal)"/>
             <impuestos>
-                <t t-foreach="sri_line_taxes.get(line.id, [])" t-as="imp">
-                    <impuesto>
-                        <codigo><t t-esc="imp['codigo']"/></codigo>
-                        <codigoPorcentaje><t t-esc="imp['codigoPorcentaje']"/></codigoPorcentaje>
-                        <tarifa><t t-esc="imp['tarifa']"/></tarifa>
-                        <baseImponible><t t-esc="imp['baseImponible']"/></baseImponible>
-                        <valor><t t-esc="imp['valor']"/></valor>
-                    </impuesto>
-                </t>
+                <impuesto t-foreach="sri_line_taxes.get(line.id, [])" t-as="imp">
+                    <codigo t-out="imp['codigo']"/>
+                    <codigoPorcentaje t-out="imp['codigoPorcentaje']"/>
+                    <tarifa t-out="imp['tarifa']"/>
+                    <baseImponible t-out="imp['baseImponible']"/>
+                    <valor t-out="imp['valor']"/>
+                </impuesto>
             </impuestos>
         </detalle>
     </detalles>
+    <infoAdicional t-if="additional_info">
+        <campoAdicional t-foreach="additional_info" t-as="info"
+                        t-att-nombre="info[0]" t-out="info[1]"/>
+    </infoAdicional>
 </factura>
 </template>
 </odoo>

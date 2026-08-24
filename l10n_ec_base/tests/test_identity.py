@@ -75,12 +75,27 @@ class TestEcIdentity(common.TransactionCase):
             )
 
     def test_pasaporte(self):
-        """Pasaporte accepts alphanumeric > 5 chars"""
+        """Pasaporte accepts alphanumeric > 5 chars.
+
+        En Odoo 19 no basta con l10n_ec_identifier_type: base_vat valida `vat`
+        contra el formato del país y rechaza un pasaporte si el partner no declara
+        un l10n_latam.identification.type marcado como NO-VAT. Sin ese campo, crear
+        un partner extranjero con pasaporte falla con ValidationError de base_vat,
+        que es lo que ocurría aquí.
+        """
+        # Se usa el tipo de Ecuador si el l10n_ec oficial está instalado (lo hace
+        # solo: declara auto_install sobre `account`), y si no el genérico de
+        # l10n_latam_base. No vale buscar por is_vat=False sin más: eso también
+        # devuelve "Citizenship", que exige 10 dígitos y vuelve a fallar.
+        passport_type = self.env.ref(
+            "l10n_ec.ec_passport", raise_if_not_found=False
+        ) or self.env.ref("l10n_latam_base.it_pass")
         partner = self.env["res.partner"].create(
             {
                 "name": "Foreigner",
                 "country_id": self.ec.id,
                 "l10n_ec_identifier_type": "pasaporte",
+                "l10n_latam_identification_type_id": passport_type.id,
                 "vat": "PASS123456",
             }
         )

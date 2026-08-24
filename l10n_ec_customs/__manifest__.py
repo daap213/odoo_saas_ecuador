@@ -30,10 +30,14 @@ Complete customs management for Ecuador (SENAE):
     "author": "Somatech.dev, Odoo Community Association (OCA)",
     "website": "https://github.com/somatechlat/odoo_saas_ecuador",
     "license": "LGPL-3",
-    "depends": ["stock", "account", "purchase"],
+    # l10n_ec_base define los parámetros l10n_ec.fodinfa y l10n_ec.customs_iva en
+    # data/l10n_ec_sri_config.xml. Este módulo los declaraba otra vez con IDs
+    # externos distintos pero la MISMA clave, lo que rompía la instalación con
+    # "duplicate key value violates unique constraint ir_config_parameter_key_uniq".
+    # Se depende de la base y se usan sus parámetros en lugar de duplicarlos.
+    "depends": ["stock", "account", "purchase", "l10n_ec_base"],
     "data": [
         "security/ir.model.access.csv",
-        "data/l10n_ec_customs_data.xml",
         "views/l10n_ec_customs_views.xml",
     ],
     "images": ["static/description/banner.png"],

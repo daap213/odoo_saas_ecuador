@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Secuencia del control de calidad.
+
+    quality_check.py::create llama a next_by_code("l10n_ec.quality.check"), pero
+    no existía ningún ir.sequence con ese código: next_by_code devolvía False y
+    TODOS los controles se quedaban llamándose "New".
+
+    company_id vacío a propósito: la secuencia se resuelve por compañía en tiempo
+    de ejecución en lugar de compartir un contador entre inquilinos.
+-->
+<odoo>
+    <data noupdate="1">
+        <record id="seq_l10n_ec_quality_check" model="ir.sequence">
+            <field name="name">Control de Calidad Ecuador</field>
+            <field name="code">l10n_ec.quality.check</field>
+            <field name="prefix">QC/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="implementation">no_gap</field>
+        </record>
+    </data>
+</odoo>

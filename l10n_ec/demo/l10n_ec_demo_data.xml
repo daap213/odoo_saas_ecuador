@@ -12,23 +12,15 @@
     <data noupdate="0">
 
         <!-- ================================================================
-             COMPANY CONFIGURATION - CANNACHAIN S.A.S.
+             NO SE TOCA res.company.
+             Antes había aquí un <function model="res.company" name="write"> que
+             sobrescribía base.main_company con datos de CANNACHAIN S.A.S. y su RUC.
+             Al estar en la clave "data" con noupdate="0" se ejecutaba en CADA
+             instalación y en CADA -u, pisando el nombre y el RUC reales del cliente.
+             En facturación electrónica eso es crítico: el RUC entra en la clave de
+             acceso y en el XML firmado. La identidad de la empresa la configura
+             el asistente (l10n_ec.company.setup.wizard), nunca un archivo de datos.
              ================================================================ -->
-
-        <!-- Update main company -->
-        <function model="res.company" name="write">
-            <value eval="[ref('base.main_company')]"/>
-            <value eval="{
-                'name': 'CANNACHAIN S.A.S.',
-                'vat': '1793125212001',
-                'street': 'Av. República E7-197 y Almagro',
-                'city': 'Quito',
-                'zip': '170135',
-                'phone': '+593 2 290 1234',
-                'email': 'info@cannachain.ec',
-                'website': 'https://cannachain.ec',
-            }"/>
-        </function>
 
         <!-- ================================================================
              ECUADORIAN CUSTOMERS (Valid RUC format)

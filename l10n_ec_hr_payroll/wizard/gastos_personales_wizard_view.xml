@@ -43,7 +43,7 @@
 
     <menuitem id="menu_l10n_ec_gastos_personales"
               name="Formulario GP (Gastos)"
-              parent="hr.menu_hr_employee_payroll"
+              parent="l10n_ec_hr_payroll.menu_l10n_ec_payroll_root"
               action="action_l10n_ec_gastos_personales"
               sequence="50"/>
 </odoo>

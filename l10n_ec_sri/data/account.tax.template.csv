@@ -1,7 +1,0 @@
-id,name,description,type_tax_use,amount_type,amount,tax_group_id:id,invoice_repartition_line_ids/account_id:id,refund_repartition_line_ids/account_id:id
-tax_iva_15_sale,IVA 15% (Venta),15%,sale,percent,15.0,tax_group_iva,account_2010501,account_2010501
-tax_iva_15_purchase,IVA 15% (Compra),15%,purchase,percent,15.0,tax_group_iva,account_1010501,account_1010501
-tax_iva_0_sale,IVA 0% (Venta),0%,sale,percent,0.0,tax_group_iva,,
-tax_iva_0_purchase,IVA 0% (Compra),0%,purchase,percent,0.0,tax_group_iva,,
-tax_ret_renta_1,Retención Renta 1.75%,1.75%,purchase,percent,1.75,tax_group_renta,account_2010502,account_2010502
-tax_ret_iva_30,Retención IVA 30%,30%,purchase,percent,30.0,tax_group_renta,account_2010503,account_2010503

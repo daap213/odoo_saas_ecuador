@@ -1,39 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Comprobante de retención (codDoc 07) — Ficha Técnica SRI 2.34, versión 1.0.0.
+
+    Los valores llegan calculados desde l10n_ec.sri.retention.xml, para que la clave
+    de acceso y el cuerpo compartan una única fuente. En particular <ambiente> ya no
+    imprime el campo de selección en crudo: antes emitía las cadenas literales
+    'test' / 'production', lo que además rompía la clave de acceso.
+-->
 <odoo>
 <template id="xml_retention">
 <comprobanteRetencion id="comprobante" version="1.0.0">
     <infoTributaria>
-        <ambiente><t t-esc="company.l10n_ec_sri_environment"/></ambiente>
+        <ambiente t-out="environment"/>
         <tipoEmision>1</tipoEmision>
-        <razonSocial><t t-esc="company.name"/></razonSocial>
-        <nombreComercial><t t-esc="company.name"/></nombreComercial>
-        <ruc><t t-esc="company.vat"/></ruc>
-        <claveAcceso><t t-esc="access_key"/></claveAcceso>
+        <razonSocial t-out="company.name[:300]"/>
+        <nombreComercial t-if="company.l10n_ec_commercial_name"
+                         t-out="company.l10n_ec_commercial_name[:300]"/>
+        <ruc t-out="company.vat"/>
+        <claveAcceso t-out="access_key"/>
         <codDoc>07</codDoc>
-        <estab><t t-esc="record.name.split('-')[0]"/></estab>
-        <ptoEmi><t t-esc="record.name.split('-')[1]"/></ptoEmi>
-        <secuencial><t t-esc="record.name.split('-')[2]"/></secuencial>
-        <dirMatriz><t t-esc="company.street"/></dirMatriz>
+        <estab t-out="establishment"/>
+        <ptoEmi t-out="emission_point"/>
+        <secuencial t-out="sequential"/>
+        <dirMatriz t-out="(company.street or '')[:300]"/>
+        <agenteRetencion t-if="company.l10n_ec_withhold_agent and company.l10n_ec_withhold_resolution"
+                         t-out="company.l10n_ec_withhold_resolution.lstrip('0')[:8]"/>
+        <contribuyenteRimpe t-if="company.l10n_ec_rimpe_legend()"
+                            t-out="company.l10n_ec_rimpe_legend()"/>
     </infoTributaria>
     <infoCompRetencion>
-        <fechaEmision><t t-esc="formatted_date"/></fechaEmision>
-        <dirEstablecimiento><t t-esc="company.street"/></dirEstablecimiento>
-        <obligadoContabilidad><t t-if="company.l10n_ec_forced_accounting">SI</t><t t-else="">NO</t></obligadoContabilidad>
-        <tipoIdentificacionSujetoRetenido>04</tipoIdentificacionSujetoRetenido> <!-- 04=RUC, 05=Cedula -->
-        <razonSocialSujetoRetenido><t t-esc="partner.name"/></razonSocialSujetoRetenido>
-        <identificacionSujetoRetenido><t t-esc="partner.vat"/></identificacionSujetoRetenido>
-        <periodoFiscal><t t-esc="periodo_fiscal"/></periodoFiscal>
+        <fechaEmision t-out="formatted_date"/>
+        <dirEstablecimiento t-out="(company.street or '')[:300]"/>
+        <contribuyenteEspecial t-if="company.l10n_ec_special_resolution"
+                               t-out="company.l10n_ec_special_resolution[:13]"/>
+        <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+        <!-- Tabla 6. La Ficha prohíbe consumidor final (07) en retenciones: hay que
+             identificar siempre al sujeto retenido. -->
+        <tipoIdentificacionSujetoRetenido
+            t-out="'05' if partner.l10n_ec_identifier_type == 'cedula' else ('06' if partner.l10n_ec_identifier_type == 'pasaporte' else '04')"/>
+        <razonSocialSujetoRetenido t-out="partner.name[:300]"/>
+        <identificacionSujetoRetenido t-out="partner.vat"/>
+        <periodoFiscal t-out="periodo_fiscal"/>
     </infoCompRetencion>
     <impuestos>
         <impuesto t-foreach="record.tax_ids" t-as="line">
-            <codigo>2</codigo> <!-- 1=Renta, 2=IVA, 6=ISD -->
-            <codigoRetencion><t t-esc="line.tax_id.l10n_ec_code or '000'"/></codigoRetencion>
-            <baseImponible><t t-esc="'{:.2f}'.format(line.base_amount)"/></baseImponible>
-            <porcentajeRetener><t t-esc="line.tax_id.amount"/></porcentajeRetener>
-            <valorRetenido><t t-esc="'{:.2f}'.format(line.amount)"/></valorRetenido>
-            <codDocSustento>01</codDocSustento>
-            <numDocSustento><t t-esc="record.invoice_id.name.replace('-', '') or '001001000000001'"/></numDocSustento> <!-- Needs formatting -->
-            <fechaEmisionDocSustento><t t-esc="record.invoice_id.invoice_date.strftime('%d/%m/%Y')"/></fechaEmisionDocSustento>
+            <!-- Tabla 19: 1=Renta, 2=IVA, 6=ISD -->
+            <codigo t-out="line.tax_id.l10n_ec_retention_type or '2'"/>
+            <codigoRetencion t-out="line.tax_id.l10n_ec_get_retention_code()"/>
+            <baseImponible t-out="'{:.2f}'.format(line.base_amount)"/>
+            <!-- Los impuestos de retención se guardan con importe negativo en Odoo;
+                 el SRI espera el porcentaje en positivo. -->
+            <porcentajeRetener t-out="'{:.2f}'.format(abs(line.tax_id.amount))"/>
+            <valorRetenido t-out="'{:.2f}'.format(abs(line.amount))"/>
+            <codDocSustento t-out="record.invoice_id.l10n_latam_document_type_id.code or '01'"/>
+            <numDocSustento t-out="(record.invoice_id.l10n_latam_document_number or '').replace('-', '')"/>
+            <fechaEmisionDocSustento t-out="record.invoice_id.invoice_date.strftime('%d/%m/%Y')"/>
         </impuesto>
     </impuestos>
 </comprobanteRetencion>

@@ -6,12 +6,16 @@ from odoo.addons.portal.controllers.portal import CustomerPortal, pager as porta
 
 class L10nEcPortal(CustomerPortal):
 
+    # Los roles de pago y los préstamos son datos de RR.HH.: ni el usuario portal ni
+    # un empleado corriente tienen ACL sobre l10n_ec.payslip / l10n_ec.loan. Se leen
+    # en sudo() y la propiedad se garantiza SIEMPRE con ('employee_id', '=', employee.id)
+    # en el dominio, nunca filtrando después.
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
         employee = request.env.user.employee_id
         if "payslip_count" in counters:
             values["payslip_count"] = (
-                request.env["l10n_ec.payslip"].search_count(
+                request.env["l10n_ec.payslip"].sudo().search_count(
                     [("employee_id", "=", employee.id), ("state", "=", "done")]
                 )
                 if employee
@@ -19,7 +23,7 @@ class L10nEcPortal(CustomerPortal):
             )
         if "loan_count" in counters:
             values["loan_count"] = (
-                request.env["l10n_ec.loan"].search_count(
+                request.env["l10n_ec.loan"].sudo().search_count(
                     [("employee_id", "=", employee.id)]
                 )
                 if employee
@@ -44,7 +48,7 @@ class L10nEcPortal(CustomerPortal):
         if not employee:
             return request.redirect("/my")
 
-        Payslip = request.env["l10n_ec.payslip"]
+        Payslip = request.env["l10n_ec.payslip"].sudo()
         domain = [("employee_id", "=", employee.id), ("state", "=", "done")]
 
         payslip_count = Payslip.search_count(domain)
@@ -75,11 +79,14 @@ class L10nEcPortal(CustomerPortal):
         ["/my/payslips/<int:payslip_id>"], type="http", auth="user", website=True
     )
     def portal_my_payslip_detail(self, payslip_id, **kw):
-        try:
-            payslip = request.env["l10n_ec.payslip"].browse(payslip_id)
-            if payslip.employee_id != request.env.user.employee_id:
-                return request.redirect("/my")
-        except:
+        employee = request.env.user.employee_id
+        if not employee:
+            return request.redirect("/my")
+
+        # sudo() para poder leerlo, .exists() por si el id no existe, y comprobación
+        # de propiedad ANTES de renderizar nada.
+        payslip = request.env["l10n_ec.payslip"].sudo().browse(payslip_id).exists()
+        if not payslip or payslip.employee_id != employee:
             return request.redirect("/my")
 
         values = {
@@ -103,7 +110,7 @@ class L10nEcPortal(CustomerPortal):
         if not employee:
             return request.redirect("/my")
 
-        Loan = request.env["l10n_ec.loan"]
+        Loan = request.env["l10n_ec.loan"].sudo()
         domain = [("employee_id", "=", employee.id)]
 
         loan_count = Loan.search_count(domain)

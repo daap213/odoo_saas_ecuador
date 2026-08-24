@@ -58,14 +58,16 @@ class L10nEcRetention(models.Model):
         default=lambda self: self.env.company,
     )
 
-    @api.model
-    def create(self, vals):
-        if vals.get("name", _("New")) == _("New"):
-            # Use Native Odoo Sequence Engine
-            vals["name"] = self.env["ir.sequence"].next_by_code(
-                "l10n_ec.retention"
-            ) or _("New")
-        return super(L10nEcRetention, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Odoo 19: create() siempre recibe una lista de diccionarios.
+        for vals in vals_list:
+            if vals.get("name", _("New")) == _("New"):
+                # Use Native Odoo Sequence Engine
+                vals["name"] = self.env["ir.sequence"].next_by_code(
+                    "l10n_ec.retention"
+                ) or _("New")
+        return super().create(vals_list)
 
     def action_post(self):
         self.l10n_ec_sri_status = "draft"  # Ready to send
@@ -89,13 +91,11 @@ class L10nEcRetention(models.Model):
             if not certificate:
                 raise UserError(_("No active Electronic Signature found."))
 
-            signed_xml = self.env["l10n_ec.sri.signer"].sign_xml(
-                xml_content, certificate.content, certificate.password
-            )
+            signed_xml = certificate.sign_xml(xml_content)
 
             # 3. Send to SRI
             response = self.env["l10n_ec.sri.service"].send_document(
-                signed_xml, environment=ret.company_id.l10n_ec_sri_environment
+                ret.company_id, signed_xml
             )
 
             if response.get("status") == "RECIBIDA":
@@ -114,7 +114,7 @@ class L10nEcRetention(models.Model):
                 raise UserError(_("No Access Key."))
 
             response = self.env["l10n_ec.sri.service"].check_authorization(
-                ret.l10n_ec_sri_access_key
+                ret.company_id, ret.l10n_ec_sri_access_key
             )
 
             if response.get("status") == "AUTORIZADO":
@@ -146,19 +146,20 @@ class L10nEcRetentionLine(models.Model):
     @api.onchange("tax_id", "base_amount")
     def _compute_amount(self):
         for line in self:
-            if line.tax_id and line.base_amount:
-                # Use Native Odoo Tax Engine (compute_all)
-                # This respects python formulas, rounding, and currency settings configured in Odoo
-                taxes = line.tax_id.compute_all(
-                    line.base_amount,
-                    line.currency_id,
-                    1.0,  # Quantity
-                    False,  # Product
-                )
-                # compute_all returns {'total_included': x, 'total_excluded': y, 'taxes': [...]}
-                # The 'amount' of the tax is total_included - total_excluded (since it's a withholding, it behaves like a tax)
-                # But for withholding, usually we look at the specific tax amount calculated.
-                if taxes["taxes"]:
-                    line.amount = abs(taxes["taxes"][0]["amount"])
-                else:
-                    line.amount = 0.0
+            # Odoo 19 eliminó account.tax.compute_all(): esto lanzaba AttributeError
+            # y ninguna retención podía calcularse.
+            #
+            # Una retención ecuatoriana es siempre un porcentaje plano sobre la base
+            # (tablas 19 renta / 21 IVA / 23 ISD del SRI), sin impuestos encadenados
+            # ni precio incluido, así que la aritmética directa es exacta y evita
+            # depender del pipeline nuevo (_prepare_base_line_for_taxes_computation →
+            # _add_tax_details_in_base_line) para un caso de un solo impuesto.
+            tax = line.tax_id
+            if not tax or not line.base_amount:
+                line.amount = 0.0
+            elif tax.amount_type == "percent":
+                line.amount = abs(line.base_amount * tax.amount / 100.0)
+            elif tax.amount_type == "fixed":
+                line.amount = abs(tax.amount)
+            else:
+                line.amount = 0.0

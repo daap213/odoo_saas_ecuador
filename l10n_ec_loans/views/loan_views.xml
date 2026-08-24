@@ -67,7 +67,7 @@
 
     <menuitem id="menu_l10n_ec_loan"
               name="Loans"
-              parent="l10n_ec_hr_payroll.menu_l10n_ec_hr_payroll_root"
+              parent="l10n_ec_hr_payroll.menu_l10n_ec_payroll_root"
               action="action_l10n_ec_loan"
               sequence="30"/>
 

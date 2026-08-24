@@ -11,7 +11,7 @@ Regulatory References:
 ISO/IEC 29148:2018 Compliant
 """
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 import base64
 import logging
 
@@ -52,6 +52,9 @@ class L10nEcCertificate(models.Model):
         string="Certificate File (.p12)",
         required=True,
         attachment=True,
+        # El .p12 contiene la clave privada de firma: quien lo descargue puede firmar
+        # comprobantes en nombre de la empresa. Se protege igual que la contraseña.
+        groups="base.group_system",
         help="Upload the .p12 or .pfx file from your authorized provider",
     )
     password = fields.Char(
@@ -196,6 +199,34 @@ class L10nEcCertificate(models.Model):
                 record.expiration_date,
             )
 
+    def sign_xml(self, xml_bytes):
+        """Firma un XML con este certificado y devuelve los bytes firmados.
+
+        `content` (el .p12) y `password` están restringidos a base.group_system,
+        pero cualquier usuario autorizado a emitir debe poder firmar. La lectura
+        privilegiada se concentra aquí, en un único método acotado, en lugar de
+        repartir .sudo() por los seis puntos que antes leían ambos campos.
+        """
+        self.ensure_one()
+
+        # sudo() ANTES de leer nada: el ACL de lectura es amplio, pero `content` y
+        # `password` están restringidos por campo a base.group_system. Si el estado se
+        # comprobara sobre `self` sin privilegios, cualquier flujo de emisión que
+        # cambie ese ACL en el futuro rompería con AccessError en vez de con el
+        # mensaje útil de abajo.
+        certificate = self.sudo()
+
+        if certificate.state != "active":
+            raise UserError(
+                _("El certificado '%s' no está activo (estado: %s). "
+                  "Valídelo antes de emitir comprobantes.")
+                % (certificate.name, certificate.state)
+            )
+
+        return self.env["l10n_ec.sri.signer"].sign_xml(
+            xml_bytes, certificate.content, certificate.password
+        )
+
     def action_check_expiry(self):
         """
         Cron job to check certificate expiration.
@@ -226,10 +257,7 @@ class L10nEcCertificate(models.Model):
                     cert.days_until_expiry,
                 )
 
-    _sql_constraints = [
-        (
-            "uniq_name_company",
-            "unique(name, company_id)",
-            "Certificate name must be unique per company",
-        ),
-    ]
+    _uniq_name_company = models.Constraint(
+        "UNIQUE(name, company_id)",
+        "Certificate name must be unique per company",
+    )

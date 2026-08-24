@@ -27,7 +27,6 @@ This module provides the calculation engine used by `l10n_ec_hr_payroll`.
     "data": [
         "security/ir.model.access.csv",
         "data/tax_table_2026_data.xml",
-        "wizard/gastos_personales_wizard_view.xml",
     ],
     "installable": True,
     "application": False,

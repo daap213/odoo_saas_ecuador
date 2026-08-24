@@ -105,6 +105,24 @@
             <field name="value">True</field>
         </record>
 
+        <!-- Forma de pago por defecto del bloque <pagos> (tabla 24 de la Ficha).
+             01 = Sin utilización del sistema financiero. Se usa cuando la factura
+             no declara una forma de pago concreta. <pagos> es OBLIGATORIO: sin él
+             el comprobante no pasa la validación de esquema (error 35). -->
+        <record id="l10n_ec_default_payment_method_code" model="ir.config_parameter">
+            <field name="key">l10n_ec.default_payment_method_code</field>
+            <field name="value">01</field>
+        </record>
+
+        <!-- Anexo 26 (Res. NAC-DGERCGC26-00000027): quien emite con un facturador
+             de terceros debe declarar el RUC del proveedor del sistema en
+             <infoAdicional nombre="RUC Proveedor">. Vacío = no se emite la etiqueta.
+             Rellenar con el RUC del proveedor del software cuando corresponda. -->
+        <record id="l10n_ec_software_provider_ruc" model="ir.config_parameter">
+            <field name="key">l10n_ec.software_provider_ruc</field>
+            <field name="value"></field>
+        </record>
+
         <!-- ================================================================
              SRI DOCUMENT TYPE CODES
              Required for electronic documents

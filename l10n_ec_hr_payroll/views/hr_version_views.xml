@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Odoo 19: no existe un formulario propio de hr.version (hr/views/hr_version_views.xml
+        solo define list, graph, pivot y search). Los datos contractuales se editan en la
+        ficha del empleado, donde hr.employee._inherits = {'hr.version': 'version_id'}
+        hace que los campos de hr.version sean direccionables por nombre.
+    -->
+    <record id="hr_version_view_form_inherit_l10n_ec" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.l10n.ec.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='payroll_information']//group[@name='contract']" position="after">
+                <group string="Nómina Ecuador" name="l10n_ec_payroll">
+                    <group>
+                        <field name="l10n_ec_regime"/>
+                        <field name="l10n_ec_projected_expenses"/>
+                    </group>
+                    <group>
+                        <field name="l10n_ec_accumulate_13"/>
+                        <field name="l10n_ec_accumulate_14"/>
+                        <field name="l10n_ec_accumulate_reserve"/>
+                    </group>
+                </group>
+                <group string="Jubilación Patronal" name="l10n_ec_jubilacion">
+                    <field name="l10n_ec_jubilacion_patronal"/>
+                    <field name="l10n_ec_jubilacion_accumulated"
+                           invisible="not l10n_ec_jubilacion_patronal"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -55,7 +55,8 @@ Desarrollado por Somatech.dev
         # HR COMPLETE - Código Trabajo + IESS + DE 255
         # ================================================================
         "hr",  # Código Trabajo Art. 42 - Registro empleados
-        "hr_contract",  # Código Trabajo Art. 12-17 - Contratos escritos
+        # Odoo 19: hr_contract fue eliminado; hr.contract → hr.version dentro de 'hr'.
+        # Código Trabajo Art. 12-17 (contratos escritos) se cubre con hr.version.
         "hr_attendance",  # Código Trabajo Art. 47-55, DE 255 - Control jornada
         "hr_holidays",  # Código Trabajo Art. 69-78 - Vacaciones 15 días
         "hr_timesheet",  # Código Trabajo Art. 55 - Registro horas
@@ -92,8 +93,14 @@ Desarrollado por Somatech.dev
         "security/l10n_ec_security.xml",
         "security/ir.model.access.csv",
         "wizard/l10n_ec_company_setup_wizard_views.xml",
-        "data/l10n_ec_demo_data.xml",
+        # Catálogo de plantillas de negocio: dato maestro del módulo, no demo.
         "data/templates/tienda_barrio.xml",
+    ],
+    # Partners y productos de ejemplo. Sólo se cargan con --without-demo=False;
+    # NUNCA en una base de cliente. Antes estaban en "data", lo que los instalaba
+    # (y reescribía la compañía) en cada despliegue.
+    "demo": [
+        "demo/l10n_ec_demo_data.xml",
     ],
     "images": ["static/description/banner.png"],
     "installable": True,

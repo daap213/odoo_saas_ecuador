@@ -9,7 +9,8 @@ class L10nEcVacationLedger(models.Model):
     _order = "date desc"
 
     employee_id = fields.Many2one("hr.employee", string="Employee", required=True)
-    contract_id = fields.Many2one("hr.contract", string="Contract", required=True)
+    # Odoo 19: hr.contract desapareció; el equivalente es hr.version.
+    contract_id = fields.Many2one("hr.version", string="Contract", required=True)
 
     date = fields.Date("Date", default=fields.Date.today, required=True)
     description = fields.Char("Description", required=True)
@@ -58,7 +59,22 @@ class L10nEcVacationLedger(models.Model):
         if not reference_date:
             reference_date = fields.Date.today()
 
-        contracts = self.env["hr.contract"].search([("state", "=", "open")])
+        # Odoo 19: hr.version es un HISTÓRICO de versiones, no un registro por
+        # empleado. Buscar directamente en hr.version por rango de fechas devuelve
+        # todas las versiones vigentes del mismo empleado y generaría un devengo por
+        # cada una. Hay que iterar empleados y quedarse con su versión vigente.
+        #
+        # `is_current` no sirve para filtrar: es computado, sin store y sin método
+        # `search=`, así que no es usable en un dominio. Se filtra por fechas, que sí
+        # están almacenadas. El sudo() es porque contract_date_* y version_id están
+        # restringidos por grupo y esto corre desde un cron.
+        employees = self.env["hr.employee"].sudo().search([])
+
+        contracts = employees.mapped("version_id").filtered(
+            lambda v: v.contract_date_start
+            and v.contract_date_start <= reference_date
+            and (not v.contract_date_end or v.contract_date_end >= reference_date)
+        )
 
         for contract in contracts:
             # Check if accrual already ran for this month? (Omitted for MVP simplicity, would be a unique constraint)
@@ -68,7 +84,7 @@ class L10nEcVacationLedger(models.Model):
 
             # 2. Seniority Bonus
             # Calculate seniority
-            start_date = contract.date_start
+            start_date = contract.contract_date_start
             # Service years
             delta = relativedelta(reference_date, start_date)
             years_service = delta.years

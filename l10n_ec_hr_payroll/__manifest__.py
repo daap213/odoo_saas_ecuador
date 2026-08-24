@@ -32,14 +32,23 @@ Complete payroll management for Ecuador (SBU 2026: $482):
     "author": "Somatech.dev, Odoo Community Association (OCA)",
     "website": "https://github.com/somatechlat/odoo_saas_ecuador",
     "license": "LGPL-3",
-    "depends": ["hr", "hr_contract"],
+    # Odoo 19 eliminó hr_contract: hr.contract pasó a ser hr.version dentro de hr.
+    # hr_attendance: _compute_overtime_from_attendance lee hr.attendance en cada
+    #   cálculo de rol de pago.
+    # l10n_ec_income_tax: _compute_income_tax_2026 usa l10n_ec.tax.table y
+    #   l10n_ec.family.basket. La dependencia va en este sentido y no al revés; por
+    #   eso el asistente de gastos personales vive ahora aquí y no allí (antes había
+    #   un ciclo: income_tax escribía l10n_ec_projected_expenses, definido aquí).
+    "depends": ["hr", "hr_attendance", "l10n_ec_income_tax"],
     "data": [
         "security/ir.model.access.csv",
         "data/l10n_ec_salary_rule_data.xml",
         "data/l10n_ec_payroll_data.xml",
         "report/form_107_template.xml",
-        "views/hr_contract_views.xml",
+        "views/hr_version_views.xml",
+        # define menu_l10n_ec_payroll_root -> debe cargarse antes del wizard
         "views/l10n_ec_payslip_views.xml",
+        "wizard/gastos_personales_wizard_view.xml",
     ],
     "images": ["static/description/banner.png"],
     "installable": True,

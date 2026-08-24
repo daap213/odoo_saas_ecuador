@@ -34,6 +34,14 @@ class AccountMove(models.Model):
     l10n_ec_xml_data = fields.Binary("Signed XML", attachment=True, copy=False)
     l10n_ec_sri_response = fields.Text("SRI Response", copy=False)
 
+    l10n_ec_payment_method_id = fields.Many2one(
+        "l10n_ec.payment.method",
+        string="Forma de Pago SRI",
+        help="Tabla 24 de la Ficha Técnica. Alimenta el bloque <pagos>, que es "
+             "obligatorio en el comprobante. Si se deja vacío se usa el parámetro "
+             "l10n_ec.default_payment_method_code.",
+    )
+
     # Purchses Extensions (ATS)
     l10n_ec_sustento_code = fields.Selection(
         [
@@ -276,13 +284,8 @@ class AccountMove(models.Model):
                 )
 
             # 4. Sign XML
-            signer = self.env["l10n_ec.sri.signer"]
             try:
-                signed_xml_bytes = signer.sign_xml(
-                    xml_content.encode("utf-8"),
-                    certificate.content,
-                    certificate.password,
-                )
+                signed_xml_bytes = certificate.sign_xml(xml_content.encode("utf-8"))
             except Exception as e:
                 raise UserError(_("Signing Error: %s") % str(e))
 
@@ -293,7 +296,7 @@ class AccountMove(models.Model):
                 "1" if move.company_id.l10n_ec_sri_environment == "production" else "2"
             )
 
-            response = service.send_document(signed_xml_bytes, env_code)
+            response = service.send_document(move.company_id, signed_xml_bytes)
 
             # 6. Process Response
             if response.get("status") == "RECIBIDA":
