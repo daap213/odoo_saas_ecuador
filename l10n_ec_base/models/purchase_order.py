@@ -13,25 +13,10 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
-class ResConfigSettings(models.TransientModel):
-    """
-    Add Ecuador penalty configuration to Settings.
-    Uses standard Odoo res.config.settings pattern - NO custom config.
-    """
-
-    _inherit = "res.config.settings"
-
-    # DE 045-2025 Penalty Settings
-    l10n_ec_penalty_rate_daily = fields.Float(
-        string="Tasa Penalidad Diaria (%)",
-        config_parameter="l10n_ec.penalty_rate_daily",
-        help="DE 045-2025: Tasa de penalidad por día de retraso",
-    )
-    l10n_ec_penalty_cap_percent = fields.Float(
-        string="Límite Máximo Penalidad (%)",
-        config_parameter="l10n_ec.penalty_cap_percent",
-        help="DE 045-2025: Porcentaje máximo de penalidad sobre el total",
-    )
+# Los dos parámetros de penalidad (DE 045-2025) se declaraban aquí, en un
+# `res.config.settings` que ningún XML mostraba: eran inalcanzables desde la
+# interfaz. Viven ahora en `res_config_settings.py`, con el resto de ajustes
+# de Ecuador y su vista correspondiente.
 
 
 class PurchaseOrder(models.Model):

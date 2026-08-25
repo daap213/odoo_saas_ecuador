@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Liquidación de compra de bienes y prestación de servicios — codDoc 03,
+    Anexo 17 de la Ficha Técnica 2.34, versión 1.1.0.
+
+    Es el único comprobante que EMITE EL COMPRADOR: se usa cuando el proveedor no
+    puede emitir comprobante de venta (persona natural no obligada a llevar
+    contabilidad, artesano, extranjero sin RUC). Por eso las etiquetas dicen
+    "Proveedor" donde la factura dice "Comprador".
+
+    Único comprobante con <unidadMedida> en el detalle.
+
+    El bloque <reembolsos> queda deliberadamente fuera: todos sus elementos son
+    opcionales en el XSD y el reembolso de gastos es un flujo aparte que este módulo
+    todavía no modela. Omitirlo entero es válido; emitirlo a medias, no.
+-->
+<odoo>
+<template id="xml_purchase_liquidation">
+<liquidacionCompra id="comprobante" version="1.1.0">
+    <infoTributaria>
+        <ambiente t-out="components['environment']"/>
+        <tipoEmision>1</tipoEmision>
+        <razonSocial t-out="clip(company.name, 300)"/>
+        <nombreComercial t-if="company.l10n_ec_commercial_name"
+                         t-out="clip(company.l10n_ec_commercial_name, 300)"/>
+        <ruc t-out="company.vat"/>
+        <claveAcceso t-out="access_key"/>
+        <codDoc t-out="components['document_code']"/>
+        <estab t-out="components['establishment']"/>
+        <ptoEmi t-out="components['emission_point']"/>
+        <secuencial t-out="components['sequential']"/>
+        <dirMatriz t-out="clip(company.street, 300)"/>
+        <agenteRetencion t-if="company.l10n_ec_withhold_agent and company.l10n_ec_withhold_resolution"
+                         t-out="clip(company.l10n_ec_withhold_resolution, 8)"/>
+        <contribuyenteRimpe t-if="rimpe_legend" t-out="rimpe_legend"/>
+    </infoTributaria>
+    <infoLiquidacionCompra>
+        <fechaEmision t-out="record.invoice_date.strftime('%d/%m/%Y')"/>
+        <dirEstablecimiento t-out="clip(company.street, 300)"/>
+        <contribuyenteEspecial t-if="company.l10n_ec_special_resolution"
+                               t-out="clip(company.l10n_ec_special_resolution, 13)"/>
+        <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+        <tipoIdentificacionProveedor t-out="supplier_id_type"/>
+        <razonSocialProveedor t-out="clip(partner.name, 300)"/>
+        <identificacionProveedor t-out="supplier_identification"/>
+        <direccionProveedor t-if="partner.street" t-out="clip(partner.street, 300)"/>
+        <totalSinImpuestos t-out="money(record.amount_untaxed)"/>
+        <totalDescuento t-out="total_discount"/>
+        <totalConImpuestos>
+            <totalImpuesto t-foreach="sri_totals" t-as="total">
+                <codigo t-out="total['codigo']"/>
+                <codigoPorcentaje t-out="total['codigoPorcentaje']"/>
+                <baseImponible t-out="total['baseImponible']"/>
+                <valor t-out="total['valor']"/>
+            </totalImpuesto>
+        </totalConImpuestos>
+        <importeTotal t-out="money(record.amount_total)"/>
+        <moneda>DOLAR</moneda>
+        <pagos>
+            <pago t-foreach="payments" t-as="payment">
+                <formaPago t-out="payment['formaPago']"/>
+                <total t-out="payment['total']"/>
+            </pago>
+        </pagos>
+    </infoLiquidacionCompra>
+    <detalles>
+        <detalle t-foreach="lines" t-as="line">
+            <codigoPrincipal t-out="clip(line.product_id.default_code or 'GEN', 25)"/>
+            <codigoAuxiliar t-if="line.product_id.barcode"
+                            t-out="clip(line.product_id.barcode, 25)"/>
+            <descripcion t-out="clip(line.name or line.product_id.name, 300)"/>
+            <unidadMedida t-out="uom(line)"/>
+            <cantidad t-out="quantity(line.quantity)"/>
+            <precioUnitario t-out="quantity(line.price_unit)"/>
+            <descuento t-out="money(line.price_unit * line.quantity * (line.discount or 0.0) / 100.0)"/>
+            <precioTotalSinImpuesto t-out="money(abs(line.price_subtotal))"/>
+            <impuestos>
+                <impuesto t-foreach="sri_line_taxes.get(line.id, [])" t-as="tax">
+                    <codigo t-out="tax['codigo']"/>
+                    <codigoPorcentaje t-out="tax['codigoPorcentaje']"/>
+                    <tarifa t-out="tax['tarifa']"/>
+                    <baseImponible t-out="tax['baseImponible']"/>
+                    <valor t-out="tax['valor']"/>
+                </impuesto>
+            </impuestos>
+        </detalle>
+    </detalles>
+    <infoAdicional t-if="additional_info">
+        <campoAdicional t-foreach="additional_info" t-as="info"
+                        t-att-nombre="info[0]" t-out="info[1]"/>
+    </infoAdicional>
+</liquidacionCompra>
+</template>
+</odoo>

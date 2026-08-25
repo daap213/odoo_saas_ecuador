@@ -16,12 +16,21 @@
                                 <field name="l10n_ec_transport_reason"/>
                                 <field name="l10n_ec_start_date"/>
                                 <field name="l10n_ec_end_date"/>
+                                <field name="l10n_ec_route"
+                                       placeholder="Quito - Ambato vía Panamericana"/>
+                                <field name="l10n_ec_sustento_move_id"
+                                       options="{'no_create': True}"/>
+                                <field name="l10n_ec_destination_establishment"
+                                       placeholder="002"/>
+                                <field name="l10n_ec_customs_document"
+                                       invisible="l10n_ec_transport_reason not in ('exportacion',)"/>
                             </group>
                             <group string="Fleet">
                                 <field name="l10n_ec_driver_id"/>
                                 <field name="l10n_ec_vehicle_id"/>
                             </group>
                             <group string="SRI Status">
+                                <field name="l10n_ec_guia_number" readonly="1"/>
                                 <field name="l10n_ec_sri_status"/>
                                 <field name="l10n_ec_sri_access_key" readonly="1"/>
                                 <field name="l10n_ec_sri_response" readonly="1"/>

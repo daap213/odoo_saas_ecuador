@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Nota de crédito electrónica — codDoc 04, Anexo 3 de la Ficha Técnica 2.34,
+    versión 1.1.0 (la que admite 6 decimales en cantidad y precio unitario).
+
+    Dos diferencias con la factura que NO son intercambiables:
+
+      * el detalle usa <codigoInterno> y <codigoAdicional>, no <codigoPrincipal> y
+        <codigoAuxiliar>;
+      * el orden dentro de <infoNotaCredito> no es el de <infoFactura>: aquí
+        <contribuyenteEspecial> y <obligadoContabilidad> van DESPUÉS de los datos del
+        comprador, no antes.
+
+    El XSD valida por secuencia, así que el orden de estas etiquetas es normativo.
+    No lleva <propina> ni <totalDescuento>: esos son de la factura.
+-->
+<odoo>
+<template id="xml_credit_note">
+<notaCredito id="comprobante" version="1.1.0">
+    <infoTributaria>
+        <ambiente t-out="components['environment']"/>
+        <tipoEmision>1</tipoEmision>
+        <razonSocial t-out="clip(company.name, 300)"/>
+        <nombreComercial t-if="company.l10n_ec_commercial_name"
+                         t-out="clip(company.l10n_ec_commercial_name, 300)"/>
+        <ruc t-out="company.vat"/>
+        <claveAcceso t-out="access_key"/>
+        <codDoc t-out="components['document_code']"/>
+        <estab t-out="components['establishment']"/>
+        <ptoEmi t-out="components['emission_point']"/>
+        <secuencial t-out="components['sequential']"/>
+        <dirMatriz t-out="clip(company.street, 300)"/>
+        <!-- Anexo 21 -->
+        <agenteRetencion t-if="company.l10n_ec_withhold_agent and company.l10n_ec_withhold_resolution"
+                         t-out="clip(company.l10n_ec_withhold_resolution, 8)"/>
+        <!-- Anexo 22 -->
+        <contribuyenteRimpe t-if="rimpe_legend" t-out="rimpe_legend"/>
+    </infoTributaria>
+    <infoNotaCredito>
+        <fechaEmision t-out="record.invoice_date.strftime('%d/%m/%Y')"/>
+        <dirEstablecimiento t-out="clip(company.street, 300)"/>
+        <tipoIdentificacionComprador t-out="buyer_id_type"/>
+        <razonSocialComprador t-out="clip(partner.name, 300)"/>
+        <identificacionComprador t-out="buyer_identification"/>
+        <contribuyenteEspecial t-if="company.l10n_ec_special_resolution"
+                               t-out="clip(company.l10n_ec_special_resolution, 13)"/>
+        <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+        <codDocModificado t-out="modified['cod_doc']"/>
+        <numDocModificado t-out="modified['num_doc']"/>
+        <fechaEmisionDocSustento t-out="modified['date']"/>
+        <totalSinImpuestos t-out="money(record.amount_untaxed)"/>
+        <valorModificacion t-out="money(record.amount_total)"/>
+        <moneda>DOLAR</moneda>
+        <totalConImpuestos>
+            <totalImpuesto t-foreach="sri_totals" t-as="total">
+                <codigo t-out="total['codigo']"/>
+                <codigoPorcentaje t-out="total['codigoPorcentaje']"/>
+                <baseImponible t-out="total['baseImponible']"/>
+                <valor t-out="total['valor']"/>
+            </totalImpuesto>
+        </totalConImpuestos>
+        <motivo t-out="modified['reason']"/>
+    </infoNotaCredito>
+    <detalles>
+        <detalle t-foreach="lines" t-as="line">
+            <codigoInterno t-out="clip(line.product_id.default_code or 'GEN', 25)"/>
+            <codigoAdicional t-if="line.product_id.barcode"
+                             t-out="clip(line.product_id.barcode, 25)"/>
+            <descripcion t-out="clip(line.name or line.product_id.name, 300)"/>
+            <cantidad t-out="quantity(line.quantity)"/>
+            <precioUnitario t-out="quantity(line.price_unit)"/>
+            <descuento t-out="money(line.price_unit * line.quantity * (line.discount or 0.0) / 100.0)"/>
+            <precioTotalSinImpuesto t-out="money(abs(line.price_subtotal))"/>
+            <impuestos>
+                <impuesto t-foreach="sri_line_taxes.get(line.id, [])" t-as="tax">
+                    <codigo t-out="tax['codigo']"/>
+                    <codigoPorcentaje t-out="tax['codigoPorcentaje']"/>
+                    <tarifa t-out="tax['tarifa']"/>
+                    <baseImponible t-out="tax['baseImponible']"/>
+                    <valor t-out="tax['valor']"/>
+                </impuesto>
+            </impuestos>
+        </detalle>
+    </detalles>
+    <infoAdicional t-if="additional_info">
+        <campoAdicional t-foreach="additional_info" t-as="info"
+                        t-att-nombre="info[0]" t-out="info[1]"/>
+    </infoAdicional>
+</notaCredito>
+</template>
+</odoo>

@@ -33,6 +33,25 @@ class L10nEcRetention(models.Model):
         string="Date Issue", default=fields.Date.context_today, required=True
     )
 
+    # De aquí salen el establecimiento y el punto de emisión del comprobante.
+    #
+    # Sin este campo, `_split_number` no encontraba de dónde sacarlos y caía a un
+    # `001-001` fijo: cualquier emisor cuyo punto de emisión fuera otro recibía
+    # rechazo del SRI, que valida estab/ptoEmi contra los establecimientos
+    # registrados en el RUC. Los dos campos los aporta el `l10n_ec` oficial.
+    # El dominio filtra por tener los códigos SRI, no por `type`: lo que hace válido
+    # a un diario aquí es que aporte establecimiento y punto de emisión, y el
+    # `l10n_ec` oficial los deja disponibles en diarios de cualquier tipo.
+    journal_id = fields.Many2one(
+        "account.journal",
+        string="Diario de emisión",
+        check_company=True,
+        default=lambda self: self._default_journal_id(),
+        domain="[('l10n_ec_entity', '!=', False), ('l10n_ec_emission', '!=', False)]",
+        help="Diario del que se toman el establecimiento y el punto de emisión "
+             "(001-001-...) que van en la clave de acceso y en el comprobante.",
+    )
+
     # Tax Lines
     tax_ids = fields.One2many(
         "l10n_ec.retention.line", "retention_id", string="Withholding Lines"
@@ -104,16 +123,78 @@ class L10nEcRetention(models.Model):
                         invoice=invoice_date,
                     ))
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        # Odoo 19: create() siempre recibe una lista de diccionarios.
-        for vals in vals_list:
-            if vals.get("name", _("New")) == _("New"):
-                # Use Native Odoo Sequence Engine
-                vals["name"] = self.env["ir.sequence"].next_by_code(
-                    "l10n_ec.retention"
-                ) or _("New")
-        return super().create(vals_list)
+    @api.model
+    def _default_journal_id(self):
+        """Primer diario de la compañía que tenga establecimiento y punto de emisión."""
+        return self.env["account.journal"].search([
+            ("company_id", "in", self.env.companies.ids),
+            ("l10n_ec_entity", "!=", False),
+            ("l10n_ec_emission", "!=", False),
+        ], limit=1)
+
+    @api.model
+    def _l10n_ec_format_number(self, journal, sequential):
+        """`001-001-000000001` a partir del diario y el secuencial.
+
+        El formato no es cosmético: el SRI lo exige en el RIDE y sus tres partes son
+        las mismas que viajan en la clave de acceso, así que tienen que salir de una
+        sola fuente. Falla explícitamente en vez de inventar un `001` por defecto,
+        que es lo que hacía que se emitieran comprobantes con un punto de emisión
+        que no existe en el RUC del emisor.
+        """
+        establishment = (journal.l10n_ec_entity or "").strip()
+        emission_point = (journal.l10n_ec_emission or "").strip()
+        if not establishment or not emission_point:
+            raise UserError(_(
+                "El diario '%s' no tiene establecimiento y punto de emisión SRI.\n\n"
+                "Configúrelos en Contabilidad > Configuración > Diarios; son los "
+                "códigos de 3 dígitos que asigna el SRI y forman parte tanto de la "
+                "clave de acceso como del cuerpo del comprobante.",
+                journal.display_name,
+            ))
+        return "{}-{}-{}".format(
+            establishment.zfill(3), emission_point.zfill(3), str(sequential).zfill(9)
+        )
+
+    def _l10n_ec_assign_number(self):
+        """Asigna `001-001-000000001` al confirmar, no al crear.
+
+        Antes se numeraba en `create()`. Tres razones para moverlo aquí:
+
+        * un borrador que se borra quemaba un secuencial de la serie del SRI;
+        * `journal_id` es editable en borrador, así que el número quedaba obsoleto
+          en cuanto el usuario cambiaba de diario;
+        * al crear todavía puede no haber diario elegido.
+
+        El secuencial es por diario: dos puntos de emisión no pueden compartir
+        contador, porque el SRI numera por (establecimiento, punto de emisión, tipo
+        de comprobante).
+        """
+        self.ensure_one()
+        if self.name and self.name != _("New"):
+            return
+        if not self.journal_id:
+            raise UserError(_(
+                "La retención no tiene diario de emisión. Elija uno con "
+                "establecimiento y punto de emisión SRI configurados."
+            ))
+        sequential = self.journal_id._l10n_ec_next_retention_sequential()
+        self.name = self._l10n_ec_format_number(self.journal_id, sequential)
+
+    @api.constrains("journal_id", "state")
+    def _check_journal_locked_after_emission(self):
+        """El diario no se toca una vez que hay clave de acceso.
+
+        La clave lleva dentro el establecimiento y el punto de emisión: cambiarlos
+        después dejaría el cuerpo del comprobante y su clave describiendo dos
+        emisores distintos, que es el error 58 del SRI.
+        """
+        for record in self:
+            if record.l10n_ec_sri_access_key and not record.journal_id:
+                raise ValidationError(_(
+                    "La retención %s ya tiene clave de acceso: no puede quedarse sin "
+                    "diario de emisión.", record.display_name,
+                ))
 
     def action_post(self):
         """Confirma la retención y la deja lista para transmitir."""
@@ -123,6 +204,7 @@ class L10nEcRetention(models.Model):
                     "La retención %s no tiene líneas: no hay nada que declarar al SRI.",
                     retention.display_name,
                 ))
+            retention._l10n_ec_assign_number()
             retention.state = "posted"
 
     def action_draft(self):

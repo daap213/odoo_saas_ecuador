@@ -6,7 +6,7 @@
 
 {
     "name": "Ecuador SRI Electronic Invoicing",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Localizations/SRI",
     "summary": "Full SRI Electronic Invoicing Compliance (2025-2026)",
     "description": """
@@ -36,6 +36,15 @@ Complete SRI (Servicio de Rentas Internas) integration:
         "account",
         "l10n_ec_base",
         "l10n_ec_edi",  # Base EDI module with field definitions
+        # Explícitas, no por transitividad a través de l10n_ec_base: este módulo lee
+        # `account.journal.l10n_ec_entity` / `.l10n_ec_emission` y los tipos de
+        # documento `ec_dt_*` del l10n_ec OFICIAL (Odoo 19 Community, TRESCLOUD). Si
+        # alguien reordena las dependencias de l10n_ec_base, esos campos desaparecen
+        # y el fallo aparece en runtime al emitir, no al instalar.
+        "l10n_ec",
+        # `debit_origin_id`: así se identifica una nota de débito (codDoc 05). El
+        # l10n_ec oficial ya lo declara, pero aquí se usa directamente.
+        "account_debit_note",
     ],
     "data": [
         "security/ir.model.access.csv",
@@ -45,6 +54,10 @@ Complete SRI (Servicio de Rentas Internas) integration:
         "views/account_move_views.xml",
         "views/account_move_purchase_views.xml",
         "views/account_move_xml_template.xml",
+        "views/credit_note_xml_template.xml",
+        "views/debit_note_xml_template.xml",
+        "views/purchase_liquidation_xml_template.xml",
+        "views/account_journal_views.xml",
         "views/l10n_ec_retention_views.xml",
         "views/l10n_ec_retention_xml_template.xml",
         # RIDE: la plantilla debe cargarse antes que la acción que la referencia.

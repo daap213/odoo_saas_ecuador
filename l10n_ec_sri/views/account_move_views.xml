@@ -36,6 +36,24 @@
                             <field name="l10n_ec_sri_retry_count" invisible="l10n_ec_sri_retry_count == 0"/>
                         </group>
                     </group>
+                    <!-- Notas de crédito y de débito: los cuatro datos del documento
+                         rectificado son obligatorios para el SRI. Se rellenan solos
+                         cuando la nota nace del asistente de reversión; una creada a
+                         mano no tiene de dónde sacarlos, así que quedan editables. -->
+                    <group string="Documento que rectifica"
+                           invisible="move_type not in ('out_refund', 'in_refund') and not l10n_ec_modified_doc_type_id">
+                        <group>
+                            <field name="l10n_ec_modified_doc_type_id"
+                                   options="{'no_create': True}"/>
+                            <field name="l10n_ec_modified_doc_number"
+                                   placeholder="001-001-000000001"/>
+                        </group>
+                        <group>
+                            <field name="l10n_ec_modified_doc_date"/>
+                            <field name="l10n_ec_modification_reason"
+                                   placeholder="Devolución de mercadería"/>
+                        </group>
+                    </group>
                 </page>
             </xpath>
         </field>

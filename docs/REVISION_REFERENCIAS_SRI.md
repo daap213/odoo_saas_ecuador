@@ -338,14 +338,67 @@ Hecho en la tanda de correcciones posterior a esta revisión:
 - **§5** — versiones y afirmaciones corregidas en manifests, README y base de conocimiento.
 - Consolidación de `account.retention` en `l10n_ec.retention`, con script de migración.
 
+Hecho en la segunda tanda (agosto 2026), sobre una instancia Odoo 19 + PostgreSQL real:
+
+- **§4.3 — resuelto.** `render_xml` despacha por `codDoc` con `_get_document_renderers()`,
+  un **método** extensible en vez de una constante. Se emiten ya los seis comprobantes
+  de la Tabla 3:
+
+  | codDoc | Comprobante | Plantilla | Versión | Anexo |
+  |---|---|---|---|---|
+  | 01 | Factura | `l10n_ec_sri.xml_invoice` | 1.1.0 | 3 |
+  | 03 | Liquidación de compra | `l10n_ec_sri.xml_purchase_liquidation` | 1.1.0 | 17 |
+  | 04 | Nota de crédito | `l10n_ec_sri.xml_credit_note` | 1.1.0 | 3 |
+  | 05 | Nota de débito | `l10n_ec_sri.xml_debit_note` | **1.0.0** | 1 |
+  | 06 | Guía de remisión | `l10n_ec_guia_remision.l10n_ec_guia_xml` | 1.1.0 | 3 |
+  | 07 | Comprobante de retención | `l10n_ec_sri.xml_retention` | 1.0.0 | 1 |
+
+  La ND es 1.0.0 porque la Ficha **no publica** una 1.1.0 de ese comprobante: el Anexo 3
+  sólo cubre factura, guía y nota de crédito.
+
+- **La guía de remisión no se podía emitir nunca**, y no por una sola razón:
+  renderizaba `l10n_ec_stock.l10n_ec_guia_xml` (el nombre viejo del módulo), generaba la
+  clave con un código numérico **aleatorio** —cada reintento duplicaba el comprobante,
+  contra §5.10—, emitía la **licencia de conducir** en `<rucTransportista>`, leía un
+  campo `identifier_type` que no existe y usaba 2 decimales donde la 1.1.0 admite 6.
+  Ahora comparte clave de acceso, componentes y validaciones con la factura, y tiene su
+  propia batería de tests (el módulo no tenía ninguno).
+
+- **Las retenciones emitían siempre `001-001`.** `_split_number` parseaba el `name` de
+  una secuencia sin prefijo contra el patrón `001-001-000000001`: nunca casaba y caía a
+  un literal. Como la clave de acceso usaba el mismo método, clave y cuerpo eran
+  coherentes *entre sí* y el SRI no daba error 58 — se emitía, en silencio, atribuido a
+  un punto de emisión que no existe en el RUC del emisor. Ahora salen del diario
+  (`journal_id` nuevo), con secuencia por diario y numeración al confirmar.
+
+- **El ambiente de producción nunca llegaba a `cel.sri.gob.ec`.** El campo de override
+  de la compañía se sembraba con la URL de pruebas y gana sobre el selector de ambiente.
+  Quitados los dos `default=`, con migración que limpia lo ya escrito.
+
+- **Anexo 26 en todos los comprobantes**, no sólo en la factura.
+
+- **Configurabilidad**: página "Ecuador — SRI" en los ajustes de Contabilidad. Los ~30
+  parámetros sólo se editaban en modo desarrollador, así que en la práctica nadie los
+  configuraba — el RUC del proveedor del Anexo 26 incluido.
+
 Pendiente, por orden:
 
-1. **§2.1 Art. 3** — verificar el CIIU en el RUC de Somatech. Plazo administrativo
+1. **Certificación contra el ambiente de pruebas del SRI.** Nada de lo anterior se ha
+   transmitido: no hay certificado `.p12` de una entidad acreditada. Lo primero que hay
+   que verificar es si `notaDebito` 1.0.0 acepta `<agenteRetencion>` y
+   `<contribuyenteRimpe>`: ese XSD nunca subió de versión y los Anexos 21 y 22 son
+   posteriores. Si devuelve error 35, esas dos etiquetas son lo primero que hay que
+   quitar (está señalado en la cabecera de la plantilla).
+2. **§2.1 Art. 3** — verificar el CIIU en el RUC de Somatech. Plazo administrativo
    corriendo; no se resuelve con código.
-2. **§6** — archivar en `referencias/` la Res. NAC-DGERCGC25-00000017, la
+3. **§6** — archivar en `referencias/` la Res. NAC-DGERCGC25-00000017, la
    NAC-DGERCGC26-00000024 y el Catálogo del ATS.
-3. **§4.4, §4.5** — Anexo 25 (transporte comercial) y Anexo 23 (materiales de
+4. **§4.4, §4.5** — Anexo 25 (transporte comercial) y Anexo 23 (materiales de
    construcción). Ambos exigen resolver antes el conflicto de `codigoAuxiliar` con el
    `barcode` del producto.
-4. **§4.3** — plantillas XML de NC (04), ND (05) y liquidación de compra (03).
-5. **§4.8** — el resto de anexos y el envío por lote.
+5. **`<reembolsos>`** en la liquidación de compra: se omite entero, que es válido
+   (todos sus elementos son opcionales), pero el flujo de reembolso de gastos no está
+   modelado.
+6. **§4.8** — el resto de anexos y el envío por lote.
+7. **POS**: `l10n_ec_pos` genera una clave de acceso por cada ticket y no emite nada.
+   Cada venta consume una clave que nunca se usa.

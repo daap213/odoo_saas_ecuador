@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Interruptor de la liquidación de compra en el diario.
+
+    Va junto al establecimiento y punto de emisión que aporta el `l10n_ec` oficial,
+    que es donde el contador busca la configuración SRI del diario.
+-->
+<odoo>
+
+    <record id="view_account_journal_form_l10n_ec_sri" model="ir.ui.view">
+        <field name="name">account.journal.form.inherit.l10n_ec_sri</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <field name="l10n_ec_emission" position="after">
+                <field name="l10n_ec_allow_purchase_liquidation"
+                       invisible="type != 'purchase'"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

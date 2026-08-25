@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Guía de remisión electrónica — codDoc 06, Anexo 3 de la Ficha Técnica 2.34,
+    versión 1.1.0.
+
+    Reescrita desde `data/guia_template.xml`, que tenía cuatro fallos que la hacían
+    imposible de emitir:
+
+      * `l10n_ec_driver_id.identifier_type` NO EXISTE — el campo se llama
+        `identification_type`. Era un QWebException en el primer render.
+      * `<rucTransportista>` emitía `license_number`, que es el número de la LICENCIA
+        DE CONDUCIR, no la identificación del transportista.
+      * `company.street[:300]` reventaba con TypeError si la dirección estaba vacía.
+      * `<cantidad>` iba con 2 decimales cuando la versión 1.1.0 admite 6.
+
+    Además troceaba establecimiento, punto de emisión y secuencial de la propia clave
+    de acceso (`access_key[24:27]`), en vez de compartir la fuente con ella. Ahora los
+    tres salen de `components`, igual que en la factura.
+
+    El detalle usa <codigoInterno> y <codigoAdicional>, como la nota de crédito y a
+    diferencia de la factura.
+-->
+<odoo>
+<template id="l10n_ec_guia_xml">
+<guiaRemision id="comprobante" version="1.1.0">
+    <infoTributaria>
+        <ambiente t-out="components['environment']"/>
+        <tipoEmision>1</tipoEmision>
+        <razonSocial t-out="clip(company.name, 300)"/>
+        <nombreComercial t-if="company.l10n_ec_commercial_name"
+                         t-out="clip(company.l10n_ec_commercial_name, 300)"/>
+        <ruc t-out="company.vat"/>
+        <claveAcceso t-out="access_key"/>
+        <codDoc t-out="components['document_code']"/>
+        <estab t-out="components['establishment']"/>
+        <ptoEmi t-out="components['emission_point']"/>
+        <secuencial t-out="components['sequential']"/>
+        <dirMatriz t-out="clip(company.street, 300)"/>
+        <agenteRetencion t-if="company.l10n_ec_withhold_agent and company.l10n_ec_withhold_resolution"
+                         t-out="clip(company.l10n_ec_withhold_resolution, 8)"/>
+        <contribuyenteRimpe t-if="rimpe_legend" t-out="rimpe_legend"/>
+    </infoTributaria>
+    <infoGuiaRemision>
+        <dirEstablecimiento t-out="clip(picking.picking_type_id.warehouse_id.partner_id.street or company.street, 300)"/>
+        <dirPartida t-out="clip(picking.picking_type_id.warehouse_id.partner_id.street or company.street, 300)"/>
+        <razonSocialTransportista t-out="clip(driver.name, 300)"/>
+        <tipoIdentificacionTransportista
+            t-out="{'cedula': '05', 'pasaporte': '06'}.get(driver.identification_type, '04')"/>
+        <!-- La IDENTIFICACIÓN del transportista, no su licencia de conducir. -->
+        <rucTransportista t-out="clip(driver.identification_number, 13)"/>
+        <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+        <contribuyenteEspecial t-if="company.l10n_ec_special_resolution"
+                               t-out="clip(company.l10n_ec_special_resolution, 13)"/>
+        <fechaIniTransporte t-out="start_date"/>
+        <fechaFinTransporte t-out="end_date"/>
+        <placa t-out="clip(vehicle.license_plate, 20)"/>
+    </infoGuiaRemision>
+    <destinatarios>
+        <destinatario>
+            <identificacionDestinatario t-out="clip(partner.vat, 20)"/>
+            <razonSocialDestinatario t-out="clip(partner.name, 300)"/>
+            <dirDestinatario t-out="clip(partner.street or company.street, 300)"/>
+            <!-- La etiqueta legible, no la clave interna del Selection: el SRI
+                 espera texto libre y "ventas" no le dice nada a quien lee el RIDE. -->
+            <motivoTraslado t-out="clip(transport_reason, 300)"/>
+            <docAduaneroUnico t-if="picking.l10n_ec_customs_document"
+                              t-out="clip(picking.l10n_ec_customs_document, 20)"/>
+            <codEstabDestino t-if="picking.l10n_ec_destination_establishment"
+                             t-out="clip(picking.l10n_ec_destination_establishment, 3)"/>
+            <ruta t-out="clip(picking.l10n_ec_route, 300)"/>
+            <t t-if="sustento">
+                <codDocSustento t-out="sustento['cod_doc']"/>
+                <numDocSustento t-out="sustento['number']"/>
+                <numAutDocSustento t-out="sustento['authorization']"/>
+                <fechaEmisionDocSustento t-out="sustento['date']"/>
+            </t>
+            <detalles>
+                <detalle t-foreach="picking.move_ids" t-as="move">
+                    <codigoInterno t-out="clip(move.product_id.default_code or 'GEN', 25)"/>
+                    <codigoAdicional t-if="move.product_id.barcode"
+                                     t-out="clip(move.product_id.barcode, 25)"/>
+                    <descripcion t-out="clip(move.product_id.name, 300)"/>
+                    <cantidad t-out="quantity(move.quantity)"/>
+                </detalle>
+            </detalles>
+        </destinatario>
+    </destinatarios>
+    <infoAdicional t-if="additional_info">
+        <campoAdicional t-foreach="additional_info" t-as="info"
+                        t-att-nombre="info[0]" t-out="info[1]"/>
+    </infoAdicional>
+</guiaRemision>
+</template>
+</odoo>

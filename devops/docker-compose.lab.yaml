@@ -1,0 +1,32 @@
+# Laboratorio local para probar esta localización sobre ../odoo_template.
+#
+# Se usa como TERCER fichero de `COMPOSE_FILE`, encima de `docker-compose.yaml`
+# y `docker-compose.test.yaml` del template. Existe por dos razones:
+#
+#  1. El override de test del template monta `./.test-data/extra-addons`, que
+#     está vacío, y `.env.test` fija `ODOO_ADDONS=web`. Es decir, el laboratorio
+#     del template NO ve este repo. Este fichero lo monta explícitamente.
+#
+#  2. `extra-addons/odoo_saas_ecuador` del template es un clon `--depth 1` de
+#     GitHub. Montar el directorio de trabajo en su lugar permite iterar con un
+#     `restart`, sin commitear y pushear en cada cambio.
+#
+# `entrypoint.sh` del template recorre `/mnt/extra-addons/<repo>/` buscando
+# `*/__manifest__.py` y arma el `addons_path` solo: basta con el montaje.
+#
+# Uso (desde el directorio de odoo_template, que es el que Compose toma como
+# directorio de proyecto — de ahí que la ruta del host sea absoluta):
+#
+#   export COMPOSE_PROJECT_NAME=odoolab COMPOSE_PATH_SEPARATOR=":"
+#   export COMPOSE_FILE="docker-compose.yaml:docker-compose.test.yaml:<ruta>/devops/docker-compose.lab.yaml"
+#   export COMPOSE_ENV_FILES=.env.test ENV_FILE=.env.test
+#   export EC_ADDONS_PATH=<ruta absoluta a este repo o a un worktree suyo>
+#   docker compose up -d
+#
+# Odoo queda en http://localhost:18069 (BD `lab`).
+
+services:
+  odoo:
+    volumes:
+      # Nested bind mount sobre /mnt/extra-addons: gana el más interno.
+      - ${EC_ADDONS_PATH:-D:/trabajo/nexus/odoo_saas_ecuador}:/mnt/extra-addons/odoo_saas_ecuador

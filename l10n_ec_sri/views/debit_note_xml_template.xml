@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Nota de débito electrónica — codDoc 05, Anexo 1 de la Ficha Técnica 2.34,
+    versión 1.0.0.
+
+    Es 1.0.0 y no 1.1.0 a propósito: la Ficha NO publica una 1.1.0 de este
+    comprobante. El Anexo 3 (el de los 6 decimales) sólo cubre factura, guía de
+    remisión y nota de crédito. Emitir "1.1.0" aquí es rechazo por XSD.
+
+    Estructura propia, que no se parece a la de la factura:
+      * no hay <detalles>: los conceptos van en <motivos><motivo>{razon,valor};
+      * los impuestos van SUELTOS dentro de <infoNotaDebito>, no envueltos en
+        <totalConImpuestos>;
+      * <pagos><pago> admite <plazo> y <unidadTiempo>.
+
+    A VERIFICAR EN CERTIFICACIÓN: <agenteRetencion> (Anexo 21) y
+    <contribuyenteRimpe> (Anexo 22) se emiten aquí porque esos anexos aplican a
+    "comprobantes de venta, retención y documentos complementarios", y la nota de
+    débito es un documento complementario. Pero el ejemplo de notaDebito 1.0.0 del
+    Anexo 1 no los muestra, y ese XSD nunca subió de versión. Si el ambiente de
+    pruebas del SRI devuelve error 35 sobre este comprobante, lo primero que hay que
+    quitar son estas dos etiquetas.
+-->
+<odoo>
+<template id="xml_debit_note">
+<notaDebito id="comprobante" version="1.0.0">
+    <infoTributaria>
+        <ambiente t-out="components['environment']"/>
+        <tipoEmision>1</tipoEmision>
+        <razonSocial t-out="clip(company.name, 300)"/>
+        <nombreComercial t-if="company.l10n_ec_commercial_name"
+                         t-out="clip(company.l10n_ec_commercial_name, 300)"/>
+        <ruc t-out="company.vat"/>
+        <claveAcceso t-out="access_key"/>
+        <codDoc t-out="components['document_code']"/>
+        <estab t-out="components['establishment']"/>
+        <ptoEmi t-out="components['emission_point']"/>
+        <secuencial t-out="components['sequential']"/>
+        <dirMatriz t-out="clip(company.street, 300)"/>
+        <agenteRetencion t-if="company.l10n_ec_withhold_agent and company.l10n_ec_withhold_resolution"
+                         t-out="clip(company.l10n_ec_withhold_resolution, 8)"/>
+        <contribuyenteRimpe t-if="rimpe_legend" t-out="rimpe_legend"/>
+    </infoTributaria>
+    <infoNotaDebito>
+        <fechaEmision t-out="record.invoice_date.strftime('%d/%m/%Y')"/>
+        <dirEstablecimiento t-out="clip(company.street, 300)"/>
+        <tipoIdentificacionComprador t-out="buyer_id_type"/>
+        <razonSocialComprador t-out="clip(partner.name, 300)"/>
+        <identificacionComprador t-out="buyer_identification"/>
+        <contribuyenteEspecial t-if="company.l10n_ec_special_resolution"
+                               t-out="clip(company.l10n_ec_special_resolution, 13)"/>
+        <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+        <codDocModificado t-out="modified['cod_doc']"/>
+        <numDocModificado t-out="modified['num_doc']"/>
+        <fechaEmisionDocSustento t-out="modified['date']"/>
+        <totalSinImpuestos t-out="money(record.amount_untaxed)"/>
+        <impuestos>
+            <impuesto t-foreach="sri_totals" t-as="total">
+                <codigo t-out="total['codigo']"/>
+                <codigoPorcentaje t-out="total['codigoPorcentaje']"/>
+                <tarifa t-out="total['tarifa']"/>
+                <baseImponible t-out="total['baseImponible']"/>
+                <valor t-out="total['valor']"/>
+            </impuesto>
+        </impuestos>
+        <valorTotal t-out="money(record.amount_total)"/>
+        <pagos>
+            <pago t-foreach="payments" t-as="payment">
+                <formaPago t-out="payment['formaPago']"/>
+                <total t-out="payment['total']"/>
+            </pago>
+        </pagos>
+    </infoNotaDebito>
+    <motivos>
+        <motivo t-foreach="motivos" t-as="reason">
+            <razon t-out="reason['razon']"/>
+            <valor t-out="money(reason['valor'])"/>
+        </motivo>
+    </motivos>
+    <infoAdicional t-if="additional_info">
+        <campoAdicional t-foreach="additional_info" t-as="info"
+                        t-att-nombre="info[0]" t-out="info[1]"/>
+    </infoAdicional>
+</notaDebito>
+</template>
+</odoo>

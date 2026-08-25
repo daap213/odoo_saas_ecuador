@@ -6,7 +6,7 @@
 
 {
     "name": "Ecuador - Electronic Invoicing (SRI 2026)",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Localizations",
     "summary": "Electronic Invoicing, XAdES-BES Signing, and SRI Transmission (Ficha 2.34)",
     "description": """
@@ -40,6 +40,7 @@ This module provides full SRI electronic invoicing:
         "security/ir.model.access.csv",
         "views/l10n_ec_certificate_views.xml",
         "views/res_company_views.xml",
+        "views/res_config_settings_views.xml",
     ],
     "images": ["static/description/banner.png"],
     "external_dependencies": {

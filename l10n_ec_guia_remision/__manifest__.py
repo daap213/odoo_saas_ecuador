@@ -36,12 +36,16 @@ Electronic Guía de Remisión (Waybill) for Ecuador:
         "l10n_ec_base",
         "l10n_ec_edi",
         "stock",
+        # La orquestación (clave de acceso, firma, envío, dispatcher del XML) vive
+        # en l10n_ec_sri. La dirección es guía -> sri y NUNCA al revés: l10n_ec_sri
+        # no debe arrastrar Inventario a una instalación puramente contable.
+        "l10n_ec_sri",
     ],
     "data": [
         "security/ir.model.access.csv",
         "views/l10n_ec_transport_views.xml",
         "data/l10n_ec_stock_data.xml",
-        "data/guia_template.xml",
+        "views/stock_picking_xml_template.xml",
         "views/stock_picking_views.xml",
     ],
     "images": ["static/description/banner.png"],

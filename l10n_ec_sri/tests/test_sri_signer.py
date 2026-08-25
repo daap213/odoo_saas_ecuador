@@ -4,11 +4,15 @@ E2E Test: XAdES-BES Digital Signature
 =====================================
 Tests the REAL signing flow using a self-signed test certificate.
 
-Test Certificate:
-    - File: tests/certificates/test_certificate.p12
-    - Password: test1234
-    - Validity: 365 days from creation
-    - CN: test.somatech.ec
+Certificado de prueba:
+    - Se genera autofirmado en memoria (`certificate_fixture.build_test_p12`):
+      RSA-2048, válido 365 días, CN `test.somatech.ec`, clave `test1234`.
+    - Si existe `tests/certificates/test_certificate.p12` se usa ese en su lugar.
+      Ese fichero NO está en el repo y no debe commitearse (`.gitignore` excluye
+      `*.p12`): lleva una clave privada.
+
+Un certificado autofirmado sirve para ejercitar el camino criptográfico, no para
+emitir: el SRI sólo acepta los de una entidad de certificación acreditada.
 """
 import unittest
 import base64
@@ -21,6 +25,8 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 import hashlib
 
+from .certificate_fixture import TEST_P12_PASSWORD, build_test_p12
+
 
 class TestXAdESSigner(unittest.TestCase):
     """
@@ -30,12 +36,20 @@ class TestXAdESSigner(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Load the test certificate once for all tests."""
-        cert_path = Path(__file__).parent / "certificates" / "test_certificate.p12"
-        cls.p12_password = "test1234"
+        """Prepara un certificado de prueba.
 
-        with open(cert_path, "rb") as f:
-            cls.p12_binary = f.read()
+        Se usa `tests/certificates/test_certificate.p12` si existe (por si alguien
+        quiere probar con uno propio) y, si no, se genera uno autofirmado en memoria.
+        Antes se exigía el fichero, que no está en el repo — `.gitignore` excluye
+        `*.p12` — así que la clase entera fallaba en cualquier clon nuevo.
+        """
+        cls.p12_password = TEST_P12_PASSWORD
+        cert_path = Path(__file__).parent / "certificates" / "test_certificate.p12"
+
+        if cert_path.exists():
+            cls.p12_binary = cert_path.read_bytes()
+        else:
+            cls.p12_binary = build_test_p12(cls.p12_password)
 
         # Load certificate and key
         cls.private_key, cls.certificate, _ = pkcs12.load_key_and_certificates(

@@ -9,6 +9,30 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
 
+def _tax_defaults(env, company):
+    """`tax_group_id` y `country_id`, que en Odoo 19 son NOT NULL en `account_tax`.
+
+    Crear un impuesto sin ellos revienta en la INSERT y no en la validación del ORM,
+    con lo que el traceback apunta a psycopg2 y no al dato que falta. Esto no se había
+    detectado nunca porque el `--test-tags` iba mal formado (`/l10n_ec_sri` lo
+    convertía Git Bash en una ruta de Windows) y no llegaba a ejecutarse ningún test.
+    """
+    group = env["account.tax.group"].search(
+        [("company_id", "=", company.id)], limit=1
+    ) or env["account.tax.group"].search([], limit=1)
+    if not group:
+        group = env["account.tax.group"].create({
+            "name": "Grupo de prueba",
+            "company_id": company.id,
+        })
+    country = (
+        company.account_fiscal_country_id
+        or company.country_id
+        or env.ref("base.ec")
+    )
+    return {"tax_group_id": group.id, "country_id": country.id}
+
+
 class SriCommon(TransactionCase):
     """Andamiaje compartido: compañía ecuatoriana, plan `ec` y diario configurado.
 
@@ -167,12 +191,8 @@ class TestSriCompliance(SriCommon):
     # Tipos de comprobante sin plantilla (tabla 3)
     # ------------------------------------------------------------------
 
-    def test_nota_de_credito_no_se_envia_como_factura(self):
-        """render_xml sólo sabe construir <factura>.
-
-        Mandar una nota de crédito por esta ruta producía un cuerpo <factura> con
-        codDoc 04 en la clave: rechazo garantizado del SRI (errores 35 y 58).
-        """
+    def _make_credit_note(self):
+        """Nota de crédito que revierte una factura, por el camino de Odoo."""
         invoice = self._make_invoice()
         refund = invoice._reverse_moves([{
             "invoice_date": invoice.invoice_date,
@@ -182,10 +202,72 @@ class TestSriCompliance(SriCommon):
             # valida el internal_type del documento.
             "l10n_latam_document_type_id": self.env.ref("l10n_ec.ec_dt_04").id,
         }])
+        refund.l10n_ec_modification_reason = "Devolución de mercadería"
+        refund.action_post()
+        return invoice, refund
+
+    def test_la_nota_de_credito_se_emite_como_notaCredito(self):
+        """El cuerpo debe ser <notaCredito> 1.1.0, no <factura>.
+
+        Antes `render_xml` renderizaba siempre la plantilla de factura mientras la
+        clave de acceso sí llevaba el codDoc 04: el SRI lo rechazaba con el error 35
+        (el XSD no corresponde) o el 58 (clave con componentes distintos al cuerpo).
+        """
+        _invoice, refund = self._make_credit_note()
+        xml = self.env["l10n_ec.sri.xml"].render_xml(refund)
+        root = etree.fromstring(xml.encode("utf-8"))
+
+        self.assertEqual(root.tag, "notaCredito")
+        self.assertEqual(root.get("version"), "1.1.0")
+        self.assertEqual(root.get("id"), "comprobante")
+        self.assertEqual(root.findtext(".//codDoc"), "04")
+
+    def test_la_nota_de_credito_referencia_el_documento_modificado(self):
+        """codDocModificado / numDocModificado / fechaEmisionDocSustento."""
+        invoice, refund = self._make_credit_note()
+        xml = self.env["l10n_ec.sri.xml"].render_xml(refund)
+        root = etree.fromstring(xml.encode("utf-8"))
+
+        self.assertEqual(root.findtext(".//codDocModificado"), "01")
+        self.assertEqual(
+            root.findtext(".//numDocModificado"), invoice.l10n_latam_document_number
+        )
+        self.assertEqual(
+            root.findtext(".//fechaEmisionDocSustento"),
+            invoice.invoice_date.strftime("%d/%m/%Y"),
+        )
+        self.assertTrue(root.findtext(".//motivo"))
+
+    def test_la_nota_de_credito_usa_codigoInterno(self):
+        """En la NC el detalle es codigoInterno/codigoAdicional, no codigoPrincipal."""
+        _invoice, refund = self._make_credit_note()
+        xml = self.env["l10n_ec.sri.xml"].render_xml(refund)
+        root = etree.fromstring(xml.encode("utf-8"))
+
+        self.assertIsNotNone(root.find(".//detalle/codigoInterno"))
+        self.assertIsNone(root.find(".//detalle/codigoPrincipal"))
+
+    def test_la_nota_de_credito_no_lleva_propina_ni_totalDescuento(self):
+        """Dos tags que existen en <factura> y NO en <notaCredito> (error 35)."""
+        _invoice, refund = self._make_credit_note()
+        xml = self.env["l10n_ec.sri.xml"].render_xml(refund)
+        root = etree.fromstring(xml.encode("utf-8"))
+
+        self.assertIsNone(root.find(".//propina"))
+        self.assertIsNone(root.find(".//totalDescuento"))
+
+    def test_la_nota_de_credito_sin_motivo_falla_con_mensaje_util(self):
+        invoice = self._make_invoice()
+        refund = invoice._reverse_moves([{
+            "invoice_date": invoice.invoice_date,
+            "journal_id": invoice.journal_id.id,
+            "l10n_latam_document_type_id": self.env.ref("l10n_ec.ec_dt_04").id,
+        }])
+        refund.l10n_ec_modification_reason = False
         refund.action_post()
 
         with self.assertRaises(UserError):
-            self.env["l10n_ec.sri.xml"]._check_document_type_supported(refund)
+            self.env["l10n_ec.sri.xml"].render_xml(refund)
 
     def test_la_factura_si_esta_soportada(self):
         invoice = self._make_invoice()
@@ -206,17 +288,19 @@ class TestSriRetentionCodes(TransactionCase):
         super().setUpClass()
         cls.company = cls.env.company
         cls.AccountTax = cls.env["account.tax"]
+        cls.tax_defaults = _tax_defaults(cls.env, cls.company)
 
     def _make_withholding(self, amount, retention_type, code=False):
-        return self.AccountTax.create({
-            "name": "Retención de prueba %s" % amount,
-            "amount": -abs(amount),
-            "amount_type": "percent",
-            "type_tax_use": "purchase",
-            "l10n_ec_retention_type": retention_type,
-            "l10n_ec_code": code,
-            "company_id": self.company.id,
-        })
+        return self.AccountTax.create(dict(
+            self.tax_defaults,
+            name="Retención de prueba %s" % amount,
+            amount=-abs(amount),
+            amount_type="percent",
+            type_tax_use="purchase",
+            l10n_ec_retention_type=retention_type,
+            l10n_ec_code=code,
+            company_id=self.company.id,
+        ))
 
     def test_tabla_20_codigos_de_iva_por_porcentaje(self):
         """El 9 es el 10 %, no "no procede" — que es el 8."""
@@ -445,6 +529,17 @@ class TestSriRetentionFlow(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.company = cls.env.company
+        # El número de la retención (001-002-000000001) sale del diario, que es lo
+        # único que el SRI valida contra los establecimientos registrados en el RUC.
+        cls.journal = cls.env["account.journal"].search(
+            [("company_id", "=", cls.company.id), ("type", "=", "sale")], limit=1
+        ) or cls.env["account.journal"].create({
+            "name": "Retenciones de prueba",
+            "code": "RETP",
+            "type": "sale",
+            "company_id": cls.company.id,
+        })
+        cls.journal.write({"l10n_ec_entity": "001", "l10n_ec_emission": "002"})
 
     def test_la_retencion_pasa_de_borrador_a_enviable(self):
         """Confirmar debe dejarla en un estado donde el botón de enviar se vea.
@@ -453,17 +548,19 @@ class TestSriRetentionFlow(TransactionCase):
         estaba oculto exactamente en ese valor: no existía ninguna combinación en la
         que apareciera, así que una retención nueva no se podía transmitir.
         """
-        tax = self.env["account.tax"].create({
-            "name": "Retención IVA 30% (prueba)",
-            "amount": -30.0,
-            "amount_type": "percent",
-            "type_tax_use": "purchase",
-            "l10n_ec_retention_type": "2",
-            "company_id": self.company.id,
-        })
+        tax = self.env["account.tax"].create(dict(
+            _tax_defaults(self.env, self.company),
+            name="Retención IVA 30% (prueba)",
+            amount=-30.0,
+            amount_type="percent",
+            type_tax_use="purchase",
+            l10n_ec_retention_type="2",
+            company_id=self.company.id,
+        ))
         retention = self.env["l10n_ec.retention"].new({
             "state": "draft",
             "l10n_ec_sri_status": "draft",
+            "journal_id": self.journal.id,
             "tax_ids": [(0, 0, {
                 "tax_id": tax.id, "base_amount": 100.0, "amount": 30.0,
             })],
@@ -472,6 +569,11 @@ class TestSriRetentionFlow(TransactionCase):
         retention.action_post()
 
         self.assertEqual(retention.state, "posted")
+        # Numeración con el establecimiento y el punto de emisión del DIARIO. Antes
+        # `_split_number` intentaba parsear el `name` de la secuencia (`000000001`)
+        # con el patrón `001-001-000000001`, nunca casaba, y caía a un `001-001` fijo:
+        # se emitía con un punto de emisión que no existe en el RUC del emisor.
+        self.assertEqual(retention.name, "001-002-000000001")
         # La condición exacta del botón "Enviar al SRI" en la vista.
         self.assertTrue(
             retention.state == "posted"
@@ -488,3 +590,238 @@ class TestSriRetentionFlow(TransactionCase):
         retention = self.env["l10n_ec.retention"].new({"state": "draft"})
         with self.assertRaises(UserError):
             retention.action_post()
+
+
+@tagged("post_install", "-at_install", "l10n_ec", "sri")
+class TestSriDispatcher(SriCommon):
+    """El dispatcher por codDoc: lo que se deja emitir es lo que tiene plantilla."""
+
+    def test_cada_codigo_soportado_tiene_plantilla_y_metodo(self):
+        """Impide que la lista de códigos y las plantillas se desincronicen."""
+        sri_xml = self.env["l10n_ec.sri.xml"]
+        for code, (template, method) in sri_xml._get_document_renderers().items():
+            self.assertTrue(
+                self.env.ref(template, raise_if_not_found=False),
+                "El codDoc %s apunta a una plantilla inexistente: %s" % (code, template),
+            )
+            self.assertTrue(
+                hasattr(sri_xml, method),
+                "El codDoc %s apunta a un método inexistente: %s" % (code, method),
+            )
+
+    def test_un_codigo_sin_plantilla_sigue_bloqueado(self):
+        """Mejor negarse que gastar un secuencial en un envío que nunca autorizará."""
+        invoice = self._make_invoice()
+        invoice.l10n_latam_document_type_id = self.env.ref("l10n_ec.ec_dt_02")
+        with self.assertRaises(UserError):
+            self.env["l10n_ec.sri.xml"]._check_document_type_supported(invoice)
+
+    def test_render_es_deterministico(self):
+        """Se firma lo que se envía: dos renders tienen que dar los mismos bytes.
+
+        Si el render no fuera determinista, el digest se calcularía sobre un documento
+        y el SRI validaría otro.
+        """
+        invoice = self._make_invoice()
+        sri_xml = self.env["l10n_ec.sri.xml"]
+        self.assertEqual(sri_xml.render_xml(invoice), sri_xml.render_xml(invoice))
+
+    def test_la_raiz_coincide_con_el_coddoc(self):
+        invoice = self._make_invoice()
+        root = etree.fromstring(
+            self.env["l10n_ec.sri.xml"].render_xml(invoice).encode("utf-8")
+        )
+        self.assertEqual(root.tag, "factura")
+        self.assertEqual(root.findtext(".//codDoc"), "01")
+
+
+@tagged("post_install", "-at_install", "l10n_ec", "sri")
+class TestSriDebitNote(SriCommon):
+    """Nota de débito (codDoc 05, Anexo 1, versión 1.0.0)."""
+
+    def _make_debit_note(self):
+        invoice = self._make_invoice()
+        wizard = self.env["account.debit.note"].with_context(
+            active_model="account.move", active_ids=invoice.ids
+        ).create({"reason": "Intereses por mora", "copy_lines": True})
+        wizard.create_debit()
+        debit = invoice.debit_note_ids
+        debit.l10n_latam_document_type_id = self.env.ref("l10n_ec.ec_dt_05")
+        debit.action_post()
+        debit.l10n_ec_sri_access_key = self.env["l10n_ec.sri.xml"].generate_access_key(
+            debit
+        )
+        return invoice, debit
+
+    def test_la_nota_de_debito_es_version_1_0_0(self):
+        """La Ficha NO publica una 1.1.0 de este comprobante: sólo el Anexo 1."""
+        _invoice, debit = self._make_debit_note()
+        root = etree.fromstring(
+            self.env["l10n_ec.sri.xml"].render_xml(debit).encode("utf-8")
+        )
+        self.assertEqual(root.tag, "notaDebito")
+        self.assertEqual(root.get("version"), "1.0.0")
+        self.assertEqual(root.findtext(".//codDoc"), "05")
+
+    def test_los_impuestos_van_sueltos_no_en_totalConImpuestos(self):
+        """En la ND `<impuestos>` cuelga de `<infoNotaDebito>`, sin envoltorio."""
+        _invoice, debit = self._make_debit_note()
+        root = etree.fromstring(
+            self.env["l10n_ec.sri.xml"].render_xml(debit).encode("utf-8")
+        )
+        self.assertIsNotNone(root.find(".//infoNotaDebito/impuestos/impuesto"))
+        self.assertIsNone(root.find(".//totalConImpuestos"))
+
+    def test_la_nota_de_debito_lleva_motivos(self):
+        _invoice, debit = self._make_debit_note()
+        root = etree.fromstring(
+            self.env["l10n_ec.sri.xml"].render_xml(debit).encode("utf-8")
+        )
+        motivos = root.findall(".//motivos/motivo")
+        self.assertTrue(motivos, "La ND exige al menos un <motivo>")
+        for motivo in motivos:
+            self.assertTrue(motivo.findtext("razon"))
+            self.assertTrue(motivo.findtext("valor"))
+
+    def test_los_impuestos_llevan_tarifa_real(self):
+        """`<impuesto>` de la ND exige `<tarifa>`, a diferencia de `<totalImpuesto>`.
+
+        Los totales que agrega `_compute_sri_taxes` descartan la tarifa porque la
+        factura no la necesita; para la ND hay que agregarlos conservándola.
+        """
+        _invoice, debit = self._make_debit_note()
+        root = etree.fromstring(
+            self.env["l10n_ec.sri.xml"].render_xml(debit).encode("utf-8")
+        )
+        tarifas = [n.text for n in root.findall(".//infoNotaDebito/impuestos/impuesto/tarifa")]
+        self.assertTrue(tarifas)
+        self.assertNotIn("0.00", tarifas, "La tarifa del IVA 15% no puede salir en cero")
+
+    def test_la_nota_de_debito_no_lleva_detalles(self):
+        _invoice, debit = self._make_debit_note()
+        root = etree.fromstring(
+            self.env["l10n_ec.sri.xml"].render_xml(debit).encode("utf-8")
+        )
+        self.assertIsNone(root.find(".//detalles"))
+
+
+@tagged("post_install", "-at_install", "l10n_ec", "sri")
+class TestSriPurchaseLiquidation(SriCommon):
+    """Liquidación de compra (codDoc 03, Anexo 17). La emite el COMPRADOR."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.purchase_journal = cls.env["account.journal"].search(
+            [("type", "=", "purchase"), ("company_id", "=", cls.company.id)], limit=1
+        )
+        cls.purchase_journal.write({
+            "l10n_ec_entity": "002",
+            "l10n_ec_emission": "005",
+            "l10n_ec_allow_purchase_liquidation": True,
+        })
+        cls.supplier = cls.env["res.partner"].create({
+            "name": "Proveedor sin RUC",
+            "vat": "1710034065",
+            "l10n_ec_identifier_type": "cedula",
+            "country_id": cls.env.ref("base.ec").id,
+            "street": "Barrio La Loma s/n",
+        })
+
+    def _make_liquidation(self):
+        move = self.env["account.move"].create({
+            "move_type": "in_invoice",
+            "partner_id": self.supplier.id,
+            "journal_id": self.purchase_journal.id,
+            "invoice_date": "2026-08-24",
+            "l10n_latam_document_type_id": self.env.ref("l10n_ec.ec_dt_03").id,
+            "invoice_line_ids": [(0, 0, {
+                "product_id": self.product.id,
+                "quantity": 1,
+                "price_unit": 50.0,
+            })],
+        })
+        move.action_post()
+        move.l10n_ec_sri_access_key = self.env["l10n_ec.sri.xml"].generate_access_key(
+            move
+        )
+        return move
+
+    def _draft_purchase_move(self, document_type_ref=None):
+        """Borrador real, no `.new()`.
+
+        `account.move.journal_id` es un campo COMPUTADO en Odoo 19: sobre un registro
+        `.new()` el diario que se pasa no sobrevive al compute, y el dominio se evalúa
+        contra otro diario sin el interruptor de liquidaciones.
+        """
+        move = self.env["account.move"].create({
+            "move_type": "in_invoice",
+            "partner_id": self.supplier.id,
+            "journal_id": self.purchase_journal.id,
+        })
+        # El diario se fija antes que el tipo de documento y NO al revés: cambiar de
+        # diario recomputa `l10n_latam_document_type_id` y borraría el que se acaba de
+        # poner.
+        move.journal_id = self.purchase_journal
+        self.assertTrue(
+            move.journal_id.l10n_ec_allow_purchase_liquidation,
+            "El diario de la prueba tiene que permitir liquidaciones de compra",
+        )
+        if document_type_ref:
+            move.l10n_latam_document_type_id = self.env.ref(document_type_ref)
+        return move
+
+    def test_el_tipo_03_es_seleccionable_en_el_diario_marcado(self):
+        """El `l10n_ec` oficial deja fuera la liquidación por DOS filtros distintos.
+
+        Fuerza `internal_type = 'invoice'` para `in_invoice` y además impone una lista
+        blanca por tipo de identificación del proveedor. Hay que ampliar los dos.
+
+        Si el oficial cambia la forma de ese dominio, este test falla de forma visible
+        en vez de dejar la liquidación silenciosamente inseleccionable.
+        """
+        move = self._draft_purchase_move()
+        tipos = self.env["l10n_latam.document.type"].search(
+            move._get_l10n_latam_documents_domain()
+        )
+        self.assertIn(self.env.ref("l10n_ec.ec_dt_03"), tipos)
+
+    def test_una_factura_de_proveedor_normal_sigue_siendo_manual(self):
+        """El override de numeración tiene que ser estrechísimo.
+
+        Si se pasa de alcance, TODA factura de proveedor se autonumera y pisa el
+        número que puso el proveedor.
+        """
+        move = self._draft_purchase_move("l10n_ec.ec_dt_01")
+        self.assertTrue(move._is_manual_document_number())
+
+    def test_la_liquidacion_se_numera_sola(self):
+        """La emite el comprador, así que sale de NUESTRO establecimiento."""
+        move = self._draft_purchase_move("l10n_ec.ec_dt_03")
+        self.assertFalse(move._is_manual_document_number())
+
+    def test_la_liquidacion_emite_unidadMedida(self):
+        """Es el único comprobante con <unidadMedida> en el detalle."""
+        move = self._make_liquidation()
+        root = etree.fromstring(
+            self.env["l10n_ec.sri.xml"].render_xml(move).encode("utf-8")
+        )
+        self.assertEqual(root.tag, "liquidacionCompra")
+        self.assertEqual(root.findtext(".//codDoc"), "03")
+        self.assertIsNotNone(root.find(".//detalle/unidadMedida"))
+
+    def test_los_datos_del_proveedor_van_en_infoLiquidacionCompra(self):
+        move = self._make_liquidation()
+        root = etree.fromstring(
+            self.env["l10n_ec.sri.xml"].render_xml(move).encode("utf-8")
+        )
+        self.assertEqual(root.findtext(".//tipoIdentificacionProveedor"), "05")
+        self.assertEqual(root.findtext(".//identificacionProveedor"), "1710034065")
+        self.assertEqual(root.findtext(".//razonSocialProveedor"), "Proveedor sin RUC")
+
+    def test_un_proveedor_consumidor_final_no_vale(self):
+        """Una liquidación identifica a quien se le va a retener: 07 es rechazo."""
+        move = self._make_liquidation()
+        move.partner_id.write({"vat": False, "l10n_ec_identifier_type": False})
+        with self.assertRaises(UserError):
+            self.env["l10n_ec.sri.xml"].render_xml(move)

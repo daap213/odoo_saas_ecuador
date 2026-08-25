@@ -40,8 +40,8 @@
 |----------------|--------|
 | Transmisión en tiempo real (mandatorio 2026) | ✅ |
 | Firma digital XAdES-BES (RSA-SHA1 + SHA-1, según Ficha §6.8) | ✅ |
-| Emisión electrónica: Factura (01) y Comprobante de Retención (07) | ✅ |
-| Emisión electrónica: NC (04), ND (05), Liquidación (03), Guía (06) | ❌ pendiente |
+| Emisión electrónica: los 6 comprobantes de la Tabla 3 (01, 03, 04, 05, 06, 07) | ✅ |
+| Certificación contra el ambiente de pruebas del SRI | ⚠️ pendiente — requiere certificado acreditado |
 | Generación RIDE PDF de la factura (Anexo 2, con código de barras) | ✅ |
 | Consulta automática de autorización y reintento (`ir.cron`) | ✅ |
 | Entrega del comprobante al receptor por correo (Ficha §4.7) | ✅ |
@@ -133,7 +133,7 @@
 
 | Módulo | Descripción |
 |--------|-------------|
-| `l10n_ec_guia_remision` | Transportistas, vehículos y datos de guía de remisión sobre `stock.picking`. ⚠️ La transmisión al SRI **aún no funciona** (ver tabla de características) |
+| `l10n_ec_guia_remision` | Guía de remisión electrónica (06): transportistas, vehículos, ruta y comprobante de sustento sobre `stock.picking` |
 | `l10n_ec_pos` | Facturación electrónica en POS |
 | `l10n_ec_customs` | DAU, partidas arancelarias, FODINFA, ISD |
 | `l10n_ec_quality` | Control calidad productos Ecuador |
@@ -231,10 +231,14 @@ Un `ir.cron` diario revisa la caducidad y avisa por el chatter.
 - **Pruebas**: `celcer.sri.gob.ec`
 - **Producción**: `cel.sri.gob.ec`
 
-> ⚠️ Los campos *URL Recepción* y *URL Autorización* son un **override manual**. Si
-> tienen valor, ganan sobre el ambiente seleccionado. Déjelos **vacíos** para que el
-> endpoint lo resuelva el selector de ambiente
-> (`l10n_ec.sri_reception_url_test` / `..._prod`).
+> Los campos *URL Recepción* y *URL Autorización* de la compañía son un **override
+> manual** y ganan sobre el ambiente. Nacen vacíos a propósito: déjelos así salvo que
+> el SRI publique un endpoint distinto.
+
+Casi todo lo demás se configura en **Contabilidad > Configuración > Ajustes >
+Ecuador — SRI**: RUC del proveedor de facturación (Anexo 26), límite de consumidor
+final, día límite de anulación, auto-envío, forma de pago por defecto, tarifas de IVA
+y los endpoints.
 
 Además, cada diario de venta necesita su **establecimiento y punto de emisión**
 (*Contabilidad > Configuración > Diarios*, campos `l10n_ec_entity` y

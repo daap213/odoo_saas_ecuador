@@ -351,7 +351,7 @@ class L10nEcCompanySetupWizard(models.TransientModel):
             "type": "ir.actions.act_window",
             "name": f"Resultados: {self.search_name}",
             "res_model": "l10n_ec.ruc.search.result",
-            "view_mode": "tree",
+            "view_mode": "list",
             "target": "new",
             "context": {
                 "search_results": resultados,
@@ -394,20 +394,36 @@ class L10nEcCompanySetupWizard(models.TransientModel):
             }
         )
 
-        # Set SRI parameters
-        IrConfigParam = self.env["ir.config_parameter"].sudo()
-        IrConfigParam.set_param("l10n_ec.sri_environment", self.sri_environment)
-        IrConfigParam.set_param(
-            "l10n_ec.obligado_contabilidad", str(self.obligado_contabilidad)
-        )
-
+        # Configuración SRI: se escribe en la COMPAÑÍA, que es de donde la lee el
+        # generador del XML.
+        #
+        # Antes esto guardaba cuatro `ir.config_parameter`
+        # (`l10n_ec.sri_environment`, `…obligado_contabilidad`,
+        # `…contribuyente_especial`, `…agente_retencion`) que NO los lee nadie en la
+        # ruta de emisión: el XML lee `company.l10n_ec_sri_environment`,
+        # `l10n_ec_forced_accounting`, `l10n_ec_special_resolution` y
+        # `l10n_ec_withhold_agent` / `l10n_ec_withhold_resolution`. Se completaban los
+        # 6 pasos del asistente y la empresa quedaba sin configurar para emitir.
+        company_values = {
+            "l10n_ec_sri_environment": self.sri_environment,
+            "l10n_ec_forced_accounting": self.obligado_contabilidad,
+        }
         if self.contribuyente_especial:
-            IrConfigParam.set_param(
-                "l10n_ec.contribuyente_especial", self.contribuyente_especial
-            )
-
+            company_values["l10n_ec_special_resolution"] = self.contribuyente_especial
         if self.agente_retencion:
-            IrConfigParam.set_param("l10n_ec.agente_retencion", self.agente_retencion)
+            company_values.update({
+                "l10n_ec_withhold_agent": True,
+                # Anexo 21: el número de resolución, sin ceros a la izquierda.
+                "l10n_ec_withhold_resolution": str(self.agente_retencion).lstrip("0"),
+            })
+        company.write(company_values)
+
+        # El ambiente se guarda además como parámetro porque el asistente de
+        # instalación y algunos informes lo consultan ahí; la fuente de verdad para
+        # emitir es el campo de la compañía que se acaba de escribir.
+        self.env["ir.config_parameter"].sudo().set_param(
+            "l10n_ec.sri_environment", self.sri_environment
+        )
 
         # Install demo data if selected
         demo_message = ""

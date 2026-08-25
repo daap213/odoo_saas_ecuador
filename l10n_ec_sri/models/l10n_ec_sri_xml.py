@@ -58,16 +58,11 @@ L10N_EC_SUBTOTAL_LABELS = {
     "10": "SUBTOTAL 13%",
 }
 
-# Tabla 3 — tipos de comprobante que este módulo sabe construir HOY.
-#
-# `render_xml` renderiza siempre la plantilla de factura, pero la clave de acceso sí
-# lleva el codDoc real del documento. Emitir una nota de crédito por esta ruta producía
-# un cuerpo <factura> con codDoc 04: el SRI lo rechaza con el error 35 (el XSD no
-# corresponde) o el 58 (clave con componentes distintos a los del comprobante). Mejor
-# negarse aquí que gastar un secuencial en un envío que nunca autorizará.
-L10N_EC_SUPPORTED_DOCUMENT_CODES = {"01"}
+# Tabla 3 — los tipos que este módulo sabe construir salen de
+# `_get_document_renderers()`, no de una constante: ver el comentario de ese método.
 
-# Sólo para el mensaje de error: nombrar el comprobante que el usuario intentó emitir.
+# Nombres de la Tabla 3, para los mensajes de error y para poder decirle al usuario
+# qué comprobante intentó emitir.
 L10N_EC_DOCUMENT_NAMES = {
     "01": "Factura",
     "03": "Liquidación de compra de bienes y prestación de servicios",
@@ -92,7 +87,15 @@ class L10nEcSriXml(models.AbstractModel):
 
         Falla de forma explícita en vez de caer a `001`: un establecimiento por
         defecto silencioso es justamente lo que producía claves incoherentes.
+
+        Un modelo emisor que no sea `account.move` —la guía de remisión vive en
+        `stock.picking`, que no tiene ni diario ni tipo de documento LATAM— aporta sus
+        propios componentes implementando `_l10n_ec_sri_components()`. Es el seam que
+        permite que la guía reutilice esta clave de acceso en vez de tener la suya.
         """
+        if hasattr(record, "_l10n_ec_sri_components"):
+            return record._l10n_ec_sri_components()
+
         journal = record.journal_id
         establishment = (journal.l10n_ec_entity or "").strip()
         emission_point = (journal.l10n_ec_emission or "").strip()
@@ -146,9 +149,21 @@ class L10nEcSriXml(models.AbstractModel):
     # ------------------------------------------------------------------
 
     @api.model
+    def _get_emission_date(self, record):
+        """Fecha de emisión, sea cual sea el modelo emisor.
+
+        `account.move` la tiene en `invoice_date`; un `stock.picking` no tiene ese
+        campo y aporta la suya con `_l10n_ec_sri_emission_date()`.
+        """
+        if hasattr(record, "_l10n_ec_sri_emission_date"):
+            return record._l10n_ec_sri_emission_date()
+        return record.invoice_date
+
+    @api.model
     def generate_access_key(self, record):
         """Clave de acceso de 49 dígitos (Ficha 2.34, tabla 1)."""
-        if not record.invoice_date:
+        emission_date = self._get_emission_date(record)
+        if not emission_date:
             raise UserError(_("El comprobante necesita fecha de emisión."))
 
         components = self._get_document_components(record)
@@ -160,7 +175,7 @@ class L10nEcSriXml(models.AbstractModel):
             ))
 
         base_key = "{date}{doc}{ruc}{env}{estab}{pto}{seq}{numeric}{emission}".format(
-            date=record.invoice_date.strftime("%d%m%Y"),
+            date=emission_date.strftime("%d%m%Y"),
             doc=components["document_code"],
             ruc=ruc,
             env=components["environment"],
@@ -395,7 +410,13 @@ class L10nEcSriXml(models.AbstractModel):
 
     @api.model
     def _get_additional_info(self, record):
-        """Campos de <infoAdicional> (máximo 15, hasta 300 caracteres cada uno)."""
+        """Campos de <infoAdicional> (máximo 15, hasta 300 caracteres cada uno).
+
+        Sirve para CUALQUIER comprobante, no sólo la factura: el Anexo 26 exige el RUC
+        del proveedor del sistema en todos, y el Anexo 24 la leyenda de Gran
+        Contribuyente. Por eso los accesos a campos que no existen en todos los
+        modelos emisores (`narration`, sólo en `account.move`) van con `getattr`.
+        """
         fields_list = []
         partner = record.partner_id
         if partner.email:
@@ -420,11 +441,39 @@ class L10nEcSriXml(models.AbstractModel):
                 record.company_id.l10n_ec_big_taxpayer_resolution[:300],
             ))
 
-        if record.narration:
-            text = re.sub(r"<[^>]+>", " ", str(record.narration))
+        narration = getattr(record, "narration", False)
+        if narration:
+            text = re.sub(r"<[^>]+>", " ", str(narration))
             fields_list.append(("Observaciones", " ".join(text.split())[:300]))
 
         return fields_list[:15]
+
+    @api.model
+    def _get_document_renderers(self):
+        """{codDoc: (plantilla QWeb, método que arma los valores)}.
+
+        Es un MÉTODO y no una constante de módulo a propósito: así un addon que
+        dependa de éste añade su comprobante con un `super()`, sin mutar un diccionario
+        global compartido entre bases de datos y workers. Es lo que permite que la
+        guía de remisión (06) viva en `l10n_ec_guia_remision` —que depende de
+        `stock`— sin que `l10n_ec_sri` tenga que arrastrar Inventario.
+
+        Al derivarse de aquí la lista de códigos soportados, "lo que se deja emitir" y
+        "lo que se sabe renderizar" no pueden desincronizarse.
+        """
+        return {
+            "01": ("l10n_ec_sri.xml_invoice", "_get_invoice_values"),
+            "03": (
+                "l10n_ec_sri.xml_purchase_liquidation",
+                "_get_purchase_liquidation_values",
+            ),
+            "04": ("l10n_ec_sri.xml_credit_note", "_get_credit_note_values"),
+            "05": ("l10n_ec_sri.xml_debit_note", "_get_debit_note_values"),
+        }
+
+    @api.model
+    def _get_supported_document_codes(self):
+        return set(self._get_document_renderers())
 
     @api.model
     def _check_document_type_supported(self, record):
@@ -435,18 +484,23 @@ class L10nEcSriXml(models.AbstractModel):
         """
         raw_code = (record.l10n_latam_document_type_id.code or "").strip()
         code = raw_code.zfill(2) if raw_code else ""
-        if code in L10N_EC_SUPPORTED_DOCUMENT_CODES:
+        supported = self._get_supported_document_codes()
+        if code in supported:
             return
         raise UserError(_(
             "Todavía no se puede emitir electrónicamente %(doc)s: es un comprobante "
-            "de tipo %(code)s (%(label)s) y este módulo sólo genera el XML de la "
-            "factura (01).\n\n"
-            "Enviarlo produciría un cuerpo <factura> con codDoc %(code)s, que el SRI "
-            "rechaza (errores 35 y 58). Emítalo por fuera del sistema mientras no "
-            "exista la plantilla correspondiente.",
+            "de tipo %(code)s (%(label)s) y este módulo sólo genera el XML de "
+            "%(supported)s.\n\n"
+            "Enviarlo produciría un cuerpo que no corresponde al codDoc de la clave "
+            "de acceso, que el SRI rechaza (errores 35 y 58). Emítalo por fuera del "
+            "sistema mientras no exista la plantilla correspondiente.",
             doc=record.display_name,
             code=code or "sin asignar",
             label=L10N_EC_DOCUMENT_NAMES.get(code, _("no soportado")),
+            supported=", ".join(
+                "%s (%s)" % (c, L10N_EC_DOCUMENT_NAMES.get(c, c))
+                for c in sorted(supported)
+            ),
         ))
 
     @api.model
@@ -568,6 +622,241 @@ class L10nEcSriXml(models.AbstractModel):
         }
 
     @api.model
+    def _get_credit_note_values(self, record):
+        """Valores de la nota de crédito (codDoc 04, Anexo 3, versión 1.1.0).
+
+        No reutiliza `_get_invoice_values`: la nota de crédito NO lleva `<propina>`
+        ni `<totalDescuento>`, y heredarlos para luego quitarlos en la plantilla es
+        justo la forma de que un día se cuele un tag de más y el SRI conteste con el
+        error 35. Los cuerpos son estructuralmente distintos, no variantes.
+        """
+        self._check_emission_requirements(record)
+        components = self._get_document_components(record)
+        sri_totals, sri_line_taxes = self._compute_sri_taxes(record)
+        id_type, identification = self._get_buyer_identification(record)
+        company = record.company_id
+
+        return {
+            "record": record,
+            "company": company,
+            "partner": record.partner_id,
+            "access_key": record.l10n_ec_sri_access_key,
+            "components": components,
+            "sri_totals": sri_totals,
+            "sri_line_taxes": sri_line_taxes,
+            "buyer_id_type": id_type,
+            "buyer_identification": identification,
+            "additional_info": self._get_additional_info(record),
+            "lines": self._get_product_lines(record),
+            "rimpe_legend": company.l10n_ec_rimpe_legend(),
+            "modified": self._get_modified_document_values(record),
+            "money": lambda value: "%.2f" % (value or 0.0),
+            "quantity": lambda value: "%.6f" % (value or 0.0),
+            "clip": lambda value, size: (value or "")[:size],
+        }
+
+    @api.model
+    def _get_purchase_liquidation_values(self, record):
+        """Valores de la liquidación de compra (codDoc 03, Anexo 17, versión 1.1.0).
+
+        Es el único comprobante que EMITE EL COMPRADOR: se usa cuando el proveedor no
+        puede emitir comprobante de venta (persona natural no obligada, artesano,
+        extranjero). De ahí que las etiquetas hablen de "Proveedor" y no de
+        "Comprador", y que el partner del asiento sea el proveedor.
+
+        También es el único con `<unidadMedida>` en el detalle.
+        """
+        self._check_emission_requirements(record)
+        components = self._get_document_components(record)
+        sri_totals, sri_line_taxes = self._compute_sri_taxes(record)
+        id_type, identification = self._get_supplier_identification(record)
+        company = record.company_id
+
+        product_lines = self._get_product_lines(record)
+        total_discount = sum(
+            line.price_unit * line.quantity * (line.discount or 0.0) / 100.0
+            for line in product_lines
+        )
+
+        return {
+            "record": record,
+            "company": company,
+            "partner": record.partner_id,
+            "access_key": record.l10n_ec_sri_access_key,
+            "components": components,
+            "sri_totals": sri_totals,
+            "sri_line_taxes": sri_line_taxes,
+            "supplier_id_type": id_type,
+            "supplier_identification": identification,
+            "payments": self._get_payment_details(record),
+            "additional_info": self._get_additional_info(record),
+            "total_discount": "%.2f" % total_discount,
+            "lines": product_lines,
+            "rimpe_legend": company.l10n_ec_rimpe_legend(),
+            "money": lambda value: "%.2f" % (value or 0.0),
+            "quantity": lambda value: "%.6f" % (value or 0.0),
+            "clip": lambda value, size: (value or "")[:size],
+            "uom": lambda line: (line.product_uom_id.name or "U")[:50],
+        }
+
+    @api.model
+    def _get_supplier_identification(self, record):
+        """(tipoIdentificacionProveedor, identificacionProveedor) — tabla 6.
+
+        Se reutiliza la lógica del comprador, pero **el 07 (consumidor final) no vale
+        aquí**: una liquidación identifica a un proveedor concreto, que es a quien se
+        le va a retener. Emitirla con 9999999999999 es un rechazo seguro.
+        """
+        id_type, identification = self._get_buyer_identification(record)
+        if id_type == "07":
+            raise UserError(_(
+                "La liquidación de compra %s no tiene identificado al proveedor.\n\n"
+                "El SRI no admite 'consumidor final' en este comprobante: hay que "
+                "registrar el RUC, la cédula o el pasaporte de %s.",
+                record.display_name, record.partner_id.display_name,
+            ))
+        return id_type, identification
+
+    @api.model
+    def _get_debit_note_values(self, record):
+        """Valores de la nota de débito (codDoc 05, Anexo 1, versión 1.0.0).
+
+        La Ficha NO define una 1.1.0 de este comprobante: el Anexo 3 sólo trae factura,
+        guía de remisión y nota de crédito. Así que aquí no hay 6 decimales.
+
+        Estructura propia: no lleva `<detalles>` sino `<motivos>`, y los impuestos van
+        sueltos dentro de `<infoNotaDebito>`, no envueltos en `<totalConImpuestos>`.
+        """
+        self._check_emission_requirements(record)
+        components = self._get_document_components(record)
+        _totals, line_taxes = self._compute_sri_taxes(record)
+        id_type, identification = self._get_buyer_identification(record)
+        company = record.company_id
+
+        return {
+            "record": record,
+            "company": company,
+            "partner": record.partner_id,
+            "access_key": record.l10n_ec_sri_access_key,
+            "components": components,
+            # OJO: no se usan los totales agregados. `_compute_sri_taxes` los agrega
+            # por (codigo, codigoPorcentaje) y descarta la `tarifa`, que en la factura
+            # no hace falta porque `<totalImpuesto>` no la lleva — pero el
+            # `<impuesto>` suelto de la nota de débito SÍ la exige.
+            "sri_totals": self._aggregate_taxes_with_rate(line_taxes),
+            "buyer_id_type": id_type,
+            "buyer_identification": identification,
+            "payments": self._get_payment_details(record),
+            "additional_info": self._get_additional_info(record),
+            "rimpe_legend": company.l10n_ec_rimpe_legend(),
+            "modified": self._get_modified_document_values(record),
+            "motivos": self._get_debit_note_reasons(record),
+            "money": lambda value: "%.2f" % (value or 0.0),
+            "clip": lambda value, size: (value or "")[:size],
+        }
+
+    @api.model
+    def _aggregate_taxes_with_rate(self, line_taxes):
+        """Agrega los impuestos de línea por (codigo, codigoPorcentaje, tarifa).
+
+        La nota de débito emite `<impuesto>` suelto dentro de `<infoNotaDebito>`, y
+        ese elemento lleva `<tarifa>`, a diferencia del `<totalImpuesto>` de la
+        factura. Por eso la tarifa forma parte de la clave de agregación en vez de
+        descartarse.
+        """
+        aggregated = {}
+        for taxes in line_taxes.values():
+            for tax in taxes:
+                key = (tax["codigo"], tax["codigoPorcentaje"], tax["tarifa"])
+                entry = aggregated.setdefault(key, {
+                    "codigo": tax["codigo"],
+                    "codigoPorcentaje": tax["codigoPorcentaje"],
+                    "tarifa": tax["tarifa"],
+                    "base": 0.0,
+                    "valor": 0.0,
+                })
+                entry["base"] += float(tax["baseImponible"])
+                entry["valor"] += float(tax["valor"])
+        return [
+            {
+                "codigo": entry["codigo"],
+                "codigoPorcentaje": entry["codigoPorcentaje"],
+                "tarifa": entry["tarifa"],
+                "baseImponible": "%.2f" % entry["base"],
+                "valor": "%.2f" % entry["valor"],
+            }
+            for entry in aggregated.values()
+        ]
+
+    @api.model
+    def _get_debit_note_reasons(self, record):
+        """`<motivos>`: un motivo por línea, con su razón y su importe sin impuestos.
+
+        La suma de los motivos tiene que cuadrar con `<totalSinImpuestos>`, que es lo
+        que hace aritméticamente coherente `valorTotal = totalSinImpuestos + impuestos`.
+        """
+        motivos = [
+            {
+                "razon": (line.name or line.product_id.display_name or "")[:300],
+                "valor": abs(line.price_subtotal),
+            }
+            for line in self._get_product_lines(record)
+        ]
+        if not motivos:
+            raise UserError(_(
+                "La nota de débito %s no tiene líneas: el SRI exige al menos un "
+                "motivo con su razón y su valor.", record.display_name,
+            ))
+        return motivos
+
+    @api.model
+    def _get_modified_document_values(self, record):
+        """`codDocModificado`, `numDocModificado`, `fechaEmisionDocSustento`, `motivo`.
+
+        Los cuatro son obligatorios en 04 y 05. Se validan aquí y no en la plantilla
+        para que el usuario reciba un mensaje que diga qué falta, en vez de un XML
+        incompleto que el SRI rechace días después.
+        """
+        missing = []
+        doc_type = record.l10n_ec_modified_doc_type_id
+        number = (record.l10n_ec_modified_doc_number or "").strip()
+        date = record.l10n_ec_modified_doc_date
+        reason = (record.l10n_ec_modification_reason or "").strip()
+
+        if not doc_type.code:
+            missing.append(_("tipo del documento modificado"))
+        if not number:
+            missing.append(_("número del documento modificado (001-001-000000001)"))
+        if not date:
+            missing.append(_("fecha de emisión del documento modificado"))
+        if not reason:
+            missing.append(_("motivo de la modificación"))
+        if missing:
+            raise UserError(_(
+                "Faltan datos del documento que rectifica %(doc)s:\n\n- %(list)s\n\n"
+                "Si la nota no se creó desde el asistente de reversión, rellénelos a "
+                "mano en la pestaña 'SRI'.",
+                doc=record.display_name,
+                list="\n- ".join(missing),
+            ))
+
+        if record.invoice_date and date > record.invoice_date:
+            raise UserError(_(
+                "El documento modificado (%(origen)s) es posterior a la nota "
+                "(%(nota)s). El SRI rechaza una rectificación anterior al documento "
+                "que rectifica.",
+                origen=date, nota=record.invoice_date,
+            ))
+
+        return {
+            "cod_doc": doc_type.code.zfill(2),
+            # Con guiones: la Ficha define numDocModificado como 17 caracteres.
+            "num_doc": number,
+            "date": date.strftime("%d/%m/%Y"),
+            "reason": reason[:300],
+        }
+
+    @api.model
     def get_ride_values(self, record):
         """Datos del RIDE (Anexo 2), derivados de la MISMA fuente que el XML.
 
@@ -673,7 +962,19 @@ class L10nEcSriXml(models.AbstractModel):
 
     @api.model
     def render_xml(self, record):
-        """XML de la factura, con prólogo UTF-8 (la Ficha exige esa codificación)."""
-        values = self._get_invoice_values(record)
-        body = self.env["ir.qweb"]._render("l10n_ec_sri.xml_invoice", values)
+        """XML del comprobante, con prólogo UTF-8 (la Ficha exige esa codificación).
+
+        Despacha por `codDoc`. Antes renderizaba SIEMPRE la plantilla de factura,
+        fuera cual fuera el tipo de documento, mientras la clave de acceso sí llevaba
+        el `codDoc` real: una nota de crédito producía un cuerpo <factura> con codDoc
+        04, que el SRI rechaza con el error 35 (el XSD no corresponde) o el 58 (clave
+        con componentes distintos a los del comprobante).
+        """
+        code = self._get_document_components(record)["document_code"]
+        renderers = self._get_document_renderers()
+        if code not in renderers:
+            self._check_document_type_supported(record)  # lanza con el mensaje bueno
+        template, values_method = renderers[code]
+        values = getattr(self, values_method)(record)
+        body = self.env["ir.qweb"]._render(template, values)
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + str(body)

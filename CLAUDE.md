@@ -12,7 +12,37 @@ Idioma: los mensajes al usuario (`UserError`, `ValidationError`, labels) van en 
 
 ## Comandos
 
-No hay `docker-compose.yml`, CI, linter ni `pyproject.toml` en el repo. Todo se ejecuta contra una instalación de Odoo.
+### Laboratorio local (la vía rápida)
+
+`devops/lab.sh` levanta Odoo 19 + PostgreSQL sobre `../odoo_template` **montando este
+directorio de trabajo** — el checkout real o un worktree —, así que un cambio se ve con
+un `update`, sin commitear ni pushear. No modifica ningún fichero del template: el
+montaje va en `devops/docker-compose.lab.yaml`, que se añade como tercer fichero de
+`COMPOSE_FILE`.
+
+```bash
+./devops/lab.sh up                       # primer arranque ~4 min (reinstala apt+pip)
+./devops/lab.sh init                     # crea la BD `lab`, deja admin/admin
+./devops/lab.sh install                  # l10n_ec_base,l10n_ec_edi,l10n_ec_sri
+./devops/lab.sh install l10n_ec_full
+./devops/lab.sh update l10n_ec_sri
+./devops/lab.sh test l10n_ec_sri         # suite del módulo
+./devops/lab.sh shell | logs | ps | down
+```
+
+Odoo queda en <http://localhost:18069>. Dos trampas que el script ya resuelve y que
+conviene conocer si se invoca Odoo a mano:
+
+* `--test-enable` levanta el servidor HTTP **aunque se pase `--no-http`**, así que
+  choca con el Odoo que ya sirve en 8069/8072: hay que darle puertos propios.
+* En Git Bash sobre Windows, `--test-tags /l10n_ec_sri` se traduce a
+  `C:/Program Files/Git/l10n_ec_sri` antes de llegar a Odoo, que lo rechaza con
+  *"Invalid tag"* y ejecuta **0 tests sin fallar** — silencioso y muy fácil de tomar
+  por "todo verde". Se evita con `MSYS_NO_PATHCONV=1`.
+
+### Contra una instalación propia
+
+No hay CI, linter ni `pyproject.toml` en el repo.
 
 ```bash
 # Instalar / actualizar módulos (el orden importa: base → edi → sri → resto)
@@ -47,7 +77,8 @@ Dependencias Python externas: `zeep`, `cryptography`, `lxml`, `requests` (`requi
 
 - `l10n_ec_base/tests/`, `l10n_ec_sri/tests/` — descubiertos por Odoo.
 - `tests/` en la raíz — **no lo descubre Odoo** (no es un módulo). Además `tests/unit/__init__.py` sólo importa 3 de los 7 archivos que existen. Al agregar tests nuevos, ponerlos dentro del módulo correspondiente.
-- `l10n_ec_sri/tests/test_sri_signer.py` y `test_xml_generator.py` son `unittest.TestCase` puros (corren fuera del ORM) y esperan `l10n_ec_sri/tests/certificates/test_certificate.p12` con password `test1234`. Ese archivo **no está en el repo** (`.gitignore` excluye `*.p12`); hay que generarlo con `openssl` localmente o los tests fallan en `setUpClass`.
+- `l10n_ec_sri/tests/test_sri_signer.py` y `test_xml_generator.py` son `unittest.TestCase` puros (corren fuera del ORM). El de la firma ya **no exige** un `.p12` en disco: `tests/certificate_fixture.py` genera uno autofirmado RSA-2048 en memoria. Si existe `tests/certificates/test_certificate.p12` se usa ese; ese fichero no está ni debe estar en el repo (`.gitignore` excluye `*.p12`: lleva una clave privada). Un autofirmado sirve para ejercitar el camino criptográfico, **no para emitir**: el SRI sólo acepta certificados de una entidad acreditada.
+- `l10n_ec_guia_remision/tests/` cubre la guía de remisión (06), que antes no tenía ningún test — y por eso convivían en ella cuatro fallos que la hacían inemitible.
 
 ## Arquitectura
 
@@ -95,6 +126,37 @@ Esto es lo primero que hay que entender antes de tocar código:
 Ambos módulos hacen `_inherit = "account.move"` y definen `action_send_sri`. Como `l10n_ec_sri` depende de `l10n_ec_edi`, **gana el de `l10n_ec_sri`**. Y la ruta de `l10n_ec_edi` está muerta **por completo**: su `_post_invoice_edi` sobrescribe un método que Odoo 19 ya no tiene, y su plantilla QWeb fue sacada del manifest. Igual con `res.company.l10n_ec_sri_reception_url`, definido en los dos.
 
 Antes de agregar funcionalidad SRI: decidir en cuál de las dos rutas se consolida (lo sano es una sola) en vez de agregar una tercera.
+
+### Cómo se añade un comprobante nuevo
+
+`l10n_ec.sri.xml.render_xml` **despacha por `codDoc`**. La tabla de despacho es un
+método, `_get_document_renderers()`, y no una constante:
+
+```python
+{codDoc: (xmlid_de_la_plantilla, nombre_del_metodo_de_valores)}
+```
+
+De ahí se derivan también los códigos que `_check_document_type_supported` deja pasar,
+así que "lo que se puede emitir" y "lo que sabe renderizar" no pueden desincronizarse.
+
+Para añadir uno: escribir la plantilla QWeb, escribir su `_get_*_values`, y registrar
+la entrada. Si el comprobante vive en otro módulo —la guía de remisión (06) está en
+`l10n_ec_guia_remision`, que depende de `stock`— se registra con un `super()` sobre
+`_get_document_renderers()`. **La dirección de la dependencia es hacia `l10n_ec_sri`,
+nunca al revés**: ese módulo no debe arrastrar Inventario a una instalación contable.
+
+Un modelo emisor que no sea `account.move` (no tiene diario ni tipo de documento
+LATAM) aporta sus componentes implementando `_l10n_ec_sri_components()` y
+`_l10n_ec_sri_emission_date()`. `_get_document_components` y `generate_access_key` los
+delegan si existen. Es lo que permite que la guía use la MISMA clave de acceso y el
+mismo módulo 11 que la factura.
+
+**No copiar `_get_invoice_values` para un comprobante nuevo.** La factura emite
+`<propina>` y `<totalDescuento>`, que no existen en la nota de crédito ni en la de
+débito; heredar su diccionario "quitando lo que sobra" acaba colando un tag de más y
+el SRI responde error 35. Y el detalle no es intercambiable: factura y liquidación
+usan `codigoPrincipal`/`codigoAuxiliar`; nota de crédito y guía usan
+`codigoInterno`/`codigoAdicional`.
 
 ### Todo configurable, nada hardcodeado
 
@@ -162,9 +224,9 @@ Estos puntos están confirmados leyendo el código, no son especulación. Si el 
 4. **`account.tax.compute_all()` y `_compute_amount()` fueron eliminados en Odoo 19.** API nueva: `_prepare_base_line_for_taxes_computation` → `_add_tax_details_in_base_lines` → `_round_tax_details_tax_amounts` → `_aggregate_base_lines_tax_details`. Impacto: `l10n_ec_ice/models/account_tax.py` sobrescribe un método inexistente → **el ICE nunca se calcula, en silencio**; `l10n_ec_sri/models/l10n_ec_retention.py:152` revienta con `AttributeError`.
 5. **`hr_contract` fue eliminado en Odoo 19** (verificado: 404 en la rama 19.0, presente en 18.0). `hr.contract` → `hr.version`, dentro de `hr`, con `hr.employee._inherits = {'hr.version': 'version_id'}`. No hay formulario propio de `hr.version`: se edita en la ficha del empleado. `hr.contract.type` sí sobrevive. Esto **sí bloquea la instalación** de `l10n_ec` y `l10n_ec_hr_payroll`. (La nómina usa un modelo propio `l10n_ec.payslip`, no `hr.payslip`, para funcionar en Community.)
 6. **Dígito de ambiente invertido.** Spec SRI: `1` = pruebas, `2` = producción. `l10n_ec_sri/models/l10n_ec_sri_xml.py` y `account_edi_format._get_l10n_ec_edi_values` lo hacen bien; `l10n_ec_edi/models/account_move.py:_generate_access_key` y `action_send_sri` lo hacen al revés (`"1" if production`). Si la clave de acceso y el tag `<ambiente>` no coinciden, el SRI rechaza el comprobante.
-7. **Las URLs de producción nunca se usan.** `send_document`/`check_authorization` leen `company.l10n_ec_sri_reception_url` / `..._authorization_url`, cuyo default es `celcer` (pruebas) en ambos módulos. Los parámetros `l10n_ec.sri_reception_url_prod` / `..._prod` existen en el XML de datos pero **ningún código los lee**. Cambiar `l10n_ec_sri_environment` a producción no cambia el endpoint. El argumento `environment` de `send_document` se ignora por completo.
-8. **No existe modelo de establecimiento / punto de emisión** — pero *no hay que construirlo*: lo aporta el `l10n_ec` oficial (ver punto 1). Lo que hay hoy en el repo: `res.company.l10n_ec_establishment`, `l10n_ec_emission_point` y `l10n_ec_entity` se leen (`getattr(..., "001")` en `account_move.py`, `company.l10n_ec_entity` en `ats_template.xml`) pero **nunca se declaran como campos**. `account.journal` no se extiende en ningún módulo, aunque `l10n_ec_sri_xml.py` intenta leer `journal_id.l10n_ec_entity` en un `except` que reventará con `AttributeError`. El secuencial se extrae con string-slicing de `move.name` (`"Simple logic, needs refinement"`). Sólo `pos.config` tiene `l10n_ec_entity`/`l10n_ec_emission_point` reales. Esta es la pieza faltante más grande para emitir de verdad.
-9. **`l10n_ec/hooks.py` es código muerto.** El `post_init_hook` que Odoo resuelve es el de `l10n_ec/__init__.py` (que sólo setea un parámetro); el de `hooks.py` — idioma es_EC, país, moneda, `ir.actions.todo` del wizard — nunca corre porque el módulo no lo importa.
+7. **~~Las URLs de producción nunca se usan~~ — RESUELTO.** `l10n_ec.sri.service._get_service_url` resuelve el endpoint **por ambiente y por compañía**, con la precedencia: campo de la compañía (override manual) → `ir.config_parameter` del ambiente → constante oficial de la Ficha §7.2. Los dos campos de la compañía nacen ya **vacíos**; llevaban un `default` a `celcer` que ganaba siempre, así que pasar a producción no cambiaba el endpoint. Hay migración (`l10n_ec_edi/migrations/19.0.1.1.0`) que limpia lo que ese default dejó escrito.
+8. **~~No existe modelo de establecimiento / punto de emisión~~ — RESUELTO.** Lo aporta el `l10n_ec` oficial (`account.journal.l10n_ec_entity` / `.l10n_ec_emission`), declarado como dependencia explícita en `l10n_ec_base` y `l10n_ec_sri`. `_get_document_components` los lee del diario y **falla con `UserError` si faltan**, en vez de caer a `001`. Lo mismo vale ahora para retenciones (campo `journal_id` nuevo en `l10n_ec.retention`) y para guías (`stock.picking.type.l10n_ec_guia_journal_id`, con respaldo en la compañía). El secuencial ya no se extrae con string-slicing: hay una `ir.sequence` por diario y tipo de comprobante (`account.journal._l10n_ec_get_sri_sequence`), porque el SRI numera por (establecimiento, punto de emisión, tipo de comprobante). **`l10n_ec_pos` sigue sin emitir**: genera una clave de acceso por ticket y no la usa.
+9. **~~`l10n_ec_full/hooks.py` es código muerto~~ — RESUELTO.** El `post_init_hook` de `__init__.py` delega ahora en el de `hooks.py`, así que sí se aplican idioma `es_EC`, país, moneda y el `ir.actions.todo` que abre el asistente. En la misma línea, el asistente de configuración de empresa escribía cuatro `ir.config_parameter` que **nadie leía** (`l10n_ec.sri_environment`, `…obligado_contabilidad`, `…contribuyente_especial`, `…agente_retencion`) mientras el generador del XML lee campos de `res.company`: se completaban los 6 pasos y la empresa quedaba sin configurar para emitir. Ahora escribe los campos.
 10. **`action_check_expiry` del certificado no tiene `ir.cron`** que lo dispare.
 11. **Datos muertos.** `l10n_ec_base/data/account.account.template.csv`, `account.tax.template.csv` y `l10n_ec_sri/data/account.*.csv` + `l10n_ec_chart_data.xml` no están en ningún manifest y usan modelos `*.template` eliminados desde Odoo 17.
 12. **`t-esc` deprecado (→ `t-out`)** — 74 usos, y la mayoría están en la ruta activa de generación de comprobantes: `l10n_ec_sri/views/account_move_xml_template.xml` (28), `l10n_ec_retention_xml_template.xml` (20), `l10n_ec_reports/report/form_templates.xml` (13), `l10n_ec_hr_payroll/report/form_107_template.xml` (10), `l10n_ec_portal/views/portal_templates.xml` (2), `l10n_ec_pos/static/src/xml/pos_sri.xml` (1). Las plantillas de `l10n_ec_edi` ya usan `t-out`, las de `l10n_ec_sri` no — otra manifestación de la duplicación del punto anterior.

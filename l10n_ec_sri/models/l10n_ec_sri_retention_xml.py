@@ -39,6 +39,11 @@ class L10nEcSriRetentionXml(models.AbstractModel):
             "environment": self._get_environment(retention.company_id),
             "formatted_date": retention.date_issue.strftime("%d/%m/%Y"),
             "periodo_fiscal": retention.date_issue.strftime("%m/%Y"),
+            # Anexo 26 (RUC del proveedor) y Anexo 24 (Gran Contribuyente): son
+            # obligatorios en TODO comprobante, no sólo en la factura.
+            "additional_info": self.env["l10n_ec.sri.xml"]._get_additional_info(
+                retention
+            ),
         }
         body = self.env["ir.qweb"]._render("l10n_ec_sri.xml_retention", values)
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + str(body)
@@ -54,19 +59,47 @@ class L10nEcSriRetentionXml(models.AbstractModel):
         return "2" if company.l10n_ec_sri_environment == "production" else "1"
 
     def _split_number(self, record):
-        """(estab, ptoEmi, secuencial) a partir del número del comprobante."""
+        """(estab, ptoEmi, secuencial) del comprobante.
+
+        El establecimiento y el punto de emisión salen SIEMPRE del diario, que es la
+        única fuente que el SRI valida contra los establecimientos registrados en el
+        RUC. El `name` sólo aporta el secuencial.
+
+        Antes esto intentaba parsear `name` con el patrón `001-001-000000001` y, como
+        la secuencia no lleva prefijo y produce `000000001`, el patrón NUNCA casaba:
+        todas las retenciones se emitían con un `001-001` fijo. Un emisor con otro
+        punto de emisión recibía rechazo del SRI sin explicación aparente.
+        """
+        journal = record.journal_id
+        if not journal:
+            raise UserError(_(
+                "La retención '%s' no tiene diario de emisión, así que no hay de "
+                "dónde tomar el establecimiento y el punto de emisión.",
+                record.display_name,
+            ))
+
+        establishment = (journal.l10n_ec_entity or "").strip()
+        emission_point = (journal.l10n_ec_emission or "").strip()
+        if not establishment or not emission_point:
+            raise UserError(_(
+                "El diario '%s' no tiene establecimiento y punto de emisión SRI.\n\n"
+                "Configúrelos en Contabilidad > Configuración > Diarios.",
+                journal.display_name,
+            ))
+
         number = (record.name or "").strip()
         match = _RETENTION_NUMBER_RE.match(number)
         if match:
-            return match.groups()
+            sequential = match.group(3)
+        else:
+            digits = re.sub(r"\D", "", number)
+            if not digits:
+                raise UserError(_(
+                    "No se puede derivar el secuencial de la retención '%s'.", number
+                ))
+            sequential = digits[-9:].zfill(9)
 
-        journal_defaults = ("001", "001")
-        digits = re.sub(r"\D", "", number)
-        if not digits:
-            raise UserError(_(
-                "No se puede derivar el secuencial de la retención '%s'.", number
-            ))
-        return journal_defaults[0], journal_defaults[1], digits[-9:].zfill(9)
+        return establishment.zfill(3), emission_point.zfill(3), sequential
 
     def _generate_retention_access_key(self, record):
         """Clave de acceso de 49 dígitos para el comprobante de retención."""

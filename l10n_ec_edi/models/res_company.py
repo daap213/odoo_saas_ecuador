@@ -49,12 +49,21 @@ class ResCompany(models.Model):
     l10n_ec_forced_accounting = fields.Boolean("Forced to keep Accounting")
     l10n_ec_commercial_name = fields.Char("Commercial Name")
 
-    # URLs
+    # URLs de los web services.
+    #
+    # SIN `default` a propósito. `l10n_ec.sri.service._get_service_url` trata un
+    # valor no vacío como override manual que GANA sobre el selector de ambiente;
+    # como Odoo escribe el default en toda compañía al instalar el campo, un
+    # default apuntando a `celcer` dejaba a TODAS las compañías clavadas en
+    # pruebas: pasar `l10n_ec_sri_environment` a producción no cambiaba el
+    # endpoint. Vacío = lo resuelve el ambiente (§7.2 de la Ficha).
     l10n_ec_sri_reception_url = fields.Char(
         string="SRI Reception URL",
-        default="https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl",
+        help="Sólo para forzar un endpoint distinto al del ambiente seleccionado. "
+             "Déjelo vacío para que lo resuelva el ambiente (pruebas o producción).",
     )
     l10n_ec_sri_authorization_url = fields.Char(
         string="SRI Authorization URL",
-        default="https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl",
+        help="Sólo para forzar un endpoint distinto al del ambiente seleccionado. "
+             "Déjelo vacío para que lo resuelva el ambiente (pruebas o producción).",
     )

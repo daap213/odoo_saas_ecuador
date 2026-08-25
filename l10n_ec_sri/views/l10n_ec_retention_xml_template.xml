@@ -58,6 +58,14 @@
             <fechaEmisionDocSustento t-out="record.invoice_id.invoice_date.strftime('%d/%m/%Y')"/>
         </impuesto>
     </impuestos>
+    <!-- Anexo 26 (Ficha 2.34) y art. 5 de la Res. NAC-DGERCGC26-00000027: el RUC del
+         proveedor del sistema de facturación es obligatorio en TODO comprobante
+         emitido con software de terceros, no sólo en la factura. Hasta ahora sólo lo
+         emitía `xml_invoice`. Máximo 15 campos adicionales (§9.11). -->
+    <infoAdicional t-if="additional_info">
+        <campoAdicional t-foreach="additional_info" t-as="info"
+                        t-att-nombre="info[0]" t-out="info[1]"/>
+    </infoAdicional>
 </comprobanteRetencion>
 </template>
 </odoo>

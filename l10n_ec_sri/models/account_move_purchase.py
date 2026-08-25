@@ -71,5 +71,5 @@ class AccountMove(models.Model):
             "type": "ir.actions.act_window",
             "res_model": "l10n_ec.retention",
             "domain": [("invoice_id", "=", self.id)],
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
         }

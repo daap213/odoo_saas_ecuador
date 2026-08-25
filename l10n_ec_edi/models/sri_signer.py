@@ -171,10 +171,16 @@ class SriSigner(models.AbstractModel):
                          signing_time, cert_digest, issuer_dn, serial_dec):
         ki_xml = self._build_key_info(cert_b64, private_key)
         sp_xml = self._build_signed_properties(signing_time, cert_digest, issuer_dn, serial_dec)
+        # `Id="Signature"` NO es decorativo: `QualifyingProperties` apunta a
+        # `Target="#Signature"`, y sin el atributo esa referencia quedaba colgando.
+        # Añadirlo no altera ningún digest: la referencia al documento lleva la
+        # transformada `enveloped-signature`, que elimina este elemento antes de
+        # canonicalizar, y los otros dos digests son sobre KeyInfo y
+        # SignedProperties, que no cambian.
         return (
-            f'<ds:Signature xmlns:ds="{NS_DS}" xmlns:etsi="{NS_ETSI}">'
+            f'<ds:Signature xmlns:ds="{NS_DS}" xmlns:etsi="{NS_ETSI}" Id="Signature">'
                 + si_xml
-                + f'<ds:SignatureValue>{sig_value}</ds:SignatureValue>'
+                + f'<ds:SignatureValue Id="SignatureValue">{sig_value}</ds:SignatureValue>'
                 + ki_xml
                 + f'<ds:Object>'
                     f'<etsi:QualifyingProperties Target="#Signature">'

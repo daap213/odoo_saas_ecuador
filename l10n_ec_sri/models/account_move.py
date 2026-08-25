@@ -47,6 +47,200 @@ class AccountMove(models.Model):
     )
     # `l10n_ec_sri_error` se declara en l10n_ec_edi: lo escriben los dos módulos.
 
+    # ── Documento rectificado (notas de crédito y de débito) ──────────────────
+    #
+    # `codDocModificado`, `numDocModificado` y `fechaEmisionDocSustento` son
+    # OBLIGATORIOS en 04 y 05. Se siembran desde `reversed_entry_id` (nota de crédito
+    # creada con el asistente de reversión) o `debit_origin_id` (nota de débito del
+    # módulo `account_debit_note`), pero quedan editables: un `out_refund` creado a
+    # mano no tiene ninguno de los dos, y sin estos datos el comprobante no se puede
+    # emitir. Por eso son compute+store+readonly=False y no `related`.
+    # Un compute POR CAMPO, no uno compartido. Odoo marca todo un grupo de compute
+    # como "puesto a mano" en cuanto el usuario escribe en cualquiera de sus campos:
+    # con un único `_compute_l10n_ec_modified_doc`, rellenar el motivo dejaba los
+    # otros tres a False para siempre.
+    l10n_ec_modified_doc_type_id = fields.Many2one(
+        "l10n_latam.document.type",
+        string="Tipo de documento modificado",
+        copy=False,
+        compute="_compute_l10n_ec_modified_doc_type_id",
+        store=True,
+        readonly=False,
+        help="Tipo del comprobante que esta nota rectifica (<codDocModificado>).",
+    )
+    l10n_ec_modified_doc_number = fields.Char(
+        string="Número del documento modificado",
+        copy=False,
+        size=17,
+        compute="_compute_l10n_ec_modified_doc_number",
+        store=True,
+        readonly=False,
+        help="Formato 001-001-000000001, con guiones (<numDocModificado>).",
+    )
+    l10n_ec_modified_doc_date = fields.Date(
+        string="Fecha del documento modificado",
+        copy=False,
+        compute="_compute_l10n_ec_modified_doc_date",
+        store=True,
+        readonly=False,
+        help="Fecha de emisión del comprobante rectificado "
+             "(<fechaEmisionDocSustento>).",
+    )
+    l10n_ec_modification_reason = fields.Char(
+        string="Motivo de la modificación",
+        copy=False,
+        size=300,
+        compute="_compute_l10n_ec_modification_reason",
+        store=True,
+        readonly=False,
+        help="Texto libre que explica por qué se emite la nota (<motivo>).",
+    )
+
+    def _l10n_ec_get_modified_move(self):
+        """El comprobante que esta nota rectifica, si Odoo lo conoce.
+
+        `reversed_entry_id` sólo se rellena cuando la nota de crédito nace del
+        asistente de reversión; `debit_origin_id` lo aporta `account_debit_note`. Un
+        documento creado a mano no tiene ninguno, y ahí el usuario rellena los campos.
+        """
+        self.ensure_one()
+        return self.reversed_entry_id or self.debit_origin_id
+
+    @api.depends("reversed_entry_id", "debit_origin_id")
+    def _compute_l10n_ec_modified_doc_type_id(self):
+        for move in self:
+            origin = move._l10n_ec_get_modified_move()
+            move.l10n_ec_modified_doc_type_id = (
+                origin.l10n_latam_document_type_id if origin
+                else move.l10n_ec_modified_doc_type_id
+            )
+
+    @api.depends("reversed_entry_id", "debit_origin_id")
+    def _compute_l10n_ec_modified_doc_number(self):
+        for move in self:
+            origin = move._l10n_ec_get_modified_move()
+            move.l10n_ec_modified_doc_number = (
+                origin.l10n_latam_document_number if origin
+                else move.l10n_ec_modified_doc_number
+            )
+
+    @api.depends("reversed_entry_id", "debit_origin_id")
+    def _compute_l10n_ec_modified_doc_date(self):
+        for move in self:
+            origin = move._l10n_ec_get_modified_move()
+            move.l10n_ec_modified_doc_date = (
+                origin.invoice_date if origin else move.l10n_ec_modified_doc_date
+            )
+
+    @api.depends("reversed_entry_id", "debit_origin_id")
+    def _compute_l10n_ec_modification_reason(self):
+        for move in self:
+            origin = move._l10n_ec_get_modified_move()
+            if origin and not move.l10n_ec_modification_reason:
+                move.l10n_ec_modification_reason = (move.ref or "")[:300]
+            else:
+                move.l10n_ec_modification_reason = move.l10n_ec_modification_reason
+
+    # ── Liquidación de compra (codDoc 03) ────────────────────────────────────
+    #
+    # Dos cosas del `l10n_ec` oficial impiden emitirla, y las dos hay que
+    # sortearlas con overrides DELIBERADAMENTE estrechos: cualquier exceso de
+    # alcance rompe las facturas de proveedor normales.
+
+    def _l10n_ec_is_purchase_liquidation(self):
+        """¿Es este asiento una liquidación de compra?"""
+        self.ensure_one()
+        return (
+            self.move_type == "in_invoice"
+            and self.l10n_latam_document_type_id.internal_type
+            == "purchase_liquidation"
+        )
+
+    def _get_l10n_latam_documents_domain(self):
+        """Deja elegir el tipo 03 en los diarios marcados como de liquidación.
+
+        El oficial fuerza `internal_type = 'invoice'` para `in_invoice`, con lo que
+        `purchase_liquidation` no entra nunca en el dominio y el tipo 03 no es
+        seleccionable. Aquí se amplía ESE filtro y sólo ese, y sólo cuando el diario
+        lleva `l10n_ec_allow_purchase_liquidation`.
+
+        Se manipula el dominio que devuelve `super()` porque depende de la forma
+        interna de un módulo que no controlamos: si el oficial cambia esa tupla, este
+        override deja de encontrarla y la liquidación vuelve a no ser seleccionable —
+        de forma visible, no silenciosa. Hay un test que lo vigila.
+        """
+        domain = super()._get_l10n_latam_documents_domain()
+        # No se comprueba `country_code`: `l10n_ec_allow_purchase_liquidation` sólo
+        # existe en este módulo y sólo significa algo en Ecuador, así que tenerlo
+        # marcado YA es la declaración de intenciones. Además `country_code` sale de
+        # `account_fiscal_country_id`, que no siempre está poblado en un borrador
+        # recién creado, y con él la condición fallaba en silencio.
+        if not (
+            self.move_type == "in_invoice"
+            and self.journal_id.l10n_ec_allow_purchase_liquidation
+        ):
+            return domain
+
+        # Hay DOS cláusulas de `internal_type` que dejan fuera la liquidación, y vienen
+        # de módulos distintos:
+        #
+        #   ('internal_type', 'in', ['invoice','debit_note','all'])  <- l10n_latam_invoice_document
+        #   ('internal_type', '=',  'invoice')                       <- l10n_ec oficial
+        #
+        # Ampliar sólo la segunda no sirve de nada: la primera sigue filtrando. Por eso
+        # se recorre el dominio y se añade `purchase_liquidation` a CUALQUIER condición
+        # sobre `internal_type`, sea cual sea su forma.
+        widened = []
+        for condition in domain:
+            if (
+                isinstance(condition, (list, tuple))
+                and len(condition) == 3
+                and condition[0] == "internal_type"
+            ):
+                values = (
+                    [condition[2]] if condition[1] == "="
+                    else list(condition[2])
+                )
+                if "purchase_liquidation" not in values:
+                    values.append("purchase_liquidation")
+                widened.append(("internal_type", "in", values))
+            else:
+                widened.append(condition)
+        return widened
+
+    def _get_l10n_ec_documents_allowed(self, identification_code):
+        """Añade el tipo 03 a la lista blanca por tipo de identificación.
+
+        El oficial construye esa lista con `_DOCUMENTS_MAPPING`, indexada por el
+        código ATS del tipo de identificación del partner, y la impone con
+        `('id', 'in', allowed_documents.ids)`. Ampliar sólo el `internal_type` no
+        basta: este segundo filtro deja fuera igualmente la liquidación.
+        """
+        allowed = super()._get_l10n_ec_documents_allowed(identification_code)
+        if (
+            self.move_type == "in_invoice"
+            and self.journal_id.l10n_ec_allow_purchase_liquidation
+        ):
+            liquidation = self.env.ref("l10n_ec.ec_dt_03", raise_if_not_found=False)
+            if liquidation:
+                allowed |= liquidation
+        return allowed
+
+    def _is_manual_document_number(self):
+        """La liquidación de compra la numera el emisor, no el proveedor.
+
+        `l10n_latam_invoice_document` decide "manual" por el tipo de diario: en una
+        factura de proveedor el número lo pone el proveedor. Pero en una liquidación
+        el emisor somos nosotros, así que tiene que autonumerarse desde nuestro
+        establecimiento y punto de emisión.
+
+        El override es de una sola condición a propósito: si se ampliara, TODA factura
+        de proveedor empezaría a autonumerarse y pisaría el número del proveedor.
+        """
+        if self._l10n_ec_is_purchase_liquidation():
+            return False
+        return super()._is_manual_document_number()
+
     def action_send_sri(self):
         """Genera clave, XML, firma y transmite al SRI."""
         for move in self:

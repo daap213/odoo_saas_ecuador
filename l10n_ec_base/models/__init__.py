@@ -6,3 +6,4 @@ from . import l10n_ec_config
 from . import l10n_ec_catalogs
 
 
+from . import res_config_settings
