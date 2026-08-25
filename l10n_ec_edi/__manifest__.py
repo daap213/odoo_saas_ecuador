@@ -8,22 +8,22 @@
     "name": "Ecuador - Electronic Invoicing (SRI 2026)",
     "version": "19.0.1.0.0",
     "category": "Accounting/Localizations",
-    "summary": "Electronic Invoicing, XAdES-BES Signing, and SRI Transmission (Ficha 2.32)",
+    "summary": "Electronic Invoicing, XAdES-BES Signing, and SRI Transmission (Ficha 2.34)",
     "description": """
 Ecuador Electronic Invoicing Module
 ===================================
 
 This module provides full SRI electronic invoicing:
 
-* XML Generation (Factura, Nota Crédito, Nota Débito, Guía Remisión)
-* XAdES-BES Digital Signature (SHA-256)
+* XML Generation (Factura 1.1.0, Anexo 3 de la Ficha Técnica)
+* XAdES-BES Digital Signature (RSA-SHA1 + SHA-1, §6.8 de la Ficha)
 * Access Key generation (49 digits, Mod 11)
 * SRI SOAP transmission (Test/Production)
 * RIDE PDF generation
 * Consumidor Final validation ($50 limit, no annulment)
-* 7-day annulment rule enforcement
+* Configurable annulment deadline (l10n_ec.annulment_day_limit)
 
-**Ficha Técnica**: Version 2.32
+**Ficha Técnica**: Version 2.34 (julio 2026)
 **Regulatory Compliance**: SRI 2026, Resolution NAC-DGERCGC25-00000017
     """,
     "author": "Somatech.dev, Odoo Community Association (OCA)",
@@ -32,6 +32,9 @@ This module provides full SRI electronic invoicing:
     "depends": [
         "l10n_ec_base",
         "account_edi",
+        # Chatter y actividades: el aviso de caducidad del certificado y la entrega
+        # del comprobante al receptor (Ficha §4.7) los necesitan.
+        "mail",
     ],
     "data": [
         "security/ir.model.access.csv",

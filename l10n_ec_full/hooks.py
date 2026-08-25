@@ -106,7 +106,7 @@ def post_init_hook(env):
         # Create a to-do action for the user
         env["ir.actions.todo"].create(
             {
-                "action_id": env.ref("l10n_ec.action_l10n_ec_company_setup_wizard").id,
+                "action_id": env.ref("l10n_ec_full.action_l10n_ec_company_setup_wizard").id,
                 "state": "open",
                 "name": "Configurar Empresa Ecuador",
             }

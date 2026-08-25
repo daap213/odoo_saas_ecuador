@@ -2,8 +2,6 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_res_partner_l10n_ec,res.partner.l10n_ec,model_res_partner,base.group_user,1,1,1,1
 access_l10n_ec_config_user,l10n_ec.config.user,model_l10n_ec_config,base.group_user,1,0,0,0
 access_l10n_ec_config_manager,l10n_ec.config.manager,model_l10n_ec_config,account.group_account_manager,1,1,1,1
-access_l10n_ec_retention_code_user,l10n_ec.retention.code.user,model_l10n_ec_retention_code,base.group_user,1,0,0,0
-access_l10n_ec_retention_code_manager,l10n_ec.retention.code.manager,model_l10n_ec_retention_code,account.group_account_manager,1,1,1,1
 access_l10n_ec_tax_code_user,l10n_ec.tax.code.user,model_l10n_ec_tax_code,base.group_user,1,0,0,0
 access_l10n_ec_tax_code_manager,l10n_ec.tax.code.manager,model_l10n_ec_tax_code,account.group_account_manager,1,1,1,1
 access_l10n_ec_payment_method_user,l10n_ec.payment.method.user,model_l10n_ec_payment_method,base.group_user,1,0,0,0

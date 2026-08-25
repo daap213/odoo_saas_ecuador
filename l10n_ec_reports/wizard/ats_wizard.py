@@ -205,9 +205,14 @@ class L10nEcAtsWizard(models.TransientModel):
                     ):
                         monto_iva += abs(line.balance)
 
-            # Retentions
-            retentions_recs = self.env["account.retention"].search(
-                [("invoice_id", "=", inv.id), ("state", "=", "posted")]
+            # Retentions. El modelo `account.retention` se consolidó en
+            # `l10n_ec.retention`, que no tiene campo `state`: su ciclo de vida es
+            # `l10n_ec_sri_status`. Al ATS sólo deben llegar las ya emitidas.
+            retentions_recs = self.env["l10n_ec.retention"].search(
+                [
+                    ("invoice_id", "=", inv.id),
+                    ("l10n_ec_sri_status", "in", ("sent", "authorized")),
+                ]
             )
             air_data = []
             ret_info = {
@@ -226,18 +231,24 @@ class L10nEcAtsWizard(models.TransientModel):
                     ret_info["ptoEmiRet"] = ret_parts[1]
                     ret_info["secRet"] = ret_parts[2]
                 ret_info["autRet"] = main_ret.l10n_ec_sri_access_key or "0000000000"
-                ret_info["fechaEmiRet"] = main_ret.date.strftime("%d/%m/%Y")
+                ret_info["fechaEmiRet"] = main_ret.date_issue.strftime("%d/%m/%Y")
 
-                for line in main_ret.retention_line_ids:
-                    if line.tax_type == "1":  # Renta
-                        air_data.append(
-                            {
-                                "code": line.tax_code,
-                                "base": line.base,
-                                "percent": line.percentage,
-                                "val": line.amount,
-                            }
-                        )
+                for line in main_ret.tax_ids:
+                    tax = line.tax_id
+                    # El módulo AIR del ATS sólo reporta retenciones de renta
+                    # (tabla 19, código 1). Se usa el resolutor que NO lanza para
+                    # clasificar; el código sí debe estar configurado, y si falta es
+                    # preferible que la declaración falle a presentarla mal.
+                    if tax._l10n_ec_resolve_retention_tax() != "1":
+                        continue
+                    air_data.append(
+                        {
+                            "code": tax.l10n_ec_get_retention_code(),
+                            "base": line.base_amount,
+                            "percent": abs(tax.amount or 0.0),
+                            "val": line.amount,
+                        }
+                    )
 
             purchases_data.append(
                 {

@@ -3,50 +3,74 @@
     <data noupdate="0">
         <!-- Ecuador Localization Security Groups -->
 
+        <!-- Odoo 19 sustituyó `res.groups.category_id` por `privilege_id`, que apunta
+             a res.groups.privilege. Sin privilegio, estos grupos aparecen sueltos al
+             final del formulario de usuario en vez de agrupados bajo un epígrafe
+             propio, y no hay forma de elegir uno solo por desplegable. -->
+        <record id="module_category_l10n_ec" model="ir.module.category">
+            <field name="name">Localización Ecuador</field>
+            <field name="description">Roles de la localización ecuatoriana (SRI, IESS, aduanas).</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="privilege_l10n_ec" model="res.groups.privilege">
+            <field name="name">Localización Ecuador</field>
+            <field name="category_id" ref="module_category_l10n_ec"/>
+            <field name="sequence">50</field>
+        </record>
+
         <!-- Base Invoicing Roles -->
         <record id="group_l10n_ec_invoice_clerk" model="res.groups">
             <field name="name">Ecuador: Invoice Clerk</field>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Can create and post invoices, but cannot cancel or modify tax configuration.</field>
         </record>
 
         <record id="group_l10n_ec_accountant" model="res.groups">
             <field name="name">Ecuador: Accountant</field>
             <field name="implied_ids" eval="[(4, ref('group_l10n_ec_invoice_clerk'))]"/>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Full accounting access including cancellation and SRI retry.</field>
         </record>
 
         <!-- AP/AR Roles -->
         <record id="group_l10n_ec_ap_clerk" model="res.groups">
             <field name="name">Ecuador: AP Clerk</field>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Can create vendor bills and retentions.</field>
         </record>
 
         <record id="group_l10n_ec_ar_clerk" model="res.groups">
             <field name="name">Ecuador: AR Clerk</field>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Can create customer invoices only.</field>
         </record>
 
         <!-- Payroll Roles -->
         <record id="group_l10n_ec_payroll_user" model="res.groups">
             <field name="name">Ecuador: Payroll Specialist</field>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Can create and compute payslips, export IESS files.</field>
         </record>
 
         <record id="group_l10n_ec_hr_manager" model="res.groups">
             <field name="name">Ecuador: HR Manager</field>
             <field name="implied_ids" eval="[(4, ref('group_l10n_ec_payroll_user'))]"/>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Full HR access including salary modification and contract termination.</field>
         </record>
 
         <!-- Warehouse Roles -->
         <record id="group_l10n_ec_warehouse_user" model="res.groups">
             <field name="name">Ecuador: Warehouse User</field>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Can create transfers and Guías de Remisión.</field>
         </record>
 
         <record id="group_l10n_ec_warehouse_manager" model="res.groups">
             <field name="name">Ecuador: Warehouse Manager</field>
             <field name="implied_ids" eval="[(4, ref('group_l10n_ec_warehouse_user'))]"/>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Full stock access including cancellation.</field>
         </record>
 
@@ -54,6 +78,7 @@
         <record id="group_l10n_ec_it_admin" model="res.groups">
             <field name="name">Ecuador: IT Administrator</field>
             <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+            <field name="privilege_id" ref="privilege_l10n_ec"/>
             <field name="comment">Full system configuration including P12 certificate management.</field>
         </record>
 

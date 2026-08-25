@@ -44,8 +44,9 @@
     </infoCompRetencion>
     <impuestos>
         <impuesto t-foreach="record.tax_ids" t-as="line">
-            <!-- Tabla 19: 1=Renta, 2=IVA, 6=ISD -->
-            <codigo t-out="line.tax_id.l10n_ec_retention_type or '2'"/>
+            <!-- Tabla 19: 1=Renta, 2=IVA, 6=ISD. Antes caía a '2' en silencio, así
+                 que toda retención de renta se declaraba como IVA. -->
+            <codigo t-out="line.tax_id.l10n_ec_get_retention_type()"/>
             <codigoRetencion t-out="line.tax_id.l10n_ec_get_retention_code()"/>
             <baseImponible t-out="'{:.2f}'.format(line.base_amount)"/>
             <!-- Los impuestos de retención se guardan con importe negativo en Odoo;

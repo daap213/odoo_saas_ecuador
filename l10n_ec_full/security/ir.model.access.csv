@@ -1,9 +1,9 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_l10n_ec_company_setup_wizard,l10n_ec.company.setup.wizard,model_l10n_ec_company_setup_wizard,base.group_system,1,1,1,1
-access_account_move_auditor,account.move.auditor,account.model_account_move,l10n_ec.group_auditor_transparencia,1,0,0,0
-access_account_move_line_auditor,account.move.line.auditor,account.model_account_move_line,l10n_ec.group_auditor_transparencia,1,0,0,0
-access_ir_attachment_auditor,ir.attachment.auditor,base.model_ir_attachment,l10n_ec.group_auditor_transparencia,1,0,0,0
-access_mail_message_auditor,mail.message.auditor,mail.model_mail_message,l10n_ec.group_auditor_transparencia,1,0,0,0
+access_account_move_auditor,account.move.auditor,account.model_account_move,l10n_ec_full.group_auditor_transparencia,1,0,0,0
+access_account_move_line_auditor,account.move.line.auditor,account.model_account_move_line,l10n_ec_full.group_auditor_transparencia,1,0,0,0
+access_ir_attachment_auditor,ir.attachment.auditor,base.model_ir_attachment,l10n_ec_full.group_auditor_transparencia,1,0,0,0
+access_mail_message_auditor,mail.message.auditor,mail.model_mail_message,l10n_ec_full.group_auditor_transparencia,1,0,0,0
 access_l10n_ec_business_template,l10n_ec.business.template,model_l10n_ec_business_template,base.group_system,1,1,1,1
 access_l10n_ec_business_template_product,l10n_ec.business.template.product,model_l10n_ec_business_template_product,base.group_system,1,1,1,1
 access_l10n_ec_business_template_supplier,l10n_ec.business.template.supplier,model_l10n_ec_business_template_supplier,base.group_system,1,1,1,1

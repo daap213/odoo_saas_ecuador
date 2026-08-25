@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Acciones planificadas del ciclo de facturación electrónica.
+
+    La Ficha Técnica (§7.4) describe el consumo de los servicios como ASÍNCRONO: se
+    transmite el comprobante, se espera "un determinado tiempo (se recomienda que este
+    tiempo sea parametrizable)" y después se consulta la autorización por separado.
+
+    Sin estos crons la segunda mitad del ciclo no ocurría nunca: todo comprobante
+    enviado se quedaba en estado 'sent' hasta que una persona pulsaba el botón.
+
+    Van en noupdate="1" a propósito: un `-u` no debe pisar el intervalo que el cliente
+    haya ajustado a su volumen.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <!-- 30 minutos. El SRI puede tardar hasta 24 h en resolver (§7.5), así que
+             consultar más a menudo sólo genera tráfico sin adelantar nada. -->
+        <record id="cron_l10n_ec_sri_process_invoices" model="ir.cron">
+            <field name="name">SRI: consultar autorizaciones y reintentar facturas</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="state">code</field>
+            <field name="code">model._l10n_ec_cron_process_pending()</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="cron_l10n_ec_sri_process_retentions" model="ir.cron">
+            <field name="name">SRI: consultar autorizaciones y reintentar retenciones</field>
+            <field name="model_id" ref="model_l10n_ec_retention"/>
+            <field name="state">code</field>
+            <field name="code">model._l10n_ec_cron_process_pending()</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Un certificado caducado invalida toda emisión. El método ya existía y su
+             docstring decía "Cron job", pero nada lo disparaba. -->
+        <record id="cron_l10n_ec_certificate_expiry" model="ir.cron">
+            <field name="name">SRI: revisar caducidad de certificados de firma</field>
+            <field name="model_id" ref="l10n_ec_edi.model_l10n_ec_certificate"/>
+            <field name="state">code</field>
+            <field name="code">model.action_check_expiry()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

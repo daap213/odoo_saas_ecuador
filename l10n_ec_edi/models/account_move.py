@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from calendar import monthrange
+from datetime import date
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.l10n_ec_edi.models.access_key import AccessKey
@@ -32,7 +35,43 @@ class AccountMove(models.Model):
         index=True,
     )
     l10n_ec_xml_data = fields.Binary("Signed XML", attachment=True, copy=False)
-    l10n_ec_sri_response = fields.Text("SRI Response", copy=False)
+
+    # Único sitio donde mirar cuando algo falla ante el SRI. Se declara aquí, en la
+    # capa base, porque tanto el auto-envío de `action_post` (este módulo) como
+    # `action_send_sri` (l10n_ec_sri) tienen que escribirlo, y l10n_ec_edi no puede
+    # depender de l10n_ec_sri.
+    l10n_ec_sri_error = fields.Text(
+        string="Mensaje del SRI", copy=False,
+        help="Último motivo de rechazo o error de transmisión devuelto por el SRI.",
+    )
+
+    # OBSOLETO: lo sustituye l10n_ec_sri_error. Antes convivían los dos —el
+    # auto-envío escribía este y la vista mostraba el otro—, así que un fallo al
+    # publicar la factura quedaba invisible para el usuario. Se conserva declarado
+    # para no perder el contenido histórico; ya no lo escribe nadie.
+    l10n_ec_sri_response = fields.Text("SRI Response (obsoleto)", copy=False)
+
+    # Reintento automático. Sólo tiene sentido para fallos de TRANSPORTE (el SRI no
+    # respondió). Un rechazo real del SRI nunca se reintenta tal cual: §5.10 obliga a
+    # corregir la inconsistencia y reenviar con la MISMA clave y secuencial, y eso
+    # requiere intervención humana.
+    l10n_ec_sri_retryable = fields.Boolean(
+        string="Reintentable", copy=False,
+        help="El último intento falló por no poder contactar con el SRI, no porque "
+             "el comprobante fuera rechazado. El cron puede reintentarlo.",
+    )
+    l10n_ec_sri_retry_count = fields.Integer(
+        string="Reintentos", default=0, copy=False,
+        help="Tope para no golpear el servicio del SRI en bucle.",
+    )
+
+    # Ficha §4.7: entregar el comprobante al receptor por correo es obligación del
+    # emisor. Este campo evita que la entrega automática se repita en cada pasada
+    # del cron, sin impedir el reenvío manual.
+    l10n_ec_sent_to_partner = fields.Boolean(
+        string="Entregado al cliente", copy=False, readonly=True,
+        help="El comprobante autorizado ya se envió por correo al receptor.",
+    )
 
     l10n_ec_payment_method_id = fields.Many2one(
         "l10n_ec.payment.method",
@@ -134,26 +173,34 @@ class AccountMove(models.Model):
                         % (cf_ruc, cf_limit, move.amount_total)
                     )
 
+    def _l10n_ec_get_annulment_deadline(self, emission_date):
+        """Fecha límite de anulación: día N del mes siguiente al de emisión.
+
+        El día N sale de `l10n_ec.annulment_day_limit`, no de un literal: antes este
+        método y `_check_cancellation_allowed` calculaban el mismo plazo por separado
+        y sólo uno leía la configuración, así que cambiar el parámetro no cambiaba el
+        comportamiento del constraint.
+
+        El día se recorta al último del mes destino, porque un parámetro de 30 o 31
+        haría reventar `date()` en los meses cortos.
+        """
+        annulment_day = self._get_annulment_day()
+        year = emission_date.year + 1 if emission_date.month == 12 else emission_date.year
+        month = 1 if emission_date.month == 12 else emission_date.month + 1
+        return date(year, month, min(annulment_day, monthrange(year, month)[1]))
+
     @api.constrains("state")
     def _check_annulment_deadline(self):
-        """
-        SRI 2026 Rule: Authorized invoices can only be annulled until
-        day 7 of the month following emission.
-        Resolution NAC-DGERCGC25-00000017
-        """
-        from datetime import date
+        """Una factura autorizada sólo puede anularse hasta el día límite.
 
+        Res. NAC-DGERCGC25-00000017.
+        """
         for move in self:
             if move.state == "cancel" and move.l10n_ec_sri_status == "authorized":
                 if move.invoice_date:
                     emission_date = move.invoice_date
                     today = date.today()
-
-                    # Calculate deadline: day 7 of next month
-                    if emission_date.month == 12:
-                        deadline = date(emission_date.year + 1, 1, 7)
-                    else:
-                        deadline = date(emission_date.year, emission_date.month + 1, 7)
+                    deadline = move._l10n_ec_get_annulment_deadline(emission_date)
 
                     if today > deadline:
                         raise ValidationError(
@@ -189,9 +236,7 @@ class AccountMove(models.Model):
         return super(AccountMove, self).button_cancel()
 
     def _check_cancellation_allowed(self):
-        """Validate cancellation deadline (day 7 of next month)."""
-        from datetime import date
-
+        """Valida el plazo de anulación: día N del mes siguiente al de emisión."""
         self.ensure_one()
 
         if not self.invoice_date:
@@ -200,12 +245,7 @@ class AccountMove(models.Model):
         annulment_day = self._get_annulment_day()
         today = date.today()
         emission = self.invoice_date
-
-        # Calculate deadline
-        if emission.month == 12:
-            deadline = date(emission.year + 1, 1, annulment_day)
-        else:
-            deadline = date(emission.year, emission.month + 1, annulment_day)
+        deadline = self._l10n_ec_get_annulment_deadline(emission)
 
         if today > deadline:
             raise ValidationError(
@@ -218,98 +258,6 @@ class AccountMove(models.Model):
             )
 
         return True
-
-    def _generate_access_key(self):
-        for move in self:
-            # Only for Ecuador
-            if move.company_id.country_id.code != "EC":
-                continue
-
-            # Use AccessKey helper
-            company = move.company_id
-            # SRI spec: 1=PRODUCCION, 2=PRUEBAS (al reves del comentario original)
-            env = "1" if company.l10n_ec_sri_environment == "production" else "2"
-            # Get establishment/emission point from company or default
-            estab = getattr(company, "l10n_ec_establishment", "001") or "001"
-            pto = getattr(company, "l10n_ec_emission_point", "001") or "001"
-            seq = (
-                move.name.split("/")[-1] if "/" in move.name else move.name[-9:]
-            )  # Simple logic, needs refinement
-
-            key = AccessKey.generate(
-                invoice_date=move.invoice_date,
-                doc_type=move.l10n_latam_document_type_id.code,
-                ruc=company.vat,
-                environment=env,
-                establishment=estab,
-                emission_point=pto,
-                sequential=seq,
-            )
-            move.l10n_ec_sri_access_key = key
-
-    def action_send_sri(self):
-        """
-        Trigger Manual Send to SRI.
-        """
-        for move in self:
-            if move.state != "posted":
-                raise UserError(_("Invoice must be Posted before sending to SRI."))
-
-            # 1. Certificate Check
-            certificate = move.company_id.l10n_ec_certificate_id
-            if not certificate or certificate.state != "active":
-                raise UserError(
-                    _(
-                        "SRI Error: No active Signing Certificate configured for company %s"
-                    )
-                    % move.company_id.name
-                )
-
-            # 2. Generate Access Key
-            if not move.l10n_ec_sri_access_key:
-                move._generate_access_key()
-
-            # 3. Generate XML
-            # Use the method injected into account.edi.format by our l10n_ec_edi module
-            try:
-                # We interpret 'account.edi.format' as the model where the method exists.
-                # Since it's an override, we can call it on an empty recordset or any record.
-                xml_content = self.env["account.edi.format"]._export_l10n_ec_edi(move)
-            except AttributeError:
-                # Fallback if method lookup fails (e.g. if _name was different)
-                raise UserError(
-                    _(
-                        "EDI Format method _export_l10n_ec_edi not found. Check installation."
-                    )
-                )
-
-            # 4. Sign XML
-            try:
-                signed_xml_bytes = certificate.sign_xml(xml_content.encode("utf-8"))
-            except Exception as e:
-                raise UserError(_("Signing Error: %s") % str(e))
-
-            # 5. Send to SRI
-            service = self.env["l10n_ec.sri.service"]
-            # SRI spec: 1=PRODUCCION, 2=PRUEBAS
-            env_code = (
-                "1" if move.company_id.l10n_ec_sri_environment == "production" else "2"
-            )
-
-            response = service.send_document(move.company_id, signed_xml_bytes)
-
-            # 6. Process Response
-            if response.get("status") == "RECIBIDA":
-                move.l10n_ec_sri_status = "sent"
-                move.l10n_ec_sri_response = "RECIBIDA. Waiting for Authorization..."
-
-                # Store XML
-                move.l10n_ec_xml_data = base64.b64encode(signed_xml_bytes)
-            else:
-                move.l10n_ec_sri_status = "rejected"
-                msgs = "\n".join(response.get("messages", []))
-                move.l10n_ec_sri_response = f"{response.get('status')}: {msgs}"
-                raise UserError(_("SRI Rechazado: %s") % msgs)
 
     # =========================================================================
     # AUTO-SEND TO SRI ON POST (2026 IMMEDIATE TRANSMISSION REQUIREMENT)
@@ -351,7 +299,13 @@ class AccountMove(models.Model):
                     )
                     continue
 
-                # Auto-send to SRI
+                # El envío al SRI lo implementa l10n_ec_sri. Este módulo ya no lleva
+                # su propia versión: era una segunda implementación que l10n_ec_sri
+                # sobrescribía sin llamar a super(), y encima invertía el dígito de
+                # ambiente (1=pruebas, 2=producción según la tabla 4 de la Ficha).
+                if not hasattr(move, "action_send_sri"):
+                    continue
+
                 try:
                     move.action_send_sri()
                 except Exception as e:
@@ -360,6 +314,9 @@ class AccountMove(models.Model):
 
                     _logger = logging.getLogger(__name__)
                     _logger.error("SRI Auto-send failed for %s: %s", move.name, str(e))
-                    move.l10n_ec_sri_response = f"Auto-send error: {e}"
+                    # En l10n_ec_sri_error, que es el campo que muestra la vista.
+                    move.l10n_ec_sri_error = _(
+                        "El envío automático al SRI falló al publicar:\n\n%s", e
+                    )
 
         return result

@@ -33,6 +33,8 @@ SRI Tax reporting for Ecuador:
     "depends": [
         "l10n_ec_base",
         "l10n_ec_edi",
+        # El ATS lee l10n_ec.retention, definido en l10n_ec_sri.
+        "l10n_ec_sri",
         "l10n_ec_withholding",
     ],
     "data": [

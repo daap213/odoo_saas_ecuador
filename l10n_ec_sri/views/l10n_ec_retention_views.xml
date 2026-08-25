@@ -10,6 +10,9 @@
                 <field name="partner_id"/>
                 <field name="date_issue"/>
                 <field name="invoice_id"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'posted'"
+                       decoration-muted="state == 'draft'"/>
                 <field name="l10n_ec_sri_status" widget="badge"
                        decoration-success="l10n_ec_sri_status == 'authorized'"
                        decoration-info="l10n_ec_sri_status == 'sent'"/>
@@ -24,10 +27,19 @@
         <field name="arch" type="xml">
             <form string="Withholding Voucher">
                 <header>
-                    <button name="action_post" string="Confirm" type="object" class="oe_highlight" invisible="l10n_ec_sri_status != 'draft'"/>
-                    <button name="action_send_sri" string="Send to SRI" type="object" class="oe_highlight" invisible="l10n_ec_sri_status in ('sent', 'authorized', 'draft')"/>
-                    <button name="action_check_sri" string="Check Status" type="object" invisible="l10n_ec_sri_status != 'sent'"/>
-                    <field name="l10n_ec_sri_status" widget="statusbar"/>
+                    <button name="action_post" string="Confirmar" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"/>
+                    <!-- Se muestra en cuanto está confirmada. Antes dependía de
+                         l10n_ec_sri_status y quedaba oculto en 'draft', que es
+                         justamente donde nacía: no había forma de enviar. -->
+                    <button name="action_send_sri" string="Enviar al SRI" type="object"
+                            class="oe_highlight"
+                            invisible="state != 'posted' or l10n_ec_sri_status in ('sent', 'authorized')"/>
+                    <button name="action_check_sri" string="Consultar autorización" type="object"
+                            invisible="l10n_ec_sri_status != 'sent'"/>
+                    <button name="action_draft" string="Volver a borrador" type="object"
+                            invisible="state != 'posted' or l10n_ec_sri_status == 'authorized'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -57,6 +69,9 @@
                              <group>
                                 <field name="l10n_ec_sri_access_key"/>
                                 <field name="l10n_ec_authorization_date"/>
+                                <!-- Sin esto el usuario no veía por qué el SRI la rechazó. -->
+                                <field name="l10n_ec_sri_response" readonly="1"
+                                       invisible="not l10n_ec_sri_response"/>
                              </group>
                         </page>
                     </notebook>

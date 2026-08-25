@@ -29,11 +29,40 @@ Esta localización cumple **100%** con las siguientes regulaciones ecuatorianas 
 |-------------------|------------|--------|
 | SRI | Facturación Electrónica 2026 | ✅ CUMPLE |
 | SRI | Resolución NAC-DGERCGC25-00000017 | ✅ CUMPLE |
-| SRI | Ficha Técnica v2.32 | ✅ CUMPLE |
+| SRI | Ficha Técnica v2.34 (julio 2026) | ⚠️ CUMPLE PARCIALMENTE |
+| SRI | Res. NAC-DGERCGC26-00000027 (RUC del proveedor) | ✅ CUMPLE (Art. 5) / ⚠️ Art. 3 pendiente |
 | IESS | Aportes 2026 | ✅ CUMPLE |
 | Min. Trabajo | SBU $482 (Acuerdo MDT-2025-195) | ✅ CUMPLE |
 | SENAE | Impuestos de Importación | ✅ CUMPLE |
 | SUPERCIAS | NIIF/NEC | ✅ CUMPLE |
+
+### 1.1 Alcance real del cumplimiento de la Ficha Técnica
+
+El cumplimiento de la Ficha es **parcial**. Lo que sí se emite y lo que falta, contrastado
+punto por punto en `docs/REVISION_REFERENCIAS_SRI.md`:
+
+| Requisito | Estado |
+|---|---|
+| Factura (01), versión 1.1.0 del Anexo 3 | ✅ |
+| Comprobante de retención (07), versión 1.0.0 | ✅ |
+| Clave de acceso, módulo 11, firma XAdES-BES, servicios SOAP | ✅ |
+| Anexos 21 (agente de retención), 22 (RIMPE), 24 (gran contribuyente), 26 (RUC proveedor) | ✅ |
+| Nota de crédito (04), nota de débito (05), liquidación de compra (03) | ❌ sin plantilla |
+| Anexo 25 — `<placa>` y `codigoAuxiliar` de transporte comercial | ❌ |
+| Anexo 23 — códigos de materiales de construcción | ❌ |
+| Anexos 11, 12/16, 13, 18, 19, 20 y envío por lote | ❌ |
+
+### 1.2 Acción del titular, no del software
+
+La Res. **NAC-DGERCGC26-00000027**, Art. 3, obliga a los **proveedores** de sistemas de
+facturación electrónica a registrar en su RUC un establecimiento exclusivo con el CIIU
+**J62021002** (desarrollo) o **J62021003** (comercialización de sistemas de terceros),
+en el plazo de **30 días** desde su publicación en el Registro Oficial. El SRI publica el
+listado de proveedores registrados **desde octubre de 2026**.
+
+Esto le corresponde a Somatech como titular del producto; no se resuelve con código.
+El Art. 5 de la misma resolución —el RUC del proveedor en `<infoAdicional>`— sí está
+implementado, vía el parámetro `l10n_ec.software_provider_ruc`.
 
 ---
 
@@ -106,31 +135,47 @@ l10n_ec_base/data/account.account.template.csv
 | Regulación | Descripción | Fecha Vigencia |
 |------------|-------------|----------------|
 | Resolución NAC-DGERCGC25-00000017 | Cambios 2026 | 01 Enero 2026 |
-| Ficha Técnica v2.32 | Especificación XML | Vigente |
+| Ficha Técnica v2.34 (julio 2026) | Especificación XML | Vigente |
+| Res. NAC-DGERCGC26-00000024 | Campo `<placa>` en transporte comercial (Anexo 25) | Vigente |
+| Res. NAC-DGERCGC26-00000027 | RUC del proveedor del sistema (Anexo 26) | 27 Julio 2026 |
 | Ley de Régimen Tributario Interno | Base legal | Permanente |
 
 ### 3.2 Tasas IVA 2026
 
+Tabla 17 de la Ficha Técnica, completa — son nueve códigos, no cinco:
+
 | Código SRI | Porcentaje | Nombre | Descripción |
 |------------|------------|--------|-------------|
 | 0 | 0% | Tarifa 0% | Bienes básicos, exportaciones |
+| 2 | 12% | Histórico | Obsoleto desde 2024 |
+| 3 | 14% | Histórico | Obsoleto |
 | 4 | **15%** | **Estándar 2026** | Tarifa general |
-| 5 | 5% | Construcción | Materiales construcción |
-| 6 | N/A | No Objeto | Servicios gubernamentales |
-| 7 | N/A | Exento | Salud, educación |
+| 5 | 5% | Construcción | Materiales de construcción |
+| 6 | N/A | No Objeto de Impuesto | Servicios gubernamentales |
+| 7 | N/A | Exento de IVA | Salud, educación |
+| 8 | N/A | IVA diferenciado | Decreto del sector turístico |
+| 10 | 13% | Tarifa 13% | |
 
-> **⚠️ IMPORTANTE**: El código 2 (12%) y código 3 (14%) están **OBSOLETOS** desde 2026.
+> **⚠️ IMPORTANTE**: El código 2 (12%) y el 3 (14%) están **OBSOLETOS**, pero siguen en
+> la tabla: un comprobante de un periodo anterior debe poder reexpedirse con su código.
+> Los códigos 8 y 10 sí son vigentes y faltaban en este documento.
 
 ### 3.3 Tipos de Documentos (codDoc)
 
-| Código | Documento | XML Root | Versión |
-|--------|-----------|----------|---------|
-| 01 | Factura | `<factura>` | 2.1.0 |
-| 03 | Liquidación de Compra | `<liquidacionCompra>` | 1.1.0 |
-| 04 | Nota de Crédito | `<notaCredito>` | 1.1.0 |
-| 05 | Nota de Débito | `<notaDebito>` | 1.1.0 |
-| 06 | Guía de Remisión | `<guiaRemision>` | 1.1.0 |
-| 07 | Comprobante de Retención | `<comprobanteRetencion>` | 2.0.0 |
+| Código | Documento | XML Root | Versión | ¿Se emite? |
+|--------|-----------|----------|---------|---|
+| 01 | Factura | `<factura>` | **1.1.0** (Anexo 3) | ✅ |
+| 03 | Liquidación de Compra | `<liquidacionCompra>` | 1.1.0 (Anexo 17) | ❌ |
+| 04 | Nota de Crédito | `<notaCredito>` | 1.1.0 | ❌ |
+| 05 | Nota de Débito | `<notaDebito>` | 1.1.0 | ❌ |
+| 06 | Guía de Remisión | `<guiaRemision>` | 1.1.0 | ❌ |
+| 07 | Comprobante de Retención | `<comprobanteRetencion>` | **1.0.0** | ✅ |
+
+> La factura es **1.1.0**, no 2.1.0. La Ficha reserva las versiones 2.0.0 y 2.1.0 para
+> los Anexos 8 y 9 —rubros de terceros y factura sustitutiva de guía de remisión— y dice
+> expresamente que "caso contrario se deberá utilizar los formatos de factura
+> establecidos en el anexo 1 y anexo 3". La retención 2.0.0 del Anexo 10 es la variante
+> con datos del ATS; aquí se emite la 1.0.0.
 
 ### 3.4 Clave de Acceso (49 dígitos)
 
@@ -154,7 +199,7 @@ l10n_ec_base/data/account.account.template.csv
 | Transmisión Inmediata | Ya no hay plazo de 72 horas | `action_send_sri()` |
 | Consumidor Final $50 | Límite máximo por factura | `_check_consumidor_final_limit()` |
 | CF No Anulable | Facturas CF no se pueden anular | `button_cancel_sri()` |
-| Anulación 7 días | Máximo 7 días para anular | `_check_7_day_annulment_rule()` |
+| Plazo de anulación | Hasta el día N del mes siguiente, configurable en `l10n_ec.annulment_day_limit` (por defecto 7) | `_check_annulment_deadline()` |
 | Aceptación 5 días | Receptor tiene 5 días para aceptar | Seguimiento automático |
 
 ### 3.6 Endpoints SRI
@@ -384,7 +429,7 @@ l10n_ec_reports/data/ats_template.xml
 
 ### 8.2 Documentos de Referencia
 
-- Ficha Técnica Comprobantes Electrónicos v2.32
+- Ficha Técnica Comprobantes Electrónicos v2.34 (`referencias/`)
 - Resolución NAC-DGERCGC25-00000017
 - Código del Trabajo (actualizado 2026)
 - Ley de Seguridad Social

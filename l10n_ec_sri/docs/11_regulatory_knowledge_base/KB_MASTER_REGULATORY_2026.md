@@ -48,7 +48,9 @@
 |:--------|:-----|:-------|
 | 2.26 | March 2024 | Production |
 | 2.28 | June 2024 | Gran Contribuyente |
-| **2.32** | Current | **LATEST** |
+| 2.32 | Oct 2025 | Anexo 25 — commercial transport operators |
+| 2.33 | 13 Jul 2026 | Anexo 25 — mandatory `placa` field; Table 33 |
+| **2.34** | **27 Jul 2026** | **LATEST** — Anexo 26, software provider RUC |
 
 ### 1.4 Document Types (codDoc)
 | Code | Document | XML Required |

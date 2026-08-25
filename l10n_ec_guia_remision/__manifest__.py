@@ -5,7 +5,12 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
 
 {
-    "name": "Ecuador - Stock & Logistics (Guía de Remisión)",
+    # El directorio se llama `l10n_ec_guia_remision` y NO `l10n_ec_stock`: ese nombre
+    # técnico lo ocupa un módulo del núcleo de Odoo 19 (Odoo S.A.) que sólo añade
+    # configuración del plan de cuentas y NO emite guías de remisión. El núcleo gana
+    # en `odoo.addons.__path__`, así que mientras este módulo se llamó `l10n_ec_stock`
+    # era INALCANZABLE y la guía de remisión no existía. Verificado en Odoo 19.
+    "name": "Ecuador - Guía de Remisión electrónica",
     "version": "19.0.1.0.0",
     "category": "Inventory/Localizations",
     "summary": "Guía de Remisión, Transportistas, Motivos de Traslado",

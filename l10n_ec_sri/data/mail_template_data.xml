@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Entrega del comprobante al receptor.
+
+    Ficha Técnica §4.7: "Una vez generados los comprobantes electrónicos, el emisor
+    tiene la OBLIGACIÓN de enviar dichos comprobantes al receptor mediante correo
+    electrónico; adicionalmente podrá utilizar otros medios de notificación".
+
+    No es una comodidad: es un deber del emisor. Hasta ahora no existía ninguna
+    plantilla de correo en el repo y no se entregaba nada.
+
+    noupdate="1" para que un `-u` no pise el texto que el cliente haya personalizado.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <record id="mail_template_l10n_ec_invoice" model="mail.template">
+            <field name="name">Ecuador: entrega de comprobante electrónico</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="subject">{{ object.company_id.name }} — Comprobante electrónico {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.partner_id.id }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+<div style="margin:0px; padding:0px; font-size:13px;">
+    <p>Estimado/a <t t-out="object.partner_id.name or ''"/>:</p>
+    <p>
+        Adjuntamos su comprobante electrónico autorizado por el Servicio de Rentas
+        Internas, en formato XML y su representación impresa (RIDE) en PDF.
+    </p>
+    <table style="border-collapse:collapse; font-size:13px;">
+        <tr>
+            <td style="padding:2px 8px 2px 0;">Comprobante</td>
+            <td style="padding:2px 0;"><strong t-out="object.name or ''"/></td>
+        </tr>
+        <tr>
+            <td style="padding:2px 8px 2px 0;">Fecha de emisión</td>
+            <td style="padding:2px 0;"><t t-out="object.invoice_date or ''"/></td>
+        </tr>
+        <tr>
+            <td style="padding:2px 8px 2px 0;">Número de autorización</td>
+            <td style="padding:2px 0; font-family:monospace;">
+                <t t-out="object.l10n_ec_sri_access_key or ''"/>
+            </td>
+        </tr>
+        <tr t-if="object.l10n_ec_authorization_date">
+            <td style="padding:2px 8px 2px 0;">Fecha de autorización</td>
+            <td style="padding:2px 0;"><t t-out="object.l10n_ec_authorization_date"/></td>
+        </tr>
+        <tr>
+            <td style="padding:2px 8px 2px 0;">Total</td>
+            <td style="padding:2px 0;">
+                <strong t-out="format_amount(object.amount_total, object.currency_id)"/>
+            </td>
+        </tr>
+    </table>
+    <p style="margin-top:12px;">
+        Puede verificar la validez de este comprobante en el portal del SRI
+        (<a href="https://srienlinea.sri.gob.ec">srienlinea.sri.gob.ec</a>) con el
+        número de autorización.
+    </p>
+    <p><t t-out="object.company_id.name or ''"/></p>
+</div>
+            </field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+        </record>
+
+    </data>
+</odoo>

@@ -18,12 +18,10 @@
                     <page string="Lines">
                         <field name="line_ids">
                             <list editable="bottom">
-                                <field name="tax_type"/>
-                                <field name="tax_code"/>
-                                <field name="base"/>
-                                <field name="percentage"/>
+                                <field name="tax_id"/>
+                                <field name="base_amount"/>
                                 <field name="amount" readonly="1"/>
-                                <field name="currency_id" invisible="1"/>
+                                <field name="currency_id" column_invisible="1"/>
                             </list>
                         </field>
                     </page>

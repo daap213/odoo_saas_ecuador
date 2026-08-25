@@ -25,7 +25,7 @@
 
 | Code | Document | XML Root | Version |
 |:-----|:---------|:---------|:--------|
-| 01 | Factura | `<factura>` | 2.1.0 |
+| 01 | Factura | `<factura>` | **1.1.0** (Anexo 3) |
 | 03 | Liquidación de Compra | `<liquidacionCompra>` | 1.1.0 |
 | 04 | Nota de Crédito | `<notaCredito>` | 1.1.0 |
 | 05 | Nota de Débito | `<notaDebito>` | 1.1.0 |
@@ -86,6 +86,12 @@ def compute_mod11(data: str) -> str:
 | 5 | 5% | Construcción | `codigoPorcentaje="5"` |
 | 6 | N/A | No Objeto | `codigoPorcentaje="6"` |
 | 7 | N/A | Exento | `codigoPorcentaje="7"` |
+| 8 | N/A | IVA diferenciado (sector turístico) | `codigoPorcentaje="8"` |
+| 10 | 13% | Tarifa 13% | `codigoPorcentaje="10"` |
+
+> Tabla 17 completa: son **nueve** códigos (0, 2, 3, 4, 5, 6, 7, 8, 10). El 8 y el 10
+> faltaban en este documento; el generador de XML sí los contempla
+> (`L10N_EC_VAT_PERCENT_CODE` en `l10n_ec_sri/models/l10n_ec_sri_xml.py`).
 
 ---
 
@@ -100,7 +106,7 @@ def compute_mod11(data: str) -> str:
 | 308 | 2% | Servicios Entre Sociedades |
 | 309 | 1% | Publicidad y Comunicación |
 | 310 | 1% | Transporte |
-| 312 | 1% | Bienes Muebles |
+| 312 | 1.75% | Transferencia de bienes muebles de naturaleza corporal |
 | 319 | 1% | Arrendamiento Mercantil |
 | 320 | 1.75% | Arrendamiento Inmuebles |
 | 322 | 1% | Seguros y Reaseguros |
@@ -115,6 +121,30 @@ def compute_mod11(data: str) -> str:
 | 500 | 25% | Pagos Paraísos Fiscales |
 
 ### 5.2 IVA Withholding
+
+> ⚠️ **Dos numeraciones distintas, no intercambiables.** Los códigos 721…731 son del
+> **Catálogo del ATS** (declaración informativa). El `<codigoRetencion>` que va en el
+> XML del comprobante es el de la **Tabla 20 de la Ficha**, que es otra numeración.
+> Confundirlos hace que el SRI rechace el comprobante.
+
+**Tabla 20 — `<codigoRetencion>` del XML** (esto es lo que emite el sistema):
+
+| Código | Tarifa retenida |
+|:-------|:----------------|
+| 1 | 30% |
+| 2 | 70% |
+| 3 | 100% |
+| 7 | 0% — retención en cero (Res. NAC-DGERCGC15-00000284) |
+| 8 | 0% — no procede retención |
+| 9 | 10% |
+| 10 | 20% |
+| 11 | 50% |
+
+ISD: `<codigo>6</codigo>` con `<codigoRetencion>4586</codigoRetencion>` para el 2,5%
+vigente desde el 01-05-2025 (4580 para los tramos históricos).
+
+**Catálogo ATS** (sólo para el anexo transaccional, no para el XML):
+
 | Code | Rate | When Applied |
 |:-----|:-----|:-------------|
 | 721 | 10% | Bienes |
@@ -197,7 +227,9 @@ def validate_consumidor_final(vat: str, total: float) -> bool:
 ## 8. XADES-BES SIGNING
 
 ### Requirements
-- Algorithm: RSA-SHA1 (legacy) or RSA-SHA256
+- Algorithm: **RSA-SHA1**, con digests SHA-1 y canonicalización C14N inclusiva.
+  No hay alternativa: la Ficha §6.8 fija RSA-SHA1 y clave de 2048 bits. "Modernizar"
+  a SHA-256 hace que el SRI rechace la firma.
 - Certificate: P12/PFX from authorized provider
 - Authorized Providers:
   - Security Data
@@ -246,7 +278,9 @@ def validate_consumidor_final(vat: str, total: float) -> bool:
 |:--------|:-----|:------|
 | 2.26 | Mar 2024 | Base |
 | 2.28 | Jun 2024 | Gran Contribuyente |
-| **2.32** | Current | **LATEST** |
+| 2.32 | Oct 2025 | Anexo 25 — operadoras de transporte comercial |
+| 2.33 | 13 Jul 2026 | Anexo 25 — campo `placa` obligatorio; Tabla 33 |
+| **2.34** | **27 Jul 2026** | **LATEST** — Anexo 26, RUC del proveedor del sistema |
 
 ---
 

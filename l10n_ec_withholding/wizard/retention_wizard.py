@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Asistente para crear el comprobante de retención desde una factura de compra.
+
+Antes construía un `account.retention` con el código de retención como texto libre
+(`tax_code`), que no era lo que la emisión necesita: la plantilla XML lee
+`account.tax` para sacar <codigo> y <codigoRetencion>. Ahora crea directamente el
+modelo vivo `l10n_ec.retention` con impuestos reales, así que lo que se confirma en
+el asistente es exactamente lo que se transmite.
+"""
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
@@ -9,7 +17,9 @@ class RetentionWizard(models.TransientModel):
 
     invoice_id = fields.Many2one("account.move", string="Invoice", required=True)
     partner_id = fields.Many2one(related="invoice_id.partner_id", string="Vendor")
-    date = fields.Date(string="Date", default=fields.Date.context_today)
+    company_id = fields.Many2one(related="invoice_id.company_id")
+    currency_id = fields.Many2one(related="invoice_id.currency_id")
+    date = fields.Date(string="Date", default=fields.Date.context_today, required=True)
 
     line_ids = fields.One2many(
         "l10n_ec.retention.wizard.line", "wizard_id", string="Withholding Lines"
@@ -17,108 +27,61 @@ class RetentionWizard(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        res = super(RetentionWizard, self).default_get(fields_list)
-        if (
-            "active_id" in self.env.context
-            and self.env.context.get("active_model") == "account.move"
-        ):
-            invoice = self.env["account.move"].browse(self.env.context["active_id"])
-            res["invoice_id"] = invoice.id
+        res = super().default_get(fields_list)
+        if self.env.context.get("active_model") != "account.move":
+            return res
+        active_id = self.env.context.get("active_id")
+        if not active_id:
+            return res
 
-            lines = []
-            # Auto-calculation logic
-            # We look for Taxes on the Invoice Lines that are "Retentions"
-            # Since we don't have strict Tax Group mapping in this scaffold yet,
-            # we will create lines based on the invoice lines tax calculations if they appear to be retentions
-            # OR, more robustly for a Wizard: We allow the user to select the code and we apply it to the base.
+        invoice = self.env["account.move"].browse(active_id)
+        res["invoice_id"] = invoice.id
 
-            # Strategy: Pre-fill base amounts from invoice totals to save typing
-            # Separate by VAT and Income Tax bases if possible.
-
-            # Simple approach: Create one line for Income Tax (Renta) and one for VAT (IVA) if applicable.
-            # Base Imponible Renta = Amount Untaxed
-            # Base Imponible IVA = Amount Tax (only if Retaining IVA)
-
-            # 1. Renta Line Suggestion
-            lines.append(
-                (
-                    0,
-                    0,
-                    {
-                        "tax_type": "1",  # Renta
-                        "base": invoice.amount_untaxed,
-                        "percentage": 0.0,
-                        "tax_code": "332",  # Default/Common code, user can change
-                    },
-                )
-            )
-
-            # 2. IVA Line Suggestion (if there is VAT)
-            total_vat = sum(
-                line.price_total - line.price_subtotal
-                for line in invoice.invoice_line_ids
-            )
-            if total_vat > 0:
-                lines.append(
-                    (
-                        0,
-                        0,
-                        {
-                            "tax_type": "2",  # IVA
-                            "base": total_vat,  # Base for IVA Retention is the VAT amount itself?
-                            # No, usually percentage of VAT amount (10%, 30%, 70%, 100%)
-                            # Or is base the invoice subtotal?
-                            # Ficha Tecnica: baseImponible for code 2 (IVA) is the VAT AMOUNT.
-                            # Review DM_02: "baseImponible" -> "Decimal 2 places".
-                            # For IVA retention, the base is the IVA value.
-                            # Let's confirm: "Retention of IVA is X% of the IVA Value."
-                            "base": total_vat,
-                            "percentage": 30.0,  # Common Goods %
-                            "tax_code": "2",  # Common Code
-                        },
-                    )
-                )
-
-            res["line_ids"] = lines
-
+        # Se proponen las dos bases, no los porcentajes: qué impuesto aplica depende
+        # del tipo de contribuyente y del bien o servicio, y elegirlo mal es lo que
+        # el SRI rechaza. El usuario escoge el `account.tax`, que ya lleva el código.
+        #
+        # Base de renta  = subtotal sin impuestos.
+        # Base de IVA    = el propio valor del IVA (Ficha, tabla 20: la retención de
+        #                  IVA es un porcentaje del IVA facturado, no del subtotal).
+        vat_amount = invoice.amount_total - invoice.amount_untaxed
+        lines = [(0, 0, {"base_amount": invoice.amount_untaxed})]
+        if vat_amount > 0:
+            lines.append((0, 0, {"base_amount": vat_amount}))
+        res["line_ids"] = lines
         return res
 
     def action_create_retention(self):
         self.ensure_one()
         if not self.line_ids:
-            raise UserError(_("Please add at least one withholding line."))
+            raise UserError(_("Añada al menos una línea de retención."))
 
-        retention_vals = {
+        missing = self.line_ids.filtered(lambda line: not line.tax_id)
+        if missing:
+            raise UserError(_(
+                "Cada línea necesita un impuesto de retención: es de donde salen el "
+                "<codigo> y el <codigoRetencion> del comprobante."
+            ))
+
+        retention = self.env["l10n_ec.retention"].create({
             "invoice_id": self.invoice_id.id,
-            "partner_id": self.partner_id.id,
-            "date": self.date,
+            "date_issue": self.date,
             "company_id": self.invoice_id.company_id.id,
             "l10n_ec_sri_status": "draft",
-            "retention_line_ids": [],
-        }
+            "tax_ids": [
+                (0, 0, {
+                    "tax_id": line.tax_id.id,
+                    "base_amount": line.base_amount,
+                    "amount": line.amount,
+                })
+                for line in self.line_ids
+            ],
+        })
 
-        for line in self.line_ids:
-            retention_vals["retention_line_ids"].append(
-                (
-                    0,
-                    0,
-                    {
-                        "tax_type": line.tax_type,
-                        "tax_code": line.tax_code,
-                        "base": line.base,
-                        "percentage": line.percentage,
-                        "amount": line.amount,
-                    },
-                )
-            )
-
-        retention = self.env["account.retention"].create(retention_vals)
-
-        # Link back to invoice for smart button (if we add one) or just return view
         return {
             "name": _("Withholding"),
             "type": "ir.actions.act_window",
-            "res_model": "account.retention",
+            "res_model": "l10n_ec.retention",
             "res_id": retention.id,
             "view_mode": "form",
             "target": "current",
@@ -129,18 +92,32 @@ class RetentionWizardLine(models.TransientModel):
     _name = "l10n_ec.retention.wizard.line"
     _description = "Retention Wizard Line"
 
-    wizard_id = fields.Many2one("l10n_ec.retention.wizard", required=True)
-    tax_type = fields.Selection(
-        [("1", "Renta"), ("2", "IVA"), ("6", "ISD")], string="Impuesto", required=True
+    wizard_id = fields.Many2one("l10n_ec.retention.wizard", required=True, ondelete="cascade")
+    tax_id = fields.Many2one(
+        "account.tax",
+        string="Retención",
+        domain="[('type_tax_use', '=', 'purchase')]",
+        help="Impuesto de retención. Su 'Código de Retención SRI' es el que se emite.",
     )
+    base_amount = fields.Monetary(string="Base Imponible", required=True)
+    amount = fields.Monetary(string="Valor Retenido", compute="_compute_amount", store=True)
+    currency_id = fields.Many2one(related="wizard_id.currency_id")
 
-    tax_code = fields.Char(string="Código Retención", required=True)
-    base = fields.Monetary(string="Base Imponible", required=True)
-    percentage = fields.Float(string="Porcentaje %", required=True)
-    amount = fields.Monetary(string="Valor Retenido", compute="_compute_amount")
-    currency_id = fields.Many2one(related="wizard_id.invoice_id.currency_id")
-
-    @api.depends("base", "percentage")
+    @api.depends("base_amount", "tax_id")
     def _compute_amount(self):
+        """Porcentaje plano sobre la base.
+
+        Una retención ecuatoriana no encadena impuestos ni lleva precio incluido, así
+        que la aritmética directa es exacta; `compute_all()` además desapareció en
+        Odoo 19.
+        """
         for line in self:
-            line.amount = line.base * (line.percentage / 100.0)
+            tax = line.tax_id
+            if not tax or not line.base_amount:
+                line.amount = 0.0
+            elif tax.amount_type == "percent":
+                line.amount = abs(line.base_amount * tax.amount / 100.0)
+            elif tax.amount_type == "fixed":
+                line.amount = abs(tax.amount)
+            else:
+                line.amount = 0.0

@@ -59,7 +59,7 @@
                 <tbody>
                     <t t-foreach="payslips" t-as="payslip">
                         <tr>
-                            <td><a t-attf-href="/my/payslips/#{payslip.id}"><t t-esc="payslip.name"/></a></td>
+                            <td><a t-attf-href="/my/payslips/#{payslip.id}"><t t-out="payslip.name"/></a></td>
                             <td><span t-field="payslip.date_start"/> - <span t-field="payslip.date_end"/></td>
                             <td class="text-right"><span t-field="payslip.net_wage" t-options='{"widget": "monetary", "display_currency": payslip.employee_id.company_id.currency_id}'/></td>
                             <td><span t-field="payslip.state"/></td>
@@ -142,7 +142,7 @@
                 <tbody>
                     <t t-foreach="loans" t-as="loan">
                         <tr>
-                            <td><t t-esc="loan.name"/></td>
+                            <td><t t-out="loan.name"/></td>
                             <td><span t-field="loan.loan_type"/></td>
                             <td class="text-right"><span t-field="loan.amount_total"/></td>
                             <td><span t-field="loan.state"/></td>

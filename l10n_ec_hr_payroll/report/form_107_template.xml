@@ -6,8 +6,8 @@
                 <t t-call="web.external_layout">
                     <div class="page">
                         <h2>FORMULARIO 107 - RDEP (Draft)</h2>
-                        <p><strong>Employee:</strong> <span t-esc="o.employee_id.name"/></p>
-                        <p><strong>Year:</strong> <span t-esc="year"/></p>
+                        <p><strong>Employee:</strong> <span t-out="o.employee_id.name"/></p>
+                        <p><strong>Year:</strong> <span t-out="year"/></p>
 
                         <table class="table table-sm table-bordered">
                             <thead>
@@ -21,42 +21,42 @@
                                 <tr>
                                     <td>Sueldos y Salarios</td>
                                     <td>301</td>
-                                    <td class="text-right"><span t-esc="o.wage * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                    <td class="text-right"><span t-out="o.wage * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
                                 </tr>
                                 <tr>
                                     <td>Horas Extras y Suplementarias</td>
                                     <td>303</td>
-                                    <td class="text-right"><span t-esc="(o.overtime_hours + o.supplementary_hours) * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                    <td class="text-right"><span t-out="(o.overtime_hours + o.supplementary_hours) * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
                                 </tr>
                                 <tr>
                                     <td>Décimo Tercero</td>
                                     <td>311</td>
-                                    <td class="text-right"><span t-esc="o.thirteenth * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                    <td class="text-right"><span t-out="o.thirteenth * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
                                 </tr>
                                 <tr>
                                     <td>Décimo Cuarto</td>
                                     <td>313</td>
-                                    <td class="text-right"><span t-esc="o.fourteenth * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                    <td class="text-right"><span t-out="o.fourteenth * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
                                 </tr>
                                 <tr>
                                     <td>Fondos Reserva</td>
                                     <td>315</td>
-                                    <td class="text-right"><span t-esc="o.reserve_funds * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                    <td class="text-right"><span t-out="o.reserve_funds * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Total Ingresos</strong></td>
                                     <td>349</td>
-                                    <td class="text-right"><strong><span t-esc="o.total_income * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></strong></td>
+                                    <td class="text-right"><strong><span t-out="o.total_income * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></strong></td>
                                 </tr>
                                 <tr>
                                     <td>Aporte Personal IESS</td>
                                     <td>351</td>
-                                    <td class="text-right"><span t-esc="o.iess_personal * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                    <td class="text-right"><span t-out="o.iess_personal * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
                                 </tr>
                                  <tr>
                                     <td>Impuesto Renta Asumido</td>
                                     <td>381</td>
-                                    <td class="text-right"><span t-esc="o.income_tax * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
+                                    <td class="text-right"><span t-out="o.income_tax * 12" t-options='{"widget": "monetary", "display_currency": o.env.company.currency_id}'/></td>
                                 </tr>
                             </tbody>
                         </table>

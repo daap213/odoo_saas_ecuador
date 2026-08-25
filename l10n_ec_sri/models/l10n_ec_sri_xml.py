@@ -8,10 +8,14 @@ de UNA SOLA fuente de datos (`_get_document_components`). Antes cada uno derivab
 rechazaba con el error 58 ("clave de acceso con componentes diferentes a los del
 comprobante").
 """
+import base64
+import logging
 import re
 
-from odoo import _, api, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 # Ficha Técnica 2.34, tabla 16 — códigos de impuesto
 L10N_EC_TAX_CODE_VAT = "2"
@@ -38,6 +42,40 @@ L10N_EC_VAT_PERCENT_CODE_BY_RATE = {
 }
 
 _DOCUMENT_NUMBER_RE = re.compile(r"^(\d{3})-(\d{3})-(\d{9})$")
+
+# Etiqueta de cada subtotal del RIDE, por codigoPorcentaje de la tabla 17.
+# El Anexo 2 avisa: "los contribuyentes podrán visualizar SOLO los subtotales que
+# fueron llenados", así que la plantilla no imprime los que no aparecen aquí.
+L10N_EC_SUBTOTAL_LABELS = {
+    "0": "SUBTOTAL 0%",
+    "2": "SUBTOTAL 12%",
+    "3": "SUBTOTAL 14%",
+    "4": "SUBTOTAL 15%",
+    "5": "SUBTOTAL 5%",
+    "6": "SUBTOTAL NO OBJETO DE IVA",
+    "7": "SUBTOTAL EXENTO DE IVA",
+    "8": "SUBTOTAL TARIFA ESPECIAL",
+    "10": "SUBTOTAL 13%",
+}
+
+# Tabla 3 — tipos de comprobante que este módulo sabe construir HOY.
+#
+# `render_xml` renderiza siempre la plantilla de factura, pero la clave de acceso sí
+# lleva el codDoc real del documento. Emitir una nota de crédito por esta ruta producía
+# un cuerpo <factura> con codDoc 04: el SRI lo rechaza con el error 35 (el XSD no
+# corresponde) o el 58 (clave con componentes distintos a los del comprobante). Mejor
+# negarse aquí que gastar un secuencial en un envío que nunca autorizará.
+L10N_EC_SUPPORTED_DOCUMENT_CODES = {"01"}
+
+# Sólo para el mensaje de error: nombrar el comprobante que el usuario intentó emitir.
+L10N_EC_DOCUMENT_NAMES = {
+    "01": "Factura",
+    "03": "Liquidación de compra de bienes y prestación de servicios",
+    "04": "Nota de crédito",
+    "05": "Nota de débito",
+    "06": "Guía de remisión",
+    "07": "Comprobante de retención",
+}
 
 
 class L10nEcSriXml(models.AbstractModel):
@@ -193,7 +231,10 @@ class L10nEcSriXml(models.AbstractModel):
         subcadenas de su nombre, así que renombrar un impuesto rompía el mapeo en
         silencio y faltaban el 13 % y el IVA diferenciado.
         """
-        ec_type = tax.tax_group_id.l10n_ec_type
+        # Acceso tolerante: si el addon oficial `l10n_ec` no está cargado el campo no
+        # existe, y leerlo en crudo lanzaba AttributeError antes de poder caer al
+        # respaldo por tarifa que hay más abajo.
+        ec_type = tax.tax_group_id._l10n_ec_group_type()
 
         if ec_type in L10N_EC_VAT_PERCENT_CODE:
             return L10N_EC_TAX_CODE_VAT, L10N_EC_VAT_PERCENT_CODE[ec_type]
@@ -386,12 +427,66 @@ class L10nEcSriXml(models.AbstractModel):
         return fields_list[:15]
 
     @api.model
-    def _check_emission_requirements(self, record):
+    def _check_document_type_supported(self, record):
+        """Rechaza los comprobantes para los que no hay plantilla XML.
+
+        Se comprueba antes de generar la clave de acceso para no dejar una clave
+        persistida en un documento que no se puede emitir.
+        """
+        raw_code = (record.l10n_latam_document_type_id.code or "").strip()
+        code = raw_code.zfill(2) if raw_code else ""
+        if code in L10N_EC_SUPPORTED_DOCUMENT_CODES:
+            return
+        raise UserError(_(
+            "Todavía no se puede emitir electrónicamente %(doc)s: es un comprobante "
+            "de tipo %(code)s (%(label)s) y este módulo sólo genera el XML de la "
+            "factura (01).\n\n"
+            "Enviarlo produciría un cuerpo <factura> con codDoc %(code)s, que el SRI "
+            "rechaza (errores 35 y 58). Emítalo por fuera del sistema mientras no "
+            "exista la plantilla correspondiente.",
+            doc=record.display_name,
+            code=code or "sin asignar",
+            label=L10N_EC_DOCUMENT_NAMES.get(code, _("no soportado")),
+        ))
+
+    @api.model
+    def _get_signing_problems(self, company):
+        """Lo que impide FIRMAR: certificado ausente, inactivo o caducado.
+
+        Separado del resto porque la firma es un paso posterior a construir el XML, y
+        mezclarlos hacía imposible renderizar un comprobante (o su RIDE) en una base
+        sin certificado configurado.
+        """
+        certificate = company.l10n_ec_certificate_id
+        if not certificate:
+            return [_(
+                "certificado de firma electrónica asignado a la compañía "
+                "(Compañía > Facturación electrónica)"
+            )]
+        if certificate.state != "active":
+            return [_(
+                "certificado '%(name)s' en estado activo (actualmente: %(state)s)",
+                name=certificate.name, state=certificate.state,
+            )]
+        if certificate.expiration_date and certificate.expiration_date < fields.Date.today():
+            return [_(
+                "certificado vigente: '%(name)s' caducó el %(date)s",
+                name=certificate.name, date=certificate.expiration_date,
+            )]
+        return []
+
+    @api.model
+    def _check_emission_requirements(self, record, require_certificate=False):
         """Comprueba los obligatorios antes de construir el XML.
 
         Mejor fallar aquí con un mensaje claro que enviar al SRI un comprobante
         incompleto y recibir un error 35 de esquema sin contexto.
+
+        `require_certificate` lo activa el flujo de envío, que sí va a firmar: así el
+        usuario ve de una vez todo lo que le falta, en vez de corregir un dato,
+        reintentar y toparse con el siguiente.
         """
+        self._check_document_type_supported(record)
         company = record.company_id
         missing = []
         if not company.street:
@@ -402,6 +497,35 @@ class L10nEcSriXml(models.AbstractModel):
             missing.append(_("fecha de emisión"))
         if not self._get_product_lines(record):
             missing.append(_("al menos una línea de producto"))
+
+        # RUC de la compañía. Se comprobaba dentro de generate_access_key, es decir
+        # después de haber pasado el resto de validaciones: el usuario corregía un
+        # dato, reintentaba, y se encontraba con el siguiente.
+        ruc = (company.vat or "").strip()
+        if not ruc.isdigit() or len(ruc) != 13:
+            missing.append(_(
+                "RUC de la compañía con 13 dígitos numéricos (actual: '%s')", ruc or ""
+            ))
+
+        # Establecimiento y punto de emisión del diario. Mismo motivo: el mensaje ya
+        # existe en _get_document_components, pero llegaba más tarde y por separado.
+        journal = record.journal_id
+        if not (journal.l10n_ec_entity or "").strip():
+            missing.append(_(
+                "establecimiento SRI en el diario '%s' (Contabilidad > Configuración "
+                "> Diarios)", journal.display_name,
+            ))
+        if not (journal.l10n_ec_emission or "").strip():
+            missing.append(_(
+                "punto de emisión SRI en el diario '%s'", journal.display_name
+            ))
+
+        # El certificado sólo se exige cuando se va a FIRMAR. Construir el XML no lo
+        # necesita, y pedirlo aquí impedía renderizar un comprobante para revisarlo o
+        # para el RIDE en una base sin firma configurada.
+        if require_certificate:
+            missing.extend(self._get_signing_problems(company))
+
         if missing:
             raise UserError(_(
                 "Faltan datos obligatorios para emitir %(doc)s ante el SRI:\n\n- %(list)s",
@@ -442,6 +566,110 @@ class L10nEcSriXml(models.AbstractModel):
             "quantity": lambda value: "%.6f" % (value or 0.0),
             "clip": lambda value, size: (value or "")[:size],
         }
+
+    @api.model
+    def get_ride_values(self, record):
+        """Datos del RIDE (Anexo 2), derivados de la MISMA fuente que el XML.
+
+        El RIDE es la representación impresa del comprobante y tiene validez
+        tributaria y jurídica (§9.19). Se construye reutilizando los mismos helpers
+        que alimentan el XML: si la impresión y el archivo transmitido discreparan,
+        el papel diría una cosa y el SRI tendría otra.
+
+        No exige que el comprobante esté autorizado: el Anexo 2 aclara que la fecha y
+        hora de autorización "no es obligatoria registrarla en el RIDE generado por
+        los emisores", así que se puede imprimir un borrador.
+        """
+        components = self._get_document_components(record)
+        sri_totals, _line_taxes = self._compute_sri_taxes(record)
+        id_type, identification = self._get_buyer_identification(record)
+        company = record.company_id
+
+        product_lines = self._get_product_lines(record)
+        total_discount = sum(
+            line.price_unit * line.quantity * (line.discount or 0.0) / 100.0
+            for line in product_lines
+        )
+
+        # Sólo los subtotales con contenido, y sólo los de IVA: el ICE y el IRBPNR
+        # van en su propia línea de totales, no como subtotal por tarifa.
+        subtotals = [
+            {
+                "label": L10N_EC_SUBTOTAL_LABELS.get(
+                    total["codigoPorcentaje"], "SUBTOTAL"
+                ),
+                "amount": total["baseImponible"],
+            }
+            for total in sri_totals
+            if total["codigo"] == L10N_EC_TAX_CODE_VAT
+        ]
+        tax_amount = sum(
+            float(total["valor"]) for total in sri_totals
+            if total["codigo"] == L10N_EC_TAX_CODE_VAT
+        )
+        ice_amount = sum(
+            float(total["valor"]) for total in sri_totals
+            if total["codigo"] == L10N_EC_TAX_CODE_ICE
+        )
+
+        return {
+            "record": record,
+            "company": company,
+            "partner": record.partner_id,
+            "components": components,
+            "access_key": record.l10n_ec_sri_access_key or "",
+            "document_number": "%s-%s-%s" % (
+                components["establishment"],
+                components["emission_point"],
+                components["sequential"],
+            ),
+            "environment_label": (
+                "PRODUCCIÓN" if components["environment"] == "2" else "PRUEBAS"
+            ),
+            "buyer_id_type": id_type,
+            "buyer_identification": identification,
+            "lines": product_lines,
+            "subtotals": subtotals,
+            "total_discount": "%.2f" % total_discount,
+            "tax_amount": "%.2f" % tax_amount,
+            "ice_amount": "%.2f" % ice_amount,
+            # Precalculado: en QWeb no conviene depender de que `float()` esté en el
+            # contexto de evaluación para decidir si se pinta la fila.
+            "has_ice": ice_amount > 0,
+            "payments": self._get_payment_details(record),
+            "additional_info": self._get_additional_info(record),
+            "rimpe_legend": company.l10n_ec_rimpe_legend(),
+            "barcode": self._get_access_key_barcode(record.l10n_ec_sri_access_key),
+            "money": lambda value: "%.2f" % (value or 0.0),
+            "quantity": lambda value: "%.6f" % (value or 0.0),
+        }
+
+    @api.model
+    def _get_access_key_barcode(self, access_key):
+        """Código de barras de la clave de acceso, como data: URI.
+
+        Se incrusta en vez de apuntar a `/report/barcode/` porque esa ruta obliga a
+        wkhtmltopdf a hacer una petición HTTP de vuelta al propio Odoo mientras
+        genera el PDF. Comprobado: si esa petición falla —servidor sin HTTP, red
+        restringida, `web.base.url` mal puesta— wkhtmltopdf devuelve
+        "Exit with code 1 due to network error: UnknownContentError" y el RIDE sale
+        sin el código de barras, en silencio.
+
+        Es opcional según §9.20, así que si la generación falla se devuelve False y
+        el RIDE se imprime sin él en vez de no imprimirse.
+        """
+        if not access_key:
+            return False
+        try:
+            png = self.env["ir.actions.report"].barcode(
+                "Code128", access_key, width=600, height=70
+            )
+        except Exception:  # noqa: BLE001 — el código de barras no es obligatorio
+            _logger.warning(
+                "No se pudo generar el código de barras de la clave %s", access_key
+            )
+            return False
+        return "data:image/png;base64,%s" % base64.b64encode(png).decode("ascii")
 
     @api.model
     def render_xml(self, record):

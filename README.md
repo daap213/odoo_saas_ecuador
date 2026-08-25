@@ -38,10 +38,14 @@
 | Característica | Estado |
 |----------------|--------|
 | Transmisión en tiempo real (mandatorio 2026) | ✅ |
-| Firma digital XAdES-BES (SHA-256) | ✅ |
-| Todos los documentos: Factura, NC, ND, Retención, Guía | ✅ |
-| Generación RIDE PDF | ✅ |
-| Ficha Técnica v2.32 | ✅ |
+| Firma digital XAdES-BES (RSA-SHA1 + SHA-1, según Ficha §6.8) | ✅ |
+| Emisión electrónica: Factura (01) y Comprobante de Retención (07) | ✅ |
+| Emisión electrónica: NC (04), ND (05), Liquidación (03), Guía (06) | ❌ pendiente |
+| Generación RIDE PDF de la factura (Anexo 2, con código de barras) | ✅ |
+| Consulta automática de autorización y reintento (`ir.cron`) | ✅ |
+| Entrega del comprobante al receptor por correo (Ficha §4.7) | ✅ |
+| Aviso de caducidad del certificado de firma | ✅ |
+| Ficha Técnica v2.34 (julio 2026) | ⚠️ parcial — ver `docs/REVISION_REFERENCIAS_SRI.md` |
 | Clave de acceso 49 dígitos (Módulo 11) | ✅ |
 
 ### 💰 Cumplimiento Tributario
@@ -74,7 +78,7 @@
 
 | Módulo | Descripción | Dependencias |
 |--------|-------------|--------------|
-| `l10n_ec` | Configuración empresa, wizard setup, datos Ecuador | base, account |
+| `l10n_ec_full` | Meta-módulo: instala toda la localización de una vez | todos los `l10n_ec_*` |
 | `l10n_ec_base` | Plan de cuentas NEC, validación RUC/Cédula, SRI service | l10n_ec |
 | `l10n_ec_edi` | Generación XML, firma XAdES-BES, clave de acceso | l10n_ec_base |
 | `l10n_ec_sri` | Integración SOAP con SRI (pruebas/producción) | l10n_ec_edi |
@@ -102,7 +106,7 @@
 
 | Módulo | Descripción |
 |--------|-------------|
-| `l10n_ec_stock` | Guía de Remisión electrónica |
+| `l10n_ec_guia_remision` | Guía de Remisión electrónica |
 | `l10n_ec_pos` | Facturación electrónica en POS |
 | `l10n_ec_customs` | DAU, partidas arancelarias, FODINFA, ISD |
 | `l10n_ec_quality` | Control calidad productos Ecuador |

@@ -1,3 +1,13 @@
+--PENDIENTE DE ARCHIVAR AQUI (sustentan comportamiento del codigo y no estan en el repo)
+  NAC-DGERCGC25-00000017  Limite de Consumidor Final y plazo de anulacion.
+                          Sostiene _check_consumidor_final_limit y
+                          _check_annulment_deadline. La Ficha 2.34 no la menciona.
+  NAC-DGERCGC26-00000024  Campo <placa> del Anexo 25 (nota 17 de la Ficha).
+  Catalogo del ATS        Unica fuente de los porcentajes de retencion de renta;
+                          la Ficha delega en el y no los enumera.
+                          https://www.sri.gob.ec/formularios-e-instructivos1
+  Bajar de la gaceta tributaria y anotar aqui la fecha de descarga.
+
 --SRI Referencias
 https://www.sri.gob.ec/facturacion-electronica
 https://www.sri.gob.ec/doc-gaceta-tributaria-biblioteca-resoluciones

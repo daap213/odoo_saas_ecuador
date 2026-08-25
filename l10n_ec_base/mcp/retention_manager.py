@@ -62,7 +62,10 @@ class RetentionManager:
             env: Odoo environment
         """
         self.env = env
-        self.Retention = env.get('account.retention')
+        # `account.retention` se consolidó en `l10n_ec.retention` (módulo
+        # l10n_ec_sri). Se usa env.get() porque este wrapper MCP puede correr contra
+        # una base donde l10n_ec_sri no esté instalado.
+        self.Retention = env.get('l10n_ec.retention')
         self.Move = env['account.move']
 
     def calculate_retention(

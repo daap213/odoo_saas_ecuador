@@ -5,6 +5,12 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
 
 {
+    # El directorio se llama `l10n_ec_full` y NO `l10n_ec`: ese nombre técnico lo
+    # ocupa el módulo oficial de Odoo 19 Community (TRESCLOUD), y el núcleo gana
+    # siempre — `odoo.addons.__path__` antepone /usr/lib/.../odoo/addons a
+    # /mnt/extra-addons. Mientras se llamó `l10n_ec`, este meta-módulo era
+    # INALCANZABLE: Odoo nunca leía su manifiesto y no aparecía en la lista de
+    # aplicaciones. Verificado en Odoo 19 con get_module_path().
     "name": "🇪🇨 Ecuador - Localización Completa",
     "version": "19.0.1.0.0",
     "category": "Accounting/Localizations",
@@ -82,7 +88,9 @@ Desarrollado por Somatech.dev
         "l10n_ec_edi",  # NAC-DGERCGC25-17 - Factura electrónica
         "l10n_ec_sri",  # SRI XML, Access Key
         "l10n_ec_withholding",  # LORTI Art. 43-50 - Retenciones
-        "l10n_ec_stock",  # COPCI Art. 142 - Guía remisión
+        # Renombrado desde `l10n_ec_stock`: ese nombre lo ocupa un módulo del núcleo
+        # de Odoo 19 (que sólo configura el plan de cuentas, no emite guías).
+        "l10n_ec_guia_remision",  # COPCI Art. 142 - Guía remisión
         "l10n_ec_pos",  # POS Ecuador
         "l10n_ec_reports",  # LORTI Art. 107 - ATS
         "l10n_ec_hr_payroll",  # Código Trabajo + IESS - Nómina

@@ -11,12 +11,14 @@
 
         <!-- ================================================================
              SECURITY CATEGORY
-             ================================================================ -->
-        <record id="module_category_l10n_ec" model="ir.module.category">
-            <field name="name">Ecuador Localization</field>
-            <field name="description">Ecuador Localization Security Groups</field>
-            <field name="sequence">100</field>
-        </record>
+             ================================================================
+             La categoría y el privilegio los define l10n_ec_base
+             (l10n_ec_base.privilege_l10n_ec). Aquí sólo se reutilizan: tener dos
+             categorías llamadas casi igual partía los roles de la localización en
+             dos bloques distintos del formulario de usuario. -->
+
+        <!-- Se declara aquí el registro huérfano que había, apuntándolo a la
+             categoría de l10n_ec_base, para no dejar dos entradas duplicadas. -->
 
         <!-- ================================================================
              AUDITOR DE TRANSPARENCIA (RO 395-2025)
@@ -24,6 +26,7 @@
              ================================================================ -->
         <record id="group_auditor_transparencia" model="res.groups">
             <field name="name">Auditor de Transparencia</field>
+            <field name="privilege_id" ref="l10n_ec_base.privilege_l10n_ec"/>
             <field name="comment">
                 Rol de solo lectura para auditoría de licitaciones y transmisiones SRI.
                 Implementa RO 395-2025 del SRI Ecuador.
@@ -39,6 +42,7 @@
              ================================================================ -->
         <record id="group_ec_accountant" model="res.groups">
             <field name="name">Contador Ecuador</field>
+            <field name="privilege_id" ref="l10n_ec_base.privilege_l10n_ec"/>
             <field name="comment">
                 Acceso completo a funcionalidades de localización Ecuador.
                 - Facturación electrónica
@@ -54,6 +58,7 @@
              ================================================================ -->
         <record id="group_ec_manager" model="res.groups">
             <field name="name">Administrador Ecuador</field>
+            <field name="privilege_id" ref="l10n_ec_base.privilege_l10n_ec"/>
             <field name="comment">
                 Administración de certificados, configuración SRI.
             </field>

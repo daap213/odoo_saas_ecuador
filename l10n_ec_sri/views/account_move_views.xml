@@ -11,6 +11,10 @@
                          invisible="state != 'posted' or l10n_ec_sri_status in ('sent', 'authorized')"/>
                  <button name="action_check_sri" string="Check SRI Status" type="object"
                          invisible="l10n_ec_sri_status != 'sent'"/>
+                 <!-- §4.7: entrega al receptor. El automatismo lo hace al autorizarse;
+                      este botón es para reenviar cuando el cliente dice que no llegó. -->
+                 <button name="action_l10n_ec_send_to_customer" string="Enviar al cliente"
+                         type="object" invisible="l10n_ec_sri_status != 'authorized'"/>
             </xpath>
 
             <!-- Notebook Page -->
@@ -24,9 +28,12 @@
                                    decoration-info="l10n_ec_sri_status == 'sent'"/>
                             <field name="l10n_ec_sri_access_key"/>
                             <field name="l10n_ec_authorization_date"/>
+                            <field name="l10n_ec_sent_to_partner"/>
                         </group>
                         <group>
                             <field name="l10n_ec_sri_error" readonly="1" invisible="not l10n_ec_sri_error"/>
+                            <field name="l10n_ec_sri_retryable" invisible="not l10n_ec_sri_retryable"/>
+                            <field name="l10n_ec_sri_retry_count" invisible="l10n_ec_sri_retry_count == 0"/>
                         </group>
                     </group>
                 </page>

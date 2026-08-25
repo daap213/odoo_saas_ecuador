@@ -37,6 +37,9 @@ class L10nEcCertificate(models.Model):
 
     _name = "l10n_ec.certificate"
     _description = "Ecuadorian Digital Signature (SRI)"
+    # Chatter y actividades para que el aviso de caducidad llegue a una persona y no
+    # se quede en un WARNING del log que nadie lee hasta que ya es tarde.
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _check_company_auto = True
     _order = "state desc, expiration_date"
 
@@ -250,12 +253,63 @@ class L10nEcCertificate(models.Model):
                     cert.name,
                     cert.company_id.name,
                 )
+                cert._l10n_ec_notify_expiry(_(
+                    "El certificado de firma electrónica «%(name)s» CADUCÓ el "
+                    "%(date)s. Hasta que se sustituya no se puede emitir ningún "
+                    "comprobante electrónico.",
+                    name=cert.name, date=cert.expiration_date,
+                ))
             elif cert.days_until_expiry <= 30:
                 _logger.warning(
                     "Certificate '%s' expires in %d days.",
                     cert.name,
                     cert.days_until_expiry,
                 )
+                cert._l10n_ec_notify_expiry(_(
+                    "El certificado de firma electrónica «%(name)s» caduca en "
+                    "%(days)s días (%(date)s). Conviene renovarlo antes: sin "
+                    "certificado vigente la facturación electrónica se detiene.",
+                    name=cert.name, days=cert.days_until_expiry,
+                    date=cert.expiration_date,
+                ))
+
+    def _l10n_ec_notify_expiry(self, message):
+        """Deja el aviso donde alguien lo vea, no sólo en el log.
+
+        Un WARNING en el log del servidor no lo lee nadie hasta que ya es tarde. Se
+        registra en el chatter del certificado y se crea una actividad para el
+        responsable, que es lo que hace que la renovación ocurra a tiempo.
+
+        Es best-effort: si no hay un responsable identificable, el cron no debe
+        caerse por eso.
+        """
+        self.ensure_one()
+        try:
+            self.message_post(body=message)
+
+            user = self.company_id.partner_id.user_ids[:1] or self.env.ref(
+                "base.user_admin", raise_if_not_found=False
+            )
+            if user:
+                # Sin duplicar: si ya hay una actividad viva sobre este certificado,
+                # el cron diario no debe crear una nueva cada día.
+                existing = self.env["mail.activity"].search_count([
+                    ("res_model", "=", self._name),
+                    ("res_id", "=", self.id),
+                    ("user_id", "=", user.id),
+                ])
+                if not existing:
+                    self.activity_schedule(
+                        "mail.mail_activity_data_todo",
+                        summary=_("Renovar certificado de firma electrónica"),
+                        note=message,
+                        user_id=user.id,
+                    )
+        except Exception as exc:  # noqa: BLE001 — avisar no debe romper el cron
+            _logger.warning(
+                "No se pudo notificar la caducidad del certificado %s: %s",
+                self.display_name, exc,
+            )
 
     _uniq_name_company = models.Constraint(
         "UNIQUE(name, company_id)",
