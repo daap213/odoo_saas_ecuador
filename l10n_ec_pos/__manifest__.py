@@ -30,6 +30,10 @@ SRI electronic invoicing integration for Point of Sale:
     "depends": [
         "point_of_sale",
         "l10n_ec_edi",
+        # El generador compartido de claves de acceso y las secuencias por diario
+        # viven en l10n_ec_sri: la caja usa la misma orquestacion que la factura y
+        # la guia, en vez de una tercera implementacion propia.
+        "l10n_ec_sri",
     ],
     "data": [
         "views/pos_config_views.xml",
@@ -40,7 +44,6 @@ SRI electronic invoicing integration for Point of Sale:
             "l10n_ec_pos/static/src/xml/**/*",
         ],
     },
-    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
     "auto_install": False,

@@ -4,8 +4,13 @@
 # Copyright 2026 Somatech.dev
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
 
+import logging
+
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+from odoo.tools.safe_eval import safe_eval
+
+_logger = logging.getLogger(__name__)
 
 
 class L10nEcCompanySetupWizard(models.TransientModel):
@@ -549,7 +554,11 @@ class L10nEcCompanySetupWizard(models.TransientModel):
                     ref_record = self.env.ref(fref, raise_if_not_found=False)
                     vals[fname] = ref_record.id if ref_record else False
                 elif feval:
-                    vals[fname] = eval(feval)
+                    # `safe_eval`, NUNCA el `eval` de Python. Aquí se está evaluando
+                    # el atributo `eval=` de un fichero XML leído del disco: con el
+                    # builtin, cualquiera que pueda escribir ese fichero ejecuta
+                    # código arbitrario con los permisos del servidor de Odoo.
+                    vals[fname] = safe_eval(feval)
                 else:
                     vals[fname] = field.text
 
@@ -564,8 +573,15 @@ class L10nEcCompanySetupWizard(models.TransientModel):
                     'noupdate': True,
                 })
                 count += 1
-            except Exception:
-                pass  # Skip if error
+            except Exception as exc:  # noqa: BLE001
+                # Un partner de demostración que falle no debe tumbar el alta de la
+                # empresa, pero tampoco debe desaparecer sin dejar rastro: antes esto
+                # era un `pass` y cualquier fallo del cargador —incluido el del
+                # `safe_eval`— era invisible.
+                _logger.warning(
+                    "l10n_ec: no se pudo crear el partner de demostración '%s': %s",
+                    xml_id, exc,
+                )
 
         return count
 

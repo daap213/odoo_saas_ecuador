@@ -28,6 +28,27 @@ class L10nEcSriRetentionXml(models.AbstractModel):
             )
 
         establishment, emission_point, sequential = self._split_number(retention)
+        # Tabla 6 en Python, no en la plantilla. El ternario que había en el QWeb
+        # no contemplaba el 08 (exterior) y declaraba como RUC ecuatoriano a un
+        # sujeto no residente. El 07 se prohíbe: no se retiene a consumidor final.
+        subject_id_type, subject_id = self.env[
+            "l10n_ec.sri.xml"
+        ]._get_partner_identification(
+            retention.partner_id, allow_final_consumer=False)
+
+        # Código del documento que sustenta la retención (tabla 4). Antes caía a
+        # '01' dentro de la plantilla, con lo que una retención sobre una
+        # liquidación de compra se declaraba sobre una factura.
+        sustento_cod_doc = (
+            retention.invoice_id.l10n_latam_document_type_id.code or ""
+        ).zfill(2) if retention.invoice_id.l10n_latam_document_type_id else ""
+        if not sustento_cod_doc:
+            raise UserError(_(
+                "La factura %(doc)s no tiene tipo de documento, y la retención "
+                "debe declarar el código del comprobante que la sustenta "
+                "(<codDocSustento>, tabla 4). Asignelo en la factura antes de "
+                "emitir.", doc=retention.invoice_id.display_name,
+            ))
         values = {
             "record": retention,
             "access_key": retention.l10n_ec_sri_access_key,
@@ -39,6 +60,9 @@ class L10nEcSriRetentionXml(models.AbstractModel):
             "environment": self._get_environment(retention.company_id),
             "formatted_date": retention.date_issue.strftime("%d/%m/%Y"),
             "periodo_fiscal": retention.date_issue.strftime("%m/%Y"),
+            "subject_id_type": subject_id_type,
+            "subject_id": subject_id,
+            "sustento_cod_doc": sustento_cod_doc,
             # Anexo 26 (RUC del proveedor) y Anexo 24 (Gran Contribuyente): son
             # obligatorios en TODO comprobante, no sólo en la factura.
             "additional_info": self.env["l10n_ec.sri.xml"]._get_additional_info(
@@ -47,6 +71,81 @@ class L10nEcSriRetentionXml(models.AbstractModel):
         }
         body = self.env["ir.qweb"]._render("l10n_ec_sri.xml_retention", values)
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + str(body)
+
+    def get_ride_values(self, retention):
+        """Valores del RIDE del comprobante de retención (07).
+
+        Reutiliza el marco común de `l10n_ec_sri.report_ride_document`, que ya no lee
+        campos de `account.move`: recibe las fechas y los totales resueltos. Así el
+        papel de la retención sale con la misma cabecera de emisor y el mismo bloque
+        de autorización que el resto, sin duplicar la maqueta del Anexo 2.
+
+        No tenía RIDE ninguno. El Anexo 2 lo exige para todo comprobante electrónico:
+        es lo que se entrega al sujeto retenido y lo que éste archiva como respaldo
+        del crédito tributario.
+        """
+        establishment, emission_point, sequential = self._split_number(retention)
+        company = retention.company_id
+        sri = self.env["l10n_ec.sri.xml"]
+        subject_id_type, subject_id = sri._get_partner_identification(
+            retention.partner_id, allow_final_consumer=False
+        )
+
+        lines = []
+        for line in retention.tax_ids:
+            lines.append({
+                "base": "%.2f" % line.base_amount,
+                "rate": "%.2f" % abs(line.tax_id.amount or 0.0),
+                "amount": "%.2f" % abs(line.amount),
+                "code": line.tax_id.l10n_ec_get_retention_code(retention.date_issue),
+                "tax": line.tax_id.display_name,
+            })
+
+        return {
+            "record": retention,
+            "company": company,
+            "partner": retention.partner_id,
+            "document_title": "COMPROBANTE DE RETENCIÓN",
+            "document_code": "07",
+            "body_template": "l10n_ec_sri.report_ride_body_retention",
+            "counterparty_label": "Sujeto Retenido",
+            "counterparty_id_label": "Identificación",
+            "buyer_id_type": subject_id_type,
+            "buyer_identification": subject_id,
+            "document_number": "%s-%s-%s" % (
+                establishment, emission_point, sequential),
+            "access_key": retention.l10n_ec_sri_access_key or "",
+            "environment_label": (
+                "PRODUCCIÓN"
+                if self._get_environment(company) == "2" else "PRUEBAS"
+            ),
+            "emission_date": retention.date_issue or "",
+            "authorization_date": getattr(
+                retention, "l10n_ec_authorization_date", False) or "",
+            "fiscal_period": retention.date_issue.strftime("%m/%Y"),
+            "lines": lines,
+            "sustento": {
+                "number": retention.invoice_id.l10n_latam_document_number or "",
+                "date": (retention.invoice_id.invoice_date.strftime("%d/%m/%Y")
+                         if retention.invoice_id.invoice_date else ""),
+            },
+            "total_retained": "%.2f" % sum(
+                abs(line.amount) for line in retention.tax_ids),
+            # La retención no lleva formas de pago ni el bloque de subtotales de IVA
+            # de la factura: su único total es lo retenido, que va en su propia tabla.
+            "show_payments": False,
+            "show_totals": False,
+            "total_amount": "0.00",
+            "modified": False,
+            "motivos": [],
+            "subtotals": [],
+            "additional_info": sri._get_additional_info(retention),
+            "rimpe_legend": company.l10n_ec_rimpe_legend(),
+            "barcode": sri._get_access_key_barcode(
+                retention.l10n_ec_sri_access_key),
+            "money": lambda value: "%.2f" % (value or 0.0),
+            "quantity": lambda value: "%.6f" % (value or 0.0),
+        }
 
     def _get_environment(self, company):
         """Tabla 4: 1 = Pruebas, 2 = Producción.

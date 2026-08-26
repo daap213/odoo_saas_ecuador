@@ -40,7 +40,6 @@ Complete withholding management for Ecuador:
         "wizard/retention_wizard_views.xml",
         "views/account_move_views_fixed.xml",
     ],
-    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
     "auto_install": False,

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from calendar import monthrange
 from datetime import date
 
@@ -6,6 +7,8 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.l10n_ec_edi.models.access_key import AccessKey
 import base64
+
+_logger = logging.getLogger(__name__)
 
 # =========================================================================
 # SRI 2026 CONFIGURACIÓN
@@ -23,11 +26,18 @@ class AccountMove(models.Model):
     )
     l10n_ec_sri_status = fields.Selection(
         [
-            ("draft", "Draft"),
-            ("signed", "Signed"),
-            ("sent", "Sent"),
-            ("authorized", "Authorized"),
-            ("rejected", "Rejected"),
+            ("draft", "Borrador"),
+            ("signed", "Firmado"),
+            ("sent", "Enviado"),
+            ("authorized", "Autorizado"),
+            ("rejected", "Devuelto (corregible)"),
+            # Rechazo DEFINITIVO: el SRI evaluo el comprobante y lo nego. A
+            # diferencia de un DEVUELTA en recepcion, aqui la clave de acceso ya
+            # quedo registrada, asi que reenviarla devuelve el codigo 43 para
+            # siempre. Sin este estado el ciclo era: NO AUTORIZADO -> rejected ->
+            # el usuario reenvia -> 43 -> "ya lo tiene" -> sent -> el cron
+            # consulta -> NO AUTORIZADO -> ... sin fin.
+            ("rejected_final", "Rechazado definitivamente"),
         ],
         string="SRI Status",
         default="draft",
@@ -271,52 +281,66 @@ class AccountMove(models.Model):
         Transmisión INMEDIATA de comprobantes electrónicos.
         """
         result = super(AccountMove, self).action_post()
+        self._l10n_ec_auto_send_to_sri()
+        return result
 
-        # Check if auto-send is enabled
+    def _l10n_ec_auto_send_to_sri(self):
+        """Transmite al SRI al publicar, si el parametro lo pide.
+
+        Tres correcciones sobre la version anterior, todas del mismo tipo: un fallo
+        aqui NO debe dejar la factura publicada, sin enviar y sin que nada vuelva a
+        intentarlo.
+
+        1. **Savepoint.** El `except` capturaba cualquier excepcion y a continuacion
+           escribia en el registro. Si la excepcion venia de la base de datos, el
+           cursor quedaba abortado y ese `write` reventaba tambien, tumbando el
+           `action_post` entero: publicar una factura fallaba por un problema de red.
+        2. **Estado 'rejected' y `retryable`.** Se dejaba en 'draft', y las dos colas
+           del cron filtran 'sent' y 'rejected'. Un fallo de red al publicar
+           significaba que nadie volvia a intentarlo jamas.
+        3. **Sin certificado no es "saltar en silencio".** Queda escrito en el
+           comprobante, que es donde el usuario lo va a buscar.
+        """
         auto_send = (
-            self.env["ir.config_parameter"]
-            .sudo()
+            self.env["ir.config_parameter"].sudo()
             .get_param("l10n_ec.auto_send_sri", "False")
         )
+        if auto_send.lower() not in ("true", "1", "yes"):
+            return
 
-        if auto_send.lower() in ("true", "1", "yes"):
-            for move in self:
-                # Only for Ecuador sales invoices
-                if move.company_id.country_id.code != "EC":
-                    continue
-                if move.move_type not in ("out_invoice", "out_refund"):
-                    continue
+        for move in self:
+            if move.company_id.country_id.code != "EC":
+                continue
+            if move.move_type not in ("out_invoice", "out_refund"):
+                continue
+            if not hasattr(move, "action_send_sri"):
+                continue
 
-                # Check if certificate is configured
-                certificate = move.company_id.l10n_ec_certificate_id
-                if not certificate or certificate.state != "active":
-                    # No certificate - skip auto-send, log warning
-                    import logging
+            certificate = move.company_id.l10n_ec_certificate_id
+            if not certificate or certificate.state != "active":
+                _logger.warning(
+                    "Envio automatico al SRI omitido en %s: no hay certificado activo",
+                    move.name,
+                )
+                move.l10n_ec_sri_error = _(
+                    "El envio automatico se omitio: la compania no tiene un "
+                    "certificado de firma activo."
+                )
+                move.l10n_ec_sri_retryable = True
+                continue
 
-                    _logger = logging.getLogger(__name__)
-                    _logger.warning(
-                        "SRI Auto-send skipped for %s: No active certificate", move.name
-                    )
-                    continue
-
-                # El envío al SRI lo implementa l10n_ec_sri. Este módulo ya no lleva
-                # su propia versión: era una segunda implementación que l10n_ec_sri
-                # sobrescribía sin llamar a super(), y encima invertía el dígito de
-                # ambiente (1=pruebas, 2=producción según la tabla 4 de la Ficha).
-                if not hasattr(move, "action_send_sri"):
-                    continue
-
-                try:
+            # El savepoint acota el fallo: si algo revienta, se deshace SOLO el
+            # intento de envio y el cursor queda utilizable para dejar constancia.
+            try:
+                with self.env.cr.savepoint():
                     move.action_send_sri()
-                except Exception as e:
-                    # Log error but don't block posting
-                    import logging
-
-                    _logger = logging.getLogger(__name__)
-                    _logger.error("SRI Auto-send failed for %s: %s", move.name, str(e))
-                    # En l10n_ec_sri_error, que es el campo que muestra la vista.
-                    move.l10n_ec_sri_error = _(
-                        "El envío automático al SRI falló al publicar:\n\n%s", e
-                    )
-
-        return result
+            except Exception as error:
+                _logger.exception("Envio automatico al SRI fallido en %s", move.name)
+                move.l10n_ec_sri_error = _(
+                    "El envio automatico al SRI fallo al publicar:\n\n%s", error
+                )
+                # 'rejected' + retryable para que el cron lo recoja. En 'draft' no
+                # entra en ninguna de sus dos colas.
+                if move.l10n_ec_sri_status in (False, "draft"):
+                    move.l10n_ec_sri_status = "rejected"
+                    move.l10n_ec_sri_retryable = True

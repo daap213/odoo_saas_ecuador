@@ -1,179 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    RIDE — Representación Impresa del Documento Electrónico. Ficha Técnica 2.34,
-    Anexo 2, con validez tributaria y jurídica según §9.19 (Resolución 233 de 2018).
+    RIDE — Representación Impresa del Documento Electrónico (Anexo 2).
 
-    Notas del propio Anexo 2 que condicionan esta plantilla:
-      · "El número de la clave de acceso corresponde al número de autorización" —
-        por eso no hay dos campos distintos.
-      · "Conforme consta en el numeral 9.20, el código de barras es opcional".
-      · "Los contribuyentes podrán visualizar solo los subtotales que fueron
-        llenados" — de ahí que los subtotales se recorran en vez de listarse fijos.
-      · La fecha y hora de autorización sólo aparece si ya está autorizado; el Anexo
-        aclara que no es obligatoria en el RIDE que genera el emisor.
+    Un marco común y un cuerpo por tipo de comprobante. Antes había un único informe
+    sobre `account.move` cuya cabecera escribía el literal "FACTURA": impreso sobre una
+    nota de crédito, el papel —que según el Anexo 2 tiene validez tributaria y
+    jurídica— se declaraba factura, y ese mismo PDF es el que se adjunta al correo de
+    entrega al receptor.
 
-    Los valores llegan de `l10n_ec.sri.xml.get_ride_values`, que reutiliza los mismos
-    helpers que el XML: el papel y el archivo transmitido no pueden discrepar.
+    Todo se lee de un único diccionario `v`, el que devuelve `get_ride_values`. La
+    versión anterior lo desmontaba en veinte `t-set` que había que mantener en sincronía
+    a mano con el Python; cada valor nuevo que alguien olvidara propagar salía como una
+    celda vacía en el PDF, sin error.
 -->
 <odoo>
 
-<template id="report_invoice_ride_document">
+<!-- ==================================================================
+     Marco: cabecera del emisor, datos del comprobante y receptor.
+     Idéntico en los seis comprobantes; el Anexo 2 lo maqueta así.
+     ================================================================== -->
+<template id="report_ride_document">
     <!-- basic_layout y no external_layout: este último imprime su propia cabecera de
-         empresa con logo y dirección, que duplicaría el bloque del emisor que el
-         Anexo 2 exige maquetar de una forma concreta. -->
+         empresa con logo y dirección, que duplicaría el bloque del emisor. -->
     <t t-call="web.basic_layout">
         <div class="page" style="font-size:9pt;">
 
-            <!-- ============ Cabecera: emisor y datos del comprobante ============ -->
             <div class="row">
                 <div class="col-6" style="border:1px solid #000; padding:6px; min-height:150px;">
-                    <span t-if="company.logo" t-field="company.logo"
+                    <span t-if="v['company'].logo" t-field="v['company'].logo"
                           t-options="{'widget': 'image', 'style': 'max-height:50px;'}"/>
-                    <div><strong t-out="company.name"/></div>
-                    <div t-if="company.l10n_ec_commercial_name">
-                        <em t-out="company.l10n_ec_commercial_name"/>
+                    <div><strong t-out="v['company'].name"/></div>
+                    <div t-if="v['company'].l10n_ec_commercial_name">
+                        <em t-out="v['company'].l10n_ec_commercial_name"/>
                     </div>
-                    <div>Dir. Matriz: <span t-out="company.street"/></div>
-                    <div t-if="company.street2">Dir. Sucursal: <span t-out="company.street2"/></div>
-                    <div t-if="company.l10n_ec_special_resolution">
+                    <div>Dir. Matriz: <span t-out="v['company'].street"/></div>
+                    <div t-if="v['company'].street2">
+                        Dir. Sucursal: <span t-out="v['company'].street2"/>
+                    </div>
+                    <div t-if="v['company'].l10n_ec_special_resolution">
                         Contribuyente Especial Nro.:
-                        <span t-out="company.l10n_ec_special_resolution"/>
+                        <span t-out="v['company'].l10n_ec_special_resolution"/>
                     </div>
                     <div>
                         OBLIGADO A LLEVAR CONTABILIDAD:
-                        <span t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+                        <span t-out="'SI' if v['company'].l10n_ec_forced_accounting else 'NO'"/>
                     </div>
-                    <div t-if="company.l10n_ec_withhold_agent and company.l10n_ec_withhold_resolution">
+                    <div t-if="v['company'].l10n_ec_withhold_agent and v['company'].l10n_ec_withhold_resolution">
                         <strong>AGENTE DE RETENCIÓN Resolución Nro.
-                            <span t-out="company.l10n_ec_withhold_resolution"/></strong>
+                            <span t-out="v['company'].l10n_ec_withhold_resolution"/></strong>
                     </div>
-                    <div t-if="rimpe_legend"><strong t-out="rimpe_legend"/></div>
+                    <div t-if="v['rimpe_legend']"><strong t-out="v['rimpe_legend']"/></div>
                 </div>
 
                 <div class="col-6" style="border:1px solid #000; padding:6px;">
-                    <div>R.U.C.: <strong t-out="company.vat"/></div>
-                    <h5 style="margin:4px 0;">FACTURA</h5>
-                    <div>No. <strong t-out="document_number"/></div>
+                    <div>R.U.C.: <strong t-out="v['company'].vat"/></div>
+                    <!-- El título real del comprobante, de la tabla 3. -->
+                    <h5 style="margin:4px 0;" t-out="v['document_title']"/>
+                    <div>No. <strong t-out="v['document_number']"/></div>
                     <div style="margin-top:4px;">
                         <strong>NÚMERO DE AUTORIZACIÓN</strong>
                         <div style="word-break:break-all; font-family:monospace;"
-                             t-out="access_key"/>
+                             t-out="v['access_key']"/>
                     </div>
-                    <div t-if="record.l10n_ec_authorization_date">
+                    <div>
                         FECHA Y HORA DE AUTORIZACIÓN:
-                        <span t-out="record.l10n_ec_authorization_date"/>
+                        <span t-out="v['authorization_date']"/>
                     </div>
-                    <div>AMBIENTE: <span t-out="environment_label"/></div>
+                    <div>AMBIENTE: <span t-out="v['environment_label']"/></div>
                     <div>EMISIÓN: NORMAL</div>
-                    <div>CLAVE DE ACCESO</div>
-                    <!-- §9.20: opcional. Code128 es el simbolismo de GS1-128 que
-                         recomienda §9.21.
-
-                         Va incrustado como data: URI y no como /report/barcode/:
-                         esa ruta obliga a wkhtmltopdf a pedirle la imagen al propio
-                         Odoo por HTTP mientras genera el PDF, y si esa petición
-                         falla el RIDE sale sin código de barras sin avisar. -->
-                    <img t-if="barcode" t-att-src="barcode"
-                         style="width:100%; max-height:45px;" alt="Clave de acceso"/>
-                    <div style="word-break:break-all; font-family:monospace; font-size:7pt;"
-                         t-out="access_key"/>
+                    <div t-if="v['barcode']" style="margin-top:4px;">
+                        <img t-att-src="v['barcode']" style="max-width:100%;"
+                             alt="Clave de acceso"/>
+                    </div>
                 </div>
             </div>
 
-            <!-- ============ Comprador ============ -->
+            <!-- ============ Receptor ============ -->
             <div style="border:1px solid #000; padding:6px; margin-top:6px;">
-                <div class="row">
-                    <div class="col-8">
-                        Razón Social / Nombres y Apellidos:
-                        <strong t-out="partner.name"/>
-                    </div>
-                    <div class="col-4">
-                        Fecha Emisión: <span t-out="record.invoice_date"/>
-                    </div>
+                <div>
+                    <span t-out="v['counterparty_label']"/>:
+                    <span t-out="v['partner'].name"/>
                 </div>
-                <div class="row">
-                    <div class="col-8">
-                        Identificación: <span t-out="buyer_identification"/>
-                    </div>
-                    <div class="col-4" t-if="record.invoice_origin">
-                        Guía de Remisión: <span t-out="record.invoice_origin"/>
-                    </div>
+                <div>
+                    <span t-out="v['counterparty_id_label']"/>:
+                    <span t-out="v['buyer_identification']"/>
+                    <span style="margin-left:12px;">Fecha Emisión:
+                        <span t-out="v['emission_date']"/>
+                    </span>
                 </div>
-                <div t-if="partner.street">Dirección: <span t-out="partner.street"/></div>
+                <div t-if="v['partner'].street">
+                    Dirección: <span t-out="v['partner'].street"/>
+                </div>
             </div>
 
-            <!-- ============ Detalle ============ -->
-            <table class="table table-sm" style="margin-top:6px; font-size:8pt;">
-                <thead>
-                    <tr>
-                        <th>Cod. Principal</th>
-                        <th>Cod. Auxiliar</th>
-                        <th>Cant.</th>
-                        <th>Descripción</th>
-                        <th class="text-end">P. Unitario</th>
-                        <th class="text-end">Descuento</th>
-                        <th class="text-end">Precio Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr t-foreach="lines" t-as="line">
-                        <td t-out="line.product_id.default_code or 'GEN'"/>
-                        <td t-out="line.product_id.barcode or ''"/>
-                        <td t-out="quantity(line.quantity)"/>
-                        <td t-out="line.name"/>
-                        <td class="text-end" t-out="quantity(line.price_unit)"/>
-                        <td class="text-end"
-                            t-out="money(line.price_unit * line.quantity * (line.discount or 0.0) / 100.0)"/>
-                        <td class="text-end" t-out="money(line.price_subtotal)"/>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- ============ Cuerpo propio del tipo de comprobante ============ -->
+            <t t-call="{{ v['body_template'] }}"/>
 
-            <!-- ============ Pie: información adicional y totales ============ -->
+            <!-- ============ Pie común: información adicional y totales ============ -->
             <div class="row">
                 <div class="col-7">
-                    <div t-if="additional_info" style="border:1px solid #000; padding:6px;">
+                    <div t-if="v['additional_info']" style="border:1px solid #000; padding:6px;">
                         <strong>Información Adicional</strong>
-                        <div t-foreach="additional_info" t-as="info">
+                        <div t-foreach="v['additional_info']" t-as="info">
                             <span t-out="info[0]"/>: <span t-out="info[1]"/>
                         </div>
                     </div>
-                    <table class="table table-sm" style="margin-top:6px; font-size:8pt;">
+                    <table t-if="v['show_payments']" class="table table-sm"
+                           style="margin-top:6px; font-size:8pt;">
                         <thead>
-                            <tr><th>Forma de Pago</th><th class="text-end">Valor</th></tr>
+                            <tr>
+                                <th>Forma de Pago</th>
+                                <th class="text-end">Valor</th>
+                                <th class="text-end">Plazo</th>
+                            </tr>
                         </thead>
                         <tbody>
-                            <tr t-foreach="payments" t-as="pay">
-                                <td t-out="pay['formaPago']"/>
+                            <tr t-foreach="v['payments']" t-as="pay">
+                                <td t-out="pay['label']"/>
                                 <td class="text-end" t-out="pay['total']"/>
+                                <td class="text-end">
+                                    <span t-if="pay['plazo']">
+                                        <span t-out="pay['plazo']"/>
+                                        <span t-out="pay['unidadTiempo']"/>
+                                    </span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="col-5">
+                <div class="col-5" t-if="v['show_totals']">
                     <table class="table table-sm" style="font-size:8pt;">
                         <!-- Sólo los subtotales con contenido (nota del Anexo 2). -->
-                        <tr t-foreach="subtotals" t-as="sub">
+                        <tr t-foreach="v['subtotals']" t-as="sub">
                             <td t-out="sub['label']"/>
                             <td class="text-end" t-out="sub['amount']"/>
                         </tr>
                         <tr>
                             <td>TOTAL DESCUENTO</td>
-                            <td class="text-end" t-out="total_discount"/>
+                            <td class="text-end" t-out="v['total_discount']"/>
                         </tr>
-                        <tr t-if="has_ice">
+                        <tr t-if="v['has_ice']">
                             <td>ICE</td>
-                            <td class="text-end" t-out="ice_amount"/>
+                            <td class="text-end" t-out="v['ice_amount']"/>
                         </tr>
                         <tr>
                             <td>IVA</td>
-                            <td class="text-end" t-out="tax_amount"/>
+                            <td class="text-end" t-out="v['tax_amount']"/>
                         </tr>
                         <tr>
                             <td><strong>VALOR TOTAL</strong></td>
                             <td class="text-end">
-                                <strong t-out="money(record.amount_total)"/>
+                                <strong t-out="v['total_amount']"/>
                             </td>
                         </tr>
                     </table>
@@ -184,31 +162,127 @@
     </t>
 </template>
 
+<!-- ==================================================================
+     Cuerpo: factura (01) y liquidación de compra (03).
+     Comparten estructura de detalle; se diferencian en las etiquetas del
+     receptor, que el marco ya recibe resueltas.
+     ================================================================== -->
+<template id="report_ride_body_invoice">
+    <table class="table table-sm" style="margin-top:6px; font-size:8pt;">
+        <thead>
+            <tr>
+                <th>Cod. Principal</th>
+                <th>Cod. Auxiliar</th>
+                <th>Cant.</th>
+                <th>Descripción</th>
+                <th class="text-end">P. Unitario</th>
+                <th class="text-end">Descuento</th>
+                <th class="text-end">Precio Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr t-foreach="v['lines']" t-as="line">
+                <td t-out="v['product_code'](line.product_id)"/>
+                <td t-out="line.product_id.barcode or ''"/>
+                <td t-out="v['quantity'](line.quantity)"/>
+                <td t-out="line.name"/>
+                <td class="text-end" t-out="v['quantity'](line.price_unit)"/>
+                <td class="text-end"
+                    t-out="v['money'](line.price_unit * line.quantity * (line.discount or 0.0) / 100.0)"/>
+                <td class="text-end" t-out="v['money'](line.price_subtotal)"/>
+            </tr>
+        </tbody>
+    </table>
+</template>
+
+<!-- ==================================================================
+     Cuerpo: nota de crédito (04).
+     El Anexo 2 exige que declare qué documento modifica y por qué. El RIDE
+     anterior no imprimía ninguno de los dos, y además pintaba formas de pago
+     que la nota de crédito no lleva.
+     ================================================================== -->
+<template id="report_ride_body_credit_note">
+    <div t-if="v['modified']" style="border:1px solid #000; padding:6px; margin-top:6px;">
+        <strong>Comprobante que se modifica</strong>
+        <div>
+            Tipo: <span t-out="v['modified']['cod_doc']"/>
+            <span style="margin-left:12px;">Número:
+                <span t-out="v['modified']['num_doc']"/>
+            </span>
+            <span style="margin-left:12px;">Fecha:
+                <span t-out="v['modified']['date']"/>
+            </span>
+        </div>
+        <div>Motivo: <span t-out="v['modified']['reason']"/></div>
+    </div>
+
+    <table class="table table-sm" style="margin-top:6px; font-size:8pt;">
+        <thead>
+            <tr>
+                <th>Cod. Interno</th>
+                <th>Cant.</th>
+                <th>Descripción</th>
+                <th class="text-end">P. Unitario</th>
+                <th class="text-end">Descuento</th>
+                <th class="text-end">Precio Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr t-foreach="v['lines']" t-as="line">
+                <td t-out="v['product_code'](line.product_id)"/>
+                <td t-out="v['quantity'](line.quantity)"/>
+                <td t-out="line.name"/>
+                <td class="text-end" t-out="v['quantity'](line.price_unit)"/>
+                <td class="text-end"
+                    t-out="v['money'](line.price_unit * line.quantity * (line.discount or 0.0) / 100.0)"/>
+                <td class="text-end" t-out="v['money'](line.price_subtotal)"/>
+            </tr>
+        </tbody>
+    </table>
+</template>
+
+<!-- ==================================================================
+     Cuerpo: nota de débito (05).
+     No lleva detalle de líneas: lleva <motivos>, igual que su XML.
+     ================================================================== -->
+<template id="report_ride_body_debit_note">
+    <div t-if="v['modified']" style="border:1px solid #000; padding:6px; margin-top:6px;">
+        <strong>Comprobante que se modifica</strong>
+        <div>
+            Tipo: <span t-out="v['modified']['cod_doc']"/>
+            <span style="margin-left:12px;">Número:
+                <span t-out="v['modified']['num_doc']"/>
+            </span>
+            <span style="margin-left:12px;">Fecha:
+                <span t-out="v['modified']['date']"/>
+            </span>
+        </div>
+    </div>
+
+    <table class="table table-sm" style="margin-top:6px; font-size:8pt;">
+        <thead>
+            <tr>
+                <th>Razón de la Modificación</th>
+                <th class="text-end">Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr t-foreach="v['motivos']" t-as="motivo">
+                <td t-out="motivo['razon']"/>
+                <td class="text-end" t-out="v['money'](motivo['valor'])"/>
+            </tr>
+        </tbody>
+    </table>
+</template>
+
+<!-- ==================================================================
+     Punto de entrada del informe sobre `account.move`.
+     ================================================================== -->
 <template id="report_invoice_ride">
     <t t-call="web.html_container">
         <t t-foreach="docs" t-as="o">
-            <t t-set="vals" t-value="o._l10n_ec_get_ride_values()"/>
-            <t t-call="l10n_ec_sri.report_invoice_ride_document">
-                <t t-set="record" t-value="vals['record']"/>
-                <t t-set="company" t-value="vals['company']"/>
-                <t t-set="partner" t-value="vals['partner']"/>
-                <t t-set="access_key" t-value="vals['access_key']"/>
-                <t t-set="document_number" t-value="vals['document_number']"/>
-                <t t-set="environment_label" t-value="vals['environment_label']"/>
-                <t t-set="buyer_identification" t-value="vals['buyer_identification']"/>
-                <t t-set="lines" t-value="vals['lines']"/>
-                <t t-set="subtotals" t-value="vals['subtotals']"/>
-                <t t-set="total_discount" t-value="vals['total_discount']"/>
-                <t t-set="tax_amount" t-value="vals['tax_amount']"/>
-                <t t-set="ice_amount" t-value="vals['ice_amount']"/>
-                <t t-set="has_ice" t-value="vals['has_ice']"/>
-                <t t-set="barcode" t-value="vals['barcode']"/>
-                <t t-set="payments" t-value="vals['payments']"/>
-                <t t-set="additional_info" t-value="vals['additional_info']"/>
-                <t t-set="rimpe_legend" t-value="vals['rimpe_legend']"/>
-                <t t-set="money" t-value="vals['money']"/>
-                <t t-set="quantity" t-value="vals['quantity']"/>
-            </t>
+            <t t-set="v" t-value="o._l10n_ec_get_ride_values()"/>
+            <t t-call="l10n_ec_sri.report_ride_document"/>
         </t>
     </t>
 </template>

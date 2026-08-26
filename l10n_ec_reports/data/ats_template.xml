@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Plantilla del ATS.
+
+    Ya no escribe ningun valor fijo. Tenia cinco (`baseImpExe`, `montoIce`,
+    `valorRetIva`, `valorRetRenta` y `parteRelVentas`) y varios respaldos
+    silenciosos con `.get(clave, "001")`: un ATS con datos inventados **el SRI
+    lo acepta**, asi que el error no se descubria hasta el cruce de
+    informacion. Ahora cada casilla viene resuelta desde el asistente, que la
+    calcula con los mismos resolutores que el XML del comprobante.
+-->
 <odoo>
     <data>
         <template id="l10n_ec_ats_xml">
@@ -8,7 +18,7 @@
                 <razonSocial t-out="company.name[:300]"/>
                 <Anio t-out="wizard.date_year"/>
                 <Mes t-out="wizard.date_month"/>
-                <numEstabRuc t-out="company.l10n_ec_entity or '001'"/>
+                <numEstabRuc t-out="establishment_count"/>
                 <totalVentas t-out="format_float(total_sales, 2)"/>
                 <codigoOperativo>IVA</codigoOperativo>
 
@@ -16,40 +26,45 @@
                 <compras>
                     <t t-foreach="purchases" t-as="p">
                         <detalleCompras>
-                            <codSustento t-out="p.get('sustento', '01')"/>
-                            <tpIdProv t-out="p.get('tpIdProv', '01')"/>
-                            <idProv t-out="p.get('idProv', '9999999999999')"/>
-                            <tipoComprobante t-out="p.get('tipoComprobante', '01')"/>
-                            <fechaRegistro t-out="p.get('fechaRegistro')"/>
-                            <establecimiento t-out="p.get('estab', '001')"/>
-                            <puntoEmision t-out="p.get('ptoEmi', '001')"/>
-                            <secuencial t-out="p.get('secuencial', '000000001')"/>
-                            <fechaEmision t-out="p.get('fechaEmision')"/>
-                            <autorizacion t-out="p.get('autorizacion', '9999999999')"/>
-                            <baseNoGraIva t-out="format_float(p.get('baseNoGraIva', 0.0), 2)"/>
-                            <baseImponible t-out="format_float(p.get('baseImponible', 0.0), 2)"/>
-                            <baseImpGrav t-out="format_float(p.get('baseImpGrav', 0.0), 2)"/>
-                            <baseImpExe t-out="0.00"/>
-                            <montoIce t-out="format_float(p.get('montoIce', 0.0), 2)"/>
-                            <montoIva t-out="format_float(p.get('montoIva', 0.0), 2)"/>
+                            <codSustento t-out="p['sustento']"/>
+                            <tpIdProv t-out="p['tpIdProv']"/>
+                            <idProv t-out="p['idProv']"/>
+                            <tipoComprobante t-out="p['tipoComprobante']"/>
+                            <fechaRegistro t-out="p['fechaRegistro']"/>
+                            <establecimiento t-out="p['estab']"/>
+                            <puntoEmision t-out="p['ptoEmi']"/>
+                            <secuencial t-out="p['secuencial']"/>
+                            <fechaEmision t-out="p['fechaEmision']"/>
+                            <autorizacion t-out="p['autorizacion']"/>
+                            <baseNoGraIva t-out="format_float(p['baseNoGraIva'], 2)"/>
+                            <baseImponible t-out="format_float(p['baseImponible'], 2)"/>
+                            <baseImpGrav t-out="format_float(p['baseImpGrav'], 2)"/>
+                            <baseImpExe t-out="format_float(p['baseImpExe'], 2)"/>
+                            <montoIce t-out="format_float(p['montoIce'], 2)"/>
+                            <montoIva t-out="format_float(p['montoIva'], 2)"/>
 
                             <!-- RETENCION (AIR) -->
                             <air>
-                                <t t-foreach="p.get('retentions', [])" t-as="r">
+                                <t t-foreach="p['retentions']" t-as="r">
                                     <detalleAir>
-                                        <codRetAir t-out="r.get('code')"/>
-                                        <baseImpAir t-out="format_float(r.get('base'), 2)"/>
-                                        <porcentajeAir t-out="format_float(r.get('percent', 0), 2)"/>
-                                        <valRetAir t-out="format_float(r.get('val', 0), 2)"/>
+                                        <codRetAir t-out="r['code']"/>
+                                        <baseImpAir t-out="format_float(r['base'], 2)"/>
+                                        <porcentajeAir t-out="format_float(r['percent'], 2)"/>
+                                        <valRetAir t-out="format_float(r['val'], 2)"/>
                                     </detalleAir>
                                 </t>
                             </air>
 
-                            <estabRetencion1 t-out="p.get('estabRet', '000')"/>
-                            <ptoEmiRetencion1 t-out="p.get('ptoEmiRet', '000')"/>
-                            <secRetencion1 t-out="p.get('secRet', '000000000')"/>
-                            <autRetencion1 t-out="p.get('autRet', '0000000000')"/>
-                            <fechaEmiRet1 t-out="p.get('fechaEmiRet')"/>
+                            <!-- Los cinco tags de la retencion solo se emiten si de
+                                 verdad hubo una. Antes salian siempre, con "000" y
+                                 "0000000000" cuando no la habia. -->
+                            <t t-if="p['autRet']">
+                                <estabRetencion1 t-out="p['estabRet']"/>
+                                <ptoEmiRetencion1 t-out="p['ptoEmiRet']"/>
+                                <secRetencion1 t-out="p['secRet']"/>
+                                <autRetencion1 t-out="p['autRet']"/>
+                                <fechaEmiRet1 t-out="p['fechaEmiRet']"/>
+                            </t>
                         </detalleCompras>
                     </t>
                 </compras>
@@ -58,40 +73,46 @@
                 <ventas>
                     <t t-foreach="sales" t-as="s">
                         <detalleVentas>
-                            <tpIdCliente t-out="s.get('tpIdCliente', '07')"/>
-                            <idCliente t-out="s.get('idCliente', '9999999999999')"/>
-                            <parteRelVentas>NO</parteRelVentas> <!-- Default -->
-                            <tipoComprobante t-out="s.get('tipoComprobante', '18')"/>
-                            <tipoEmision t-out="s.get('tipoEmision', 'F')"/>
-                            <numeroComprobantes t-out="s.get('count', 0)"/>
-                            <baseNoGraIva t-out="format_float(s.get('baseNoGraIva', 0.0), 2)"/>
-                            <baseImponible t-out="format_float(s.get('baseImponible', 0.0), 2)"/>
-                            <baseImpGrav t-out="format_float(s.get('baseImpGrav', 0.0), 2)"/>
-                            <montoIva t-out="format_float(s.get('montoIva', 0.0), 2)"/>
-                            <montoIce t-out="0.00"/>
-                            <valorRetIva t-out="0.00"/> <!-- Needs implementation if sold to agent -->
-                            <valorRetRenta t-out="0.00"/>
+                            <tpIdCliente t-out="s['tpIdCliente']"/>
+                            <idCliente t-out="s['idCliente']"/>
+                            <!-- Del campo del contacto, no un "NO" para todos. -->
+                            <parteRelVentas t-out="s['parteRelVentas']"/>
+                            <tipoComprobante t-out="s['tipoComprobante']"/>
+                            <tipoEmision t-out="s['tipoEmision']"/>
+                            <numeroComprobantes t-out="s['count']"/>
+                            <baseNoGraIva t-out="format_float(s['baseNoGraIva'], 2)"/>
+                            <baseImponible t-out="format_float(s['baseImponible'], 2)"/>
+                            <baseImpGrav t-out="format_float(s['baseImpGrav'], 2)"/>
+                            <montoIva t-out="format_float(s['montoIva'], 2)"/>
+                            <montoIce t-out="format_float(s['montoIce'], 2)"/>
+                            <valorRetIva t-out="format_float(s['valorRetIva'], 2)"/>
+                            <valorRetRenta t-out="format_float(s['valorRetRenta'], 2)"/>
                         </detalleVentas>
                     </t>
                 </ventas>
 
+                <!-- Un bloque por establecimiento REAL, tomado de los diarios de
+                     venta. `company.l10n_ec_entity` ni siquiera existe como campo:
+                     se leia con `or '001'`, asi que siempre salia 001. -->
                 <ventasEstablecimiento>
-                    <ventaEst>
-                        <codEstab t-out="company.l10n_ec_entity or '001'"/>
-                        <ventasEstab t-out="format_float(total_sales, 2)"/>
-                        <ivaComp t-out="0.00"/>
-                    </ventaEst>
+                    <t t-foreach="establishments" t-as="est">
+                        <ventaEst>
+                            <codEstab t-out="est['code']"/>
+                            <ventasEstab t-out="format_float(est['amount'], 2)"/>
+                            <ivaComp t-out="format_float(est['iva'], 2)"/>
+                        </ventaEst>
+                    </t>
                 </ventasEstablecimiento>
 
                 <anulados>
                     <t t-foreach="cancelled" t-as="c">
                         <detalleAnulados>
-                            <tipoComprobante t-out="c.get('tipo', '01')"/>
-                            <establecimiento t-out="c.get('estab', '001')"/>
-                            <puntoEmision t-out="c.get('pto', '001')"/>
-                            <secuencialInicio t-out="c.get('sec', '0')"/>
-                            <secuencialFin t-out="c.get('sec', '0')"/>
-                            <autorizacion t-out="c.get('aut', '0000000000')"/>
+                            <tipoComprobante t-out="c['tipo']"/>
+                            <establecimiento t-out="c['estab']"/>
+                            <puntoEmision t-out="c['pto']"/>
+                            <secuencialInicio t-out="c['sec']"/>
+                            <secuencialFin t-out="c['sec']"/>
+                            <autorizacion t-out="c['aut']"/>
                         </detalleAnulados>
                     </t>
                 </anulados>

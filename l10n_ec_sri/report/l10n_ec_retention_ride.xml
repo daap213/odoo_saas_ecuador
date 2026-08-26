@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    RIDE del comprobante de retención (07).
+
+    No existía. El Anexo 2 lo exige para todo comprobante electrónico: es lo que se
+    entrega al sujeto retenido y lo que éste archiva como respaldo de su crédito
+    tributario. Usa el mismo marco que los demás, así que la cabecera del emisor y el
+    bloque de autorización se maquetan en un solo sitio.
+-->
+<odoo>
+
+<template id="report_ride_body_retention">
+    <div style="border:1px solid #000; padding:6px; margin-top:6px;">
+        <div>
+            Ejercicio Fiscal: <strong t-out="v['fiscal_period']"/>
+            <span t-if="v['sustento']['number']" style="margin-left:12px;">
+                Documento sustento: <span t-out="v['sustento']['number']"/>
+                (<span t-out="v['sustento']['date']"/>)
+            </span>
+        </div>
+    </div>
+
+    <table class="table table-sm" style="margin-top:6px; font-size:8pt;">
+        <thead>
+            <tr>
+                <th>Impuesto</th>
+                <th>Cód.</th>
+                <th class="text-end">Base Imponible</th>
+                <th class="text-end">% Retención</th>
+                <th class="text-end">Valor Retenido</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr t-foreach="v['lines']" t-as="line">
+                <td t-out="line['tax']"/>
+                <td t-out="line['code']"/>
+                <td class="text-end" t-out="line['base']"/>
+                <td class="text-end" t-out="line['rate']"/>
+                <td class="text-end" t-out="line['amount']"/>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-end"><strong>TOTAL RETENIDO</strong></td>
+                <td class="text-end"><strong t-out="v['total_retained']"/></td>
+            </tr>
+        </tfoot>
+    </table>
+</template>
+
+<template id="report_retention_ride">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-set="v" t-value="o._l10n_ec_get_ride_values()"/>
+            <t t-call="l10n_ec_sri.report_ride_document"/>
+        </t>
+    </t>
+</template>
+
+<record id="action_report_retention_ride" model="ir.actions.report">
+    <field name="name">RIDE (Comprobante de Retención)</field>
+    <field name="model">l10n_ec.retention</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ec_sri.report_retention_ride</field>
+    <field name="report_file">l10n_ec_sri.report_retention_ride</field>
+    <field name="print_report_name">
+        'RIDE Retención - %s' % (object.name or '').replace('/', '-')
+    </field>
+    <field name="binding_model_id" ref="model_l10n_ec_retention"/>
+    <field name="binding_type">report</field>
+</record>
+
+</odoo>

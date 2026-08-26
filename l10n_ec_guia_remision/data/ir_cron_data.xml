@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    La guía necesitaba su propio cron por la misma razón que la factura: la Ficha
+    (§7.4) describe el consumo como asíncrono. Sin él, toda guía transmitida se
+    quedaba en 'sent' para siempre — el estado 'authorized' era literalmente
+    inalcanzable.
+-->
+<odoo>
+    <data noupdate="1">
+        <record id="cron_l10n_ec_sri_process_guias" model="ir.cron">
+            <field name="name">SRI: consultar autorizaciones y reintentar guías</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="state">code</field>
+            <field name="code">model._l10n_ec_cron_process_guias()</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

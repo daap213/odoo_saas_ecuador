@@ -56,7 +56,6 @@
         <field name="vat">1701234567</field>
         <field name="l10n_ec_identifier_type">cedula</field>
         <field name="l10n_ec_taxpayer_type">general</field>
-        <field name="l10n_ec_tercera_edad" eval="True"/>
         <field name="street">Av. El Inca N45-123</field>
         <field name="city">Quito</field>
         <field name="country_id" ref="base.ec"/>

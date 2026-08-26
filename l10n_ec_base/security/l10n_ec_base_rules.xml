@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Aislamiento multiempresa de la configuración regulatoria por año fiscal.
+
+    `l10n_ec.config` guarda SBU, tasas IESS, IVA e ISD por compañía y año. Sin regla,
+    las de una compañía eran legibles y editables desde cualquier otra.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <record id="l10n_ec_config_company_rule" model="ir.rule">
+            <field name="name">Configuración Ecuador por año: multiempresa</field>
+            <field name="model_id" ref="model_l10n_ec_config"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

@@ -235,15 +235,28 @@ Un `ir.cron` diario revisa la caducidad y avisa por el chatter.
 > manual** y ganan sobre el ambiente. Nacen vacíos a propósito: déjelos así salvo que
 > el SRI publique un endpoint distinto.
 
-Casi todo lo demás se configura en **Contabilidad > Configuración > Ajustes >
-Ecuador — SRI**: RUC del proveedor de facturación (Anexo 26), límite de consumidor
-final, día límite de anulación, auto-envío, forma de pago por defecto, tarifas de IVA
-y los endpoints.
-
 Además, cada diario de venta necesita su **establecimiento y punto de emisión**
 (*Contabilidad > Configuración > Diarios*, campos `l10n_ec_entity` y
 `l10n_ec_emission` que aporta el `l10n_ec` oficial). Sin ellos la emisión falla con
 un error explícito: son parte de la clave de acceso y del cuerpo del comprobante.
+
+### 4. Parámetros regulatorios (modo desarrollador)
+
+Los valores que fija el SRI por resolución —tarifas de IVA general y de construcción,
+límite e identificación de consumidor final, día límite de anulación, RUC del
+proveedor de facturación (Anexo 26), endpoints de los web services, penalidades del
+DE 045-2025— viven en `ir.config_parameter` y se tocan en **Ajustes > Técnico >
+Parámetros del sistema**, con el modo desarrollador activo.
+
+Están ahí a propósito y no en la pantalla de Ajustes de Contabilidad. No son
+preferencias del usuario: son valores que fija la ley y que cambian cuando cambia la
+normativa. Alguien que baje el IVA al 12 % desde una pantalla de ajustes no rompe
+nada visible — el sistema sigue emitiendo, y emite comprobantes no conformes. La
+barrera del modo desarrollador es lo que garantiza que quien los cambia sabe qué
+resolución los respalda.
+
+Se siembran en `l10n_ec_base/data/l10n_ec_sri_config.xml`; añadir uno nuevo es añadir
+un registro ahí.
 
 ---
 

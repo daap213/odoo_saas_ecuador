@@ -60,12 +60,14 @@
             <pago t-foreach="payments" t-as="payment">
                 <formaPago t-out="payment['formaPago']"/>
                 <total t-out="payment['total']"/>
+                <plazo t-if="payment['plazo']" t-out="payment['plazo']"/>
+                <unidadTiempo t-if="payment['unidadTiempo']" t-out="payment['unidadTiempo']"/>
             </pago>
         </pagos>
     </infoLiquidacionCompra>
     <detalles>
         <detalle t-foreach="lines" t-as="line">
-            <codigoPrincipal t-out="clip(line.product_id.default_code or 'GEN', 25)"/>
+            <codigoPrincipal t-out="clip(product_code(line.product_id), 25)"/>
             <codigoAuxiliar t-if="line.product_id.barcode"
                             t-out="clip(line.product_id.barcode, 25)"/>
             <descripcion t-out="clip(line.name or line.product_id.name, 300)"/>

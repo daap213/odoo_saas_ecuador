@@ -40,7 +40,6 @@ Complete customs management for Ecuador (SENAE):
         "security/ir.model.access.csv",
         "views/l10n_ec_customs_views.xml",
     ],
-    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
 }

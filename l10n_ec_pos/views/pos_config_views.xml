@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuración SRI de la caja.
+
+    El establecimiento y el punto de emisión dejan de teclearse: salen del diario, que
+    es de donde salen también en la factura y en la guía. Eran dos campos de texto con
+    `default="001"`, así que toda caja de toda empresa nacía declarando un
+    establecimiento que podía no existir en el RUC del emisor.
+-->
 <odoo>
     <record id="pos_config_view_form_inherit_l10n_ec_pos" model="ir.ui.view">
         <field name="name">pos.config.form.inherit.l10n_ec.pos</field>
@@ -9,9 +17,16 @@
                 <group string="Ecuador SRI" name="l10n_ec_sri">
                     <group>
                         <field name="l10n_ec_sri_active"/>
-                        <field name="l10n_ec_entity" invisible="not l10n_ec_sri_active"/>
-                        <field name="l10n_ec_emission_point" invisible="not l10n_ec_sri_active"/>
-                        <field name="l10n_ec_default_partner_id" invisible="not l10n_ec_sri_active"/>
+                        <field name="l10n_ec_journal_id"
+                               required="l10n_ec_sri_active"
+                               invisible="not l10n_ec_sri_active"
+                               options="{'no_create': True}"/>
+                        <field name="l10n_ec_entity"
+                               invisible="not l10n_ec_sri_active"/>
+                        <field name="l10n_ec_emission_point"
+                               invisible="not l10n_ec_sri_active"/>
+                        <field name="l10n_ec_default_partner_id"
+                               invisible="not l10n_ec_sri_active"/>
                     </group>
                 </group>
             </xpath>

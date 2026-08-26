@@ -1,4 +1,11 @@
-from odoo import models, fields, api
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+#
+# Copyright 2026 Somatech.dev
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
+
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 
 class L10nEcImportDau(models.Model):
@@ -89,10 +96,13 @@ class L10nEcImportDau(models.Model):
         iva_param = ICP.get_param("l10n_ec.customs_iva")
 
         if not fodinfa_param or not iva_param:
-            raise ValueError(
-                "Missing customs configuration. "
-                "Please configure l10n_ec.fodinfa and l10n_ec.customs_iva in System Parameters."
-            )
+            # UserError, no ValueError: esto corre dentro de un compute almacenado, y
+            # un ValueError ahí impide hasta abrir la lista de declaraciones.
+            raise UserError(_(
+                "Faltan las tasas aduaneras.\n\n"
+                "Configure 'l10n_ec.fodinfa' y 'l10n_ec.customs_iva' en Ajustes > "
+                "Técnico > Parámetros del sistema, con el modo desarrollador activo."
+            ))
 
         fodinfa_rate = float(fodinfa_param)
         iva_rate = float(iva_param)

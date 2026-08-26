@@ -36,43 +36,46 @@ class ResPartner(models.Model):
         string="Fecha de Nacimiento",
         help="Fecha de nacimiento para calcular edad automáticamente",
     )
+    # NO almacenados, a propósito.
+    #
+    # Ambos dependen de `date.today()`, que no es un campo y por tanto no dispara
+    # recomputación. Almacenados, la edad quedaba CONGELADA en el valor del día en que
+    # se grabó la fecha de nacimiento, y `l10n_ec_tercera_edad` con ella: un cliente
+    # que cumplía 65 no obtenía nunca el beneficio del Art. 74 de la LORTI salvo que
+    # alguien reeditara su ficha.
+    #
+    # Se recalculan en cada lectura, que es barato y siempre correcto. Ninguno se usa
+    # en dominios de búsqueda ni en filtros de vista, así que no se pierde nada.
     l10n_ec_edad = fields.Integer(
         string="Edad",
         compute="_compute_edad",
-        store=True,
-        help="Edad calculada automáticamente desde fecha de nacimiento",
+        help="Edad calculada desde la fecha de nacimiento, al día de hoy",
     )
     l10n_ec_tercera_edad = fields.Boolean(
         string="Tercera Edad",
         compute="_compute_tercera_edad",
-        store=True,
-        help="LORTI Art. 74: Se activa automáticamente si edad ≥ 65 años",
+        help="LORTI Art. 74: se activa cuando la edad llega a 65 años",
     )
 
     @api.depends("l10n_ec_fecha_nacimiento")
     def _compute_edad(self):
-        """Computes age from birthdate."""
-        from datetime import date
-        today = date.today()
+        today = fields.Date.context_today(self)
         for partner in self:
-            if partner.l10n_ec_fecha_nacimiento:
-                born = partner.l10n_ec_fecha_nacimiento
-                age = today.year - born.year - (
+            born = partner.l10n_ec_fecha_nacimiento
+            if born:
+                partner.l10n_ec_edad = today.year - born.year - (
                     (today.month, today.day) < (born.month, born.day)
                 )
-                partner.l10n_ec_edad = age
             else:
                 partner.l10n_ec_edad = 0
 
     @api.depends("l10n_ec_edad", "company_type")
     def _compute_tercera_edad(self):
-        """Auto-compute Tercera Edad: person with age >= 65."""
         for partner in self:
-            # Only persons can be Tercera Edad, not companies
-            if partner.company_type == "person" and partner.l10n_ec_edad >= 65:
-                partner.l10n_ec_tercera_edad = True
-            else:
-                partner.l10n_ec_tercera_edad = False
+            # Sólo las personas naturales pueden ser de tercera edad.
+            partner.l10n_ec_tercera_edad = (
+                partner.company_type == "person" and partner.l10n_ec_edad >= 65
+            )
 
     # =========================================================================
     # Ley Orgánica de Discapacidades Art. 78: IVA Refund
@@ -153,11 +156,15 @@ class ResPartner(models.Model):
     l10n_ec_uaf_certificate_expiry = fields.Date(
         string="Fecha Vencimiento UAF", help="Fecha de vencimiento del certificado UAF"
     )
+    # NO almacenado, por el mismo motivo que la edad: compara contra la fecha de hoy,
+    # que no es un campo. Almacenado, un certificado UAF caducado seguía marcado como
+    # válido indefinidamente — y `purchase_order._check_uaf_valid` decide sobre este
+    # flag si bloquea el pedido a un contratista del Estado (DE 045-2025). Es decir,
+    # la comprobación existía y no comprobaba nada.
     l10n_ec_uaf_valid = fields.Boolean(
         string="UAF Válido",
         compute="_compute_uaf_valid",
-        store=True,
-        help="Indica si el certificado UAF está vigente",
+        help="El certificado UAF existe y no ha vencido, al día de hoy",
     )
     l10n_ec_government_contractor = fields.Boolean(
         string="Contratista del Estado",
@@ -167,20 +174,17 @@ class ResPartner(models.Model):
 
     @api.depends("l10n_ec_uaf_certificate", "l10n_ec_uaf_certificate_expiry")
     def _compute_uaf_valid(self):
-        """Computes if UAF certificate is valid (exists and not expired)."""
-        from datetime import date
-
-        today = date.today()
+        today = fields.Date.context_today(self)
         for partner in self:
-            partner.l10n_ec_uaf_valid = False
-            if partner.l10n_ec_uaf_certificate:
-                if partner.l10n_ec_uaf_certificate_expiry:
-                    partner.l10n_ec_uaf_valid = (
-                        partner.l10n_ec_uaf_certificate_expiry >= today
-                    )
-                else:
-                    # Has certificate but no expiry = assume valid
-                    partner.l10n_ec_uaf_valid = True
+            if not partner.l10n_ec_uaf_certificate:
+                partner.l10n_ec_uaf_valid = False
+            elif partner.l10n_ec_uaf_certificate_expiry:
+                partner.l10n_ec_uaf_valid = (
+                    partner.l10n_ec_uaf_certificate_expiry >= today
+                )
+            else:
+                # Certificado sin fecha de vencimiento: se asume vigente.
+                partner.l10n_ec_uaf_valid = True
 
     @api.constrains("l10n_ec_government_contractor", "l10n_ec_uaf_certificate")
     def _check_uaf_required(self):

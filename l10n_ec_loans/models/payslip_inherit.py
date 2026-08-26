@@ -26,24 +26,23 @@ class L10nEcPayslip(models.Model):
             total = sum(installments.mapped("amount"))
             rec.loan_deduction = total
 
-    # Al sobrescribir un compute, el @api.depends nuevo REEMPLAZA al de la clase base:
-    # hay que repetir las dependencias del padre y añadir la propia (loan_deduction).
-    # Tampoco se listan total_income ni income_tax: los escribe este mismo método a
-    # través de super(), así que dependerían de sí mismos.
+    # El padre partió `_compute_totals` en tres computes encadenados
+    # (total_income -> income_tax -> net_wage) para romper un ciclo de dependencias.
+    # Aquí sólo interesa el último: el préstamo es un descuento sobre el neto, no
+    # afecta ni al ingreso gravable ni al IR.
+    #
+    # Al sobrescribir un compute, el @api.depends nuevo REEMPLAZA al del padre: hay
+    # que repetir sus dependencias y añadir la propia.
     @api.depends(
-        "wage",
-        "commission",
-        "bonus",
-        "iess_personal",
+        "total_income",
         "total_benefits_cash",
+        "iess_personal",
+        "income_tax",
         "advances",
         "loan_deduction",
     )
-    def _compute_totals(self):
-        # super() calcula total_income, income_tax y net_wage. Es obligatorio llamarlo:
-        # total_income también declara compute="_compute_totals", y si este override no
-        # lo asignara Odoo lanzaría "Compute method failed to assign total_income".
-        super()._compute_totals()
+    def _compute_net_wage(self):
+        super()._compute_net_wage()
         for rec in self:
             rec.net_wage -= rec.loan_deduction
 

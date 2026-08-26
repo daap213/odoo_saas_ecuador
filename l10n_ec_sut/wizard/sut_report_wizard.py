@@ -136,7 +136,11 @@ class L10nEcSutReportWizard(models.TransientModel):
         """Décimo Cuarto report for SUT."""
         content = "Cedula,Nombres,Region,Dias_Trabajados,Valor_Decimo\n"
         for p in payslips:
-            region = p.employee_id.address_home_id.state_id.name or "Sierra"
+            # `private_state_id`, no `address_home_id`: ese campo lo eliminó Odoo 17 y
+            # la dirección particular del empleado pasó a campos `private_*` en el
+            # propio `hr.employee`. Con el nombre viejo, este informe lanzaba
+            # AttributeError en el primer empleado: nunca ha llegado a generarse.
+            region = p.employee_id.private_state_id.name or "Sierra"
             # Sierra/Oriente: Sept 15, Costa/Galapagos: March 15
             content += f"{p.employee_id.identification_id},{p.employee_id.name},{region},{p.days_worked},{p.fourteenth}\n"
         return content

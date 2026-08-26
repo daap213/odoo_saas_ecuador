@@ -10,6 +10,7 @@
                     <field name="name"/>
                     <field name="identification_type"/>
                     <field name="identification_number"/>
+                    <field name="country_id"/>
                     <field name="license_number"/>
                 </list>
             </field>

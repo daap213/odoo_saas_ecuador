@@ -13,10 +13,14 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
-# Los dos parámetros de penalidad (DE 045-2025) se declaraban aquí, en un
-# `res.config.settings` que ningún XML mostraba: eran inalcanzables desde la
-# interfaz. Viven ahora en `res_config_settings.py`, con el resto de ajustes
-# de Ecuador y su vista correspondiente.
+# Los dos parámetros de penalidad (DE 045-2025) se declaraban aquí en un
+# `res.config.settings` que ningún XML mostraba nunca. Se han eliminado: el cálculo
+# (`_compute_penalty`) los lee directamente de `ir.config_parameter`, así que aquel
+# modelo no aportaba nada.
+#
+# Son valores REGULATORIOS —los fija un decreto, no el usuario— y por eso se
+# configuran en Ajustes > Técnico > Parámetros del sistema, en modo desarrollador.
+# Ver la cabecera de `l10n_ec_base/data/l10n_ec_sri_config.xml`.
 
 
 class PurchaseOrder(models.Model):

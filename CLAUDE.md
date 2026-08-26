@@ -30,6 +30,17 @@ montaje va en `devops/docker-compose.lab.yaml`, que se añade como tercer ficher
 ./devops/lab.sh shell | logs | ps | down
 ```
 
+**Smoke test de emisión**: `devops/smoke_emision.py` emite un comprobante de cada uno
+de los seis tipos, imprime raíz, versión y `codDoc` de cada XML, comprueba que la clave
+de acceso y el cuerpo describen el mismo comprobante (el error 58 del SRI es que no lo
+hagan), y firma uno con un certificado autofirmado. Revierte la transacción al acabar.
+
+```bash
+cd ../odoo_template && docker compose exec -T odoo \
+    odoo shell -d lab --no-http --workers=0 --max-cron-threads=0 \
+    < ../odoo_saas_ecuador/devops/smoke_emision.py
+```
+
 Odoo queda en <http://localhost:18069>. Dos trampas que el script ya resuelve y que
 conviene conocer si se invoca Odoo a mano:
 

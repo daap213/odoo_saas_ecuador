@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError
+
+# Una sola definicion de los codigos 43/70 y un solo aislador de fallos
+# para los tres emisores.
+from odoo.addons.l10n_ec_edi.models.sri_service import ALREADY_RECEIVED_CODES
+from odoo.addons.l10n_ec_sri.models.account_move import l10n_ec_run_isolated
 import base64
+from datetime import timezone
 
 
 class StockPicking(models.Model):
@@ -75,11 +81,13 @@ class StockPicking(models.Model):
     l10n_ec_sri_access_key = fields.Char(string="SRI Access Key", copy=False)
     l10n_ec_sri_status = fields.Selection(
         [
-            ("draft", "Draft"),
-            ("signed", "Signed"),
-            ("sent", "Sent"),
-            ("authorized", "Authorized"),
-            ("rejected", "Rejected"),
+            ("draft", "Borrador"),
+            ("signed", "Firmado"),
+            ("sent", "Enviado"),
+            ("authorized", "Autorizado"),
+            ("rejected", "Devuelto (corregible)"),
+            # Ver el comentario del mismo estado en `l10n_ec_edi/account_move.py`.
+            ("rejected_final", "Rechazado definitivamente"),
         ],
         string="SRI Status",
         default="draft",
@@ -87,7 +95,25 @@ class StockPicking(models.Model):
         index=True,
         tracking=True,
     )
-    l10n_ec_sri_response = fields.Text("SRI Response")
+    # `l10n_ec_sri_error` y no `l10n_ec_sri_response`: el mismo nombre significaba
+    # "campo obsoleto que nadie escribe" en `account.move` y "unico canal de
+    # diagnostico" aqui, que es la peor clase de divergencia.
+    l10n_ec_sri_error = fields.Text(string="Error del SRI", copy=False)
+    l10n_ec_authorization_date = fields.Datetime(
+        string="Fecha de autorización",
+        copy=False,
+        readonly=True,
+        help="La que devuelve el SRI al autorizar. Faltaba, así que la guía "
+             "autorizada no conservaba cuándo lo fue.",
+    )
+    l10n_ec_sri_retryable = fields.Boolean(
+        string="Reintentable",
+        copy=False,
+        help="Un fallo de transporte se reintenta; un rechazo de contenido no.",
+    )
+    l10n_ec_sri_retry_count = fields.Integer(
+        string="Reintentos", copy=False, default=0
+    )
     l10n_ec_xml_data = fields.Binary("XML File", attachment=True)
 
     # ── Contrato con `l10n_ec.sri.xml` ───────────────────────────────────────
@@ -173,59 +199,162 @@ class StockPicking(models.Model):
                     "l10n_ec.sri.xml"
                 ].generate_access_key(record)
 
+    def _l10n_ec_get_ride_values(self):
+        """Valores del RIDE. Lo llama la plantilla QWeb del informe."""
+        self.ensure_one()
+        return self.env["l10n_ec.sri.xml"].get_guia_ride_values(self)
+
     def action_send_guia_sri(self):
-        """
-        Generates XML, Signs it, and Sends to SRI using l10n_ec_edi utils.
+        """Genera clave, XML, firma y transmite la guia al SRI.
+
+        Reescrito para que sea el mismo flujo que el de la factura. Lo anterior
+        divergia en todo lo que importa: no tenia guarda de reenvio (pulsar dos veces
+        volvia a transmitir un comprobante ya recibido), no trataba los codigos 43 y
+        70, no comprobaba la caducidad del certificado, no exigia que el albaran
+        estuviera validado, y envolvia todo en un `except Exception` que escribia el
+        error en un campo de texto sin cambiar el estado: al usuario el boton le
+        parecia no hacer nada.
+
+        Y sobre todo: el secuencial se consumia ANTES de validar el cuerpo. La
+        secuencia es de PostgreSQL y no es transaccional, asi que cada intento
+        fallido quemaba un numero y el reintento producia una clave de acceso
+        distinta — justo lo que prohibe el 5.10.
         """
         for record in self:
-            if not record.l10n_ec_driver_id or not record.l10n_ec_vehicle_id:
-                raise UserError(
-                    _("Driver and Vehicle are required for SRI Transmission.")
-                )
+            if record.l10n_ec_sri_status in ("authorized", "sent"):
+                continue
 
-            if not record.l10n_ec_sri_access_key:
-                record._generate_access_key()
+            if record.l10n_ec_sri_status == "rejected_final":
+                raise UserError(_(
+                    "El SRI rechazo definitivamente la guia %(doc)s y su clave de "
+                    "acceso ya quedo registrada, asi que reenviarla no puede "
+                    "autorizarla.\n\nMotivo:\n%(error)s\n\nEmita una guia nueva.",
+                    doc=record.display_name,
+                    error=record.l10n_ec_sri_error or _("sin detalle"),
+                ))
 
-            # 1. XML por el dispatcher compartido: mismo prólogo UTF-8, mismos
-            #    componentes que la clave de acceso, mismas validaciones. Antes esto
-            #    renderizaba a mano y con un XMLID que ya no existía
-            #    (`l10n_ec_stock.l10n_ec_guia_xml`, del nombre viejo del módulo), así
-            #    que reventaba SIEMPRE al pulsar el botón.
+            if record.state != "done":
+                raise UserError(_(
+                    "La guia %s ampara mercaderia que ya viaja: valide el albaran "
+                    "antes de transmitirla al SRI.", record.display_name,
+                ))
+
+            # 0. TODOS los requisitos primero, incluido el certificado, y ANTES de
+            #    tocar la secuencia. Si algo falta, no se gasta un numero.
+            self.env["l10n_ec.sri.xml"]._check_guia_requirements(
+                record, require_certificate=True
+            )
+
+            # 1. Numero y clave, una sola vez y conservados (5.10).
+            record._generate_access_key()
+
+            # 2. XML por el dispatcher compartido.
             xml_content = self.env["l10n_ec.sri.xml"].render_xml(record)
 
-            # 2. Sign
-            certificate = record.company_id.l10n_ec_certificate_id
-            if not certificate or certificate.state != "active":
-                raise UserError(
-                    _("SRI Error: No active Signing Certificate configured.")
+            # 3. Firma.
+            signed_xml = record.company_id.l10n_ec_certificate_id.sign_xml(
+                xml_content.encode("utf-8")
+            )
+            record.l10n_ec_xml_data = base64.b64encode(signed_xml)
+
+            # 4. Envio, con la compania del documento.
+            response = self.env["l10n_ec.sri.service"].send_document(
+                record.company_id, signed_xml
+            )
+            record._l10n_ec_apply_reception_response(response)
+
+    def _l10n_ec_apply_reception_response(self, response):
+        """Traduce la respuesta de recepcion a un estado de la guia.
+
+        Misma logica que la de `account.move`, incluidos los codigos 43 y 70: un
+        DEVUELTA con esos identificadores no es un rechazo sino "ya lo tengo", y la
+        Ficha (11 nota 2) prohibe reenviar.
+        """
+        self.ensure_one()
+        status = response.get("status")
+        messages = response.get("messages", [])
+
+        if status == "RECIBIDA":
+            self.l10n_ec_sri_status = "sent"
+            self.l10n_ec_sri_error = False
+            self.l10n_ec_sri_retryable = False
+            return
+
+        already_at_sri = ALREADY_RECEIVED_CODES & set(response.get("identifiers", []))
+        if already_at_sri:
+            self.l10n_ec_sri_status = "sent"
+            self.l10n_ec_sri_retryable = False
+            self.l10n_ec_sri_error = _(
+                "El SRI ya tiene esta guia (codigo %s). No se reenvia: se consultara "
+                "su autorizacion.", ", ".join(sorted(already_at_sri))
+            )
+            return
+
+        self.l10n_ec_sri_status = "rejected"
+        self.l10n_ec_sri_error = "\n".join(messages) or status
+        self.l10n_ec_sri_retryable = (
+            status == "ERROR" and not response.get("identifiers")
+        )
+
+    def action_check_guia_sri(self):
+        """Consulta la autorizacion de la guia.
+
+        No existia. La guia se quedaba en 'sent' para siempre: el estado 'authorized'
+        era inalcanzable y la condicion `invisible` del boton que lo comprobaba nunca
+        llegaba a cumplirse.
+        """
+        for record in self:
+            if not record.l10n_ec_sri_access_key:
+                raise UserError(_(
+                    "La guia %s todavia no tiene clave de acceso.",
+                    record.display_name,
+                ))
+
+            response = self.env["l10n_ec.sri.service"].check_authorization(
+                record.company_id, record.l10n_ec_sri_access_key
+            )
+            status = response.get("status")
+
+            if status == "AUTORIZADO":
+                record.l10n_ec_sri_status = "authorized"
+                record.l10n_ec_sri_error = False
+                if response.get("date"):
+                    date = response["date"]
+                    if getattr(date, "tzinfo", None) is not None:
+                        date = date.astimezone(timezone.utc).replace(tzinfo=None)
+                    record.l10n_ec_authorization_date = date
+                if response.get("xml"):
+                    record.l10n_ec_xml_data = base64.b64encode(
+                        response["xml"].encode("utf-8")
+                    )
+            elif status in ("NO AUTORIZADO", "RECHAZADO"):
+                record.l10n_ec_sri_status = "rejected_final"
+                record.l10n_ec_sri_retryable = False
+                record.l10n_ec_sri_error = "\n".join(response.get("messages", []))
+            else:
+                # EN PROCESO / PPR / ERROR: el SRI puede tardar hasta 24 h (7.5).
+                record.l10n_ec_sri_error = _(
+                    "Estado en el SRI: %s. %s",
+                    status or _("sin respuesta"),
+                    " ".join(response.get("messages", [])),
                 )
 
-            try:
-                # Use AbstractModels from l10n_ec_edi
-                service = self.env["l10n_ec.sri.service"]
+    @api.model
+    def _l10n_ec_cron_process_guias(self, limit=200, max_retries=5):
+        """Hace avanzar las guias atascadas, igual que el cron de las facturas."""
+        pending = self.search([
+            ("l10n_ec_sri_status", "=", "sent"),
+            ("l10n_ec_sri_access_key", "!=", False),
+        ], limit=limit)
+        l10n_ec_run_isolated(pending, "action_check_guia_sri")
 
-                signed_xml_bytes = certificate.sign_xml(xml_content.encode("utf-8"))
+        retryable = self.search([
+            ("l10n_ec_sri_status", "=", "rejected"),
+            ("l10n_ec_sri_retryable", "=", True),
+            ("l10n_ec_sri_retry_count", "<", max_retries),
+        ], limit=limit)
+        for picking in retryable:
+            picking.l10n_ec_sri_retry_count += 1
+        l10n_ec_run_isolated(retryable, "action_send_guia_sri")
 
-                # 3. Transmit
-                env_code = (
-                    "1" if record.company_id.l10n_ec_sri_environment == "test" else "2"
-                )
-                response_data = service.send_document(record.company_id, signed_xml_bytes)
-
-                # 4. Process
-                if response_data.get("status") == "RECIBIDA":
-                    record.l10n_ec_sri_status = "sent"
-                    record.l10n_ec_sri_response = (
-                        "RECIBIDA. Waiting for Authorization..."
-                    )
-                else:
-                    record.l10n_ec_sri_status = "rejected"
-                    msgs = "\n".join(response_data.get("messages", []))
-                    record.l10n_ec_sri_response = (
-                        f"{response_data.get('status')}: {msgs}"
-                    )
-
-                record.l10n_ec_xml_data = base64.b64encode(signed_xml_bytes)
-
-            except Exception as e:
-                record.l10n_ec_sri_response = f"System Error: {str(e)}"
+        return len(pending) + len(retryable)

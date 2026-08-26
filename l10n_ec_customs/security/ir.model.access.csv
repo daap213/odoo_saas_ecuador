@@ -1,4 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_l10n_ec_tariff_heading,l10n_ec.tariff.heading,model_l10n_ec_tariff_heading,base.group_user,1,1,1,1
-access_l10n_ec_import_dau,l10n_ec.import.dau,model_l10n_ec_import_dau,base.group_user,1,1,1,1
-access_l10n_ec_import_dau_line,l10n_ec.import.dau.line,model_l10n_ec_import_dau_line,base.group_user,1,1,1,1
+access_l10n_ec_tariff_heading_user,l10n_ec.tariff.heading.user,model_l10n_ec_tariff_heading,base.group_user,1,0,0,0
+access_l10n_ec_tariff_heading_manager,l10n_ec.tariff.heading.manager,model_l10n_ec_tariff_heading,account.group_account_manager,1,1,1,1
+access_l10n_ec_import_dau_user,l10n_ec.import.dau.user,model_l10n_ec_import_dau,purchase.group_purchase_user,1,1,1,0
+access_l10n_ec_import_dau_manager,l10n_ec.import.dau.manager,model_l10n_ec_import_dau,account.group_account_manager,1,1,1,1
+access_l10n_ec_import_dau_line_user,l10n_ec.import.dau.line.user,model_l10n_ec_import_dau_line,purchase.group_purchase_user,1,1,1,0
+access_l10n_ec_import_dau_line_manager,l10n_ec.import.dau.line.manager,model_l10n_ec_import_dau_line,account.group_account_manager,1,1,1,1

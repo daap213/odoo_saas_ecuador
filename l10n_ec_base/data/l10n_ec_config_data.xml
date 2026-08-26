@@ -38,7 +38,12 @@
         <field name="isd_exencion">5000.0</field>
         <field name="limite_consumidor_final">50.0</field>
         <!-- Estadísticas INEC -->
-        <field name="canasta_basica">808.95</field>
+        <!-- 798,25 y no 808,95: esta cifra estaba duplicada, con dos valores
+             distintos para 2026 en `l10n_ec_config_data.xml` y en
+             `tax_table_2026_data.xml`. El calculo del impuesto a la renta usa
+             el segundo, asi que el que se mostraba aqui no coincidia con el que
+             se aplicaba. Se unifica en el que de verdad calcula. -->
+        <field name="canasta_basica">798.25</field>
         <field name="canasta_vital">576.12</field>
     </record>
 

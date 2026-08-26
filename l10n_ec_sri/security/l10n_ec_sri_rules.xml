@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Aislamiento multiempresa de los comprobantes de retención.
+
+    No existía. La ACL da lectura, escritura, creación y BORRADO a
+    `account.group_account_user`, y sin regla de registro eso significaba que un
+    contable de la empresa A veía, editaba y borraba las retenciones de la B.
+
+    Esto NO afecta a los crons de emisión: corren como `__system__` (verificado en
+    `ir_cron.user_id`), y el superusuario salta las reglas de registro, así que
+    siguen procesando los comprobantes de todas las compañías — que es lo que deben
+    hacer. La regla protege el acceso interactivo, no el automático.
+
+    `company_ids` es el conjunto de compañías activas del usuario, que es la variable
+    que Odoo expone en el contexto de evaluación de las reglas.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <record id="l10n_ec_retention_company_rule" model="ir.rule">
+            <field name="name">Comprobante de retención: multiempresa</field>
+            <field name="model_id" ref="model_l10n_ec_retention"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- La línea no tiene `company_id` propio: hereda el de su cabecera. -->
+        <record id="l10n_ec_retention_line_company_rule" model="ir.rule">
+            <field name="name">Línea de retención: multiempresa</field>
+            <field name="model_id" ref="model_l10n_ec_retention_line"/>
+            <field name="domain_force">[('retention_id.company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="l10n_ec_move_payment_company_rule" model="ir.rule">
+            <field name="name">Forma de pago SRI: multiempresa</field>
+            <field name="model_id" ref="model_l10n_ec_move_payment"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

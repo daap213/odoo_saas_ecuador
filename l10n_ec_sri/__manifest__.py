@@ -48,11 +48,13 @@ Complete SRI (Servicio de Rentas Internas) integration:
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/l10n_ec_sri_rules.xml",
         "data/ir_sequence_data.xml",
         "data/ir_cron_data.xml",
         "data/mail_template_data.xml",
         "views/account_move_views.xml",
         "views/account_move_purchase_views.xml",
+        "views/account_move_payment_views.xml",
         "views/account_move_xml_template.xml",
         "views/credit_note_xml_template.xml",
         "views/debit_note_xml_template.xml",
@@ -63,6 +65,7 @@ Complete SRI (Servicio de Rentas Internas) integration:
         # RIDE: la plantilla debe cargarse antes que la acción que la referencia.
         "report/ride_templates.xml",
         "report/l10n_ec_ride_report.xml",
+        "report/l10n_ec_retention_ride.xml",
     ],
     "assets": {
         "web.assets_backend": [

@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_quality_check,l10n_ec.quality.check,model_l10n_ec_quality_check,base.group_user,1,1,1,1
+access_quality_check,l10n_ec.quality.check,model_l10n_ec_quality_check,base.group_user,1,1,1,0
 access_quality_point,l10n_ec.quality.point,model_l10n_ec_quality_point,base.group_user,1,1,1,0
 access_quality_check_manager,l10n_ec.quality.check manager,model_l10n_ec_quality_check,mrp.group_mrp_manager,1,1,1,1
 access_quality_point_manager,l10n_ec.quality.point manager,model_l10n_ec_quality_point,mrp.group_mrp_manager,1,1,1,1

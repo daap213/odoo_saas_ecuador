@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Aislamiento multiempresa del certificado de firma.
+
+    El `.p12` y su contraseña ya están restringidos por campo a `base.group_system`,
+    que es lo correcto. Pero el REGISTRO se leía sin filtro de compañía: cualquier
+    usuario interno veía el CN, el emisor, el número de serie y la caducidad del
+    certificado de firma de todas las compañías de la base.
+
+    La lectura sigue abierta a `base.group_user` a propósito: `_get_signing_problems`
+    comprueba estado y caducidad SIN `sudo()` durante la emisión, así que el usuario
+    que publica la factura necesita poder leer el registro de SU compañía.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <record id="l10n_ec_certificate_company_rule" model="ir.rule">
+            <field name="name">Certificado de firma SRI: multiempresa</field>
+            <field name="model_id" ref="model_l10n_ec_certificate"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

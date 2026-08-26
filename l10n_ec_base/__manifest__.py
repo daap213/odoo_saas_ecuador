@@ -52,6 +52,7 @@ This module provides the base localization for Ecuador:
     "data": [
         "security/l10n_ec_groups.xml",
         "security/ir.model.access.csv",
+        "security/l10n_ec_base_rules.xml",
         "data/l10n_ec_sri_config.xml",
         "data/l10n_ec_config_data.xml",
         "data/l10n_ec_catalogs_data.xml",
@@ -59,10 +60,8 @@ This module provides the base localization for Ecuador:
         "data/l10n_ec.canton.csv",
         "views/res_partner_views.xml",
         "views/res_company_views.xml",
-        "views/res_config_settings_views.xml",
     ],
     "demo": [],  # Demo data is wizard-controlled, not auto-loaded
-    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
     "auto_install": False,

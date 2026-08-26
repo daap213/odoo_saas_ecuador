@@ -4,13 +4,19 @@ import base64
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
-from .account_move import l10n_ec_run_isolated
+from .account_move import ALREADY_RECEIVED_CODES, l10n_ec_run_isolated
 
 
 class L10nEcRetention(models.Model):
     _name = "l10n_ec.retention"
     _description = "Ecuadorian Withholding (Retención)"
     _inherit = ["portal.mixin", "mail.thread", "mail.activity.mixin"]
+
+    # Sin esto, el `check_company=True` de `journal_id` sólo filtra el desplegable de
+    # la vista: nada impide persistir por RPC o por código una retención de la
+    # compañía A numerada con el establecimiento y el punto de emisión del RUC de la
+    # B, que es exactamente el error 58 del SRI servido en bandeja.
+    _check_company_auto = True
 
     name = fields.Char(
         string="Number",
@@ -74,10 +80,12 @@ class L10nEcRetention(models.Model):
     # SRI Fields
     l10n_ec_sri_status = fields.Selection(
         [
-            ("draft", "Draft"),
-            ("sent", "Sent to SRI"),
-            ("authorized", "Authorized"),
-            ("rejected", "Rejected"),
+            ("draft", "Borrador"),
+            ("sent", "Enviado"),
+            ("authorized", "Autorizado"),
+            ("rejected", "Devuelto (corregible)"),
+            # Ver el comentario del mismo estado en `l10n_ec_edi/account_move.py`.
+            ("rejected_final", "Rechazado definitivamente"),
         ],
         string="SRI Status",
         default="draft",
@@ -190,10 +198,34 @@ class L10nEcRetention(models.Model):
         emisores distintos, que es el error 58 del SRI.
         """
         for record in self:
-            if record.l10n_ec_sri_access_key and not record.journal_id:
+            if not record.l10n_ec_sri_access_key:
+                continue
+            if not record.journal_id:
                 raise ValidationError(_(
                     "La retención %s ya tiene clave de acceso: no puede quedarse sin "
                     "diario de emisión.", record.display_name,
+                ))
+            # Comprobar que sigue siendo el MISMO diario, no solo que hay uno. La
+            # version anterior decia esto en su docstring y solo miraba que el campo
+            # no estuviera vacio, asi que cambiar a otro diario estaba permitido: el
+            # cuerpo pasaba a llevar el establecimiento del nuevo y la clave el del
+            # viejo, que es exactamente el error 58.
+            key_establishment = record.l10n_ec_sri_access_key[24:27]
+            key_emission = record.l10n_ec_sri_access_key[27:30]
+            current = (
+                (record.journal_id.l10n_ec_entity or "").strip().zfill(3),
+                (record.journal_id.l10n_ec_emission or "").strip().zfill(3),
+            )
+            if current != (key_establishment, key_emission):
+                raise ValidationError(_(
+                    "La clave de acceso de %(doc)s se emitio con el establecimiento "
+                    "%(ke)s y el punto de emision %(kp)s, y el diario '%(journal)s' "
+                    "declara %(ce)s-%(cp)s. El SRI rechaza el comprobante cuando la "
+                    "clave y el cuerpo describen emisores distintos (error 58).",
+                    doc=record.display_name,
+                    ke=key_establishment, kp=key_emission,
+                    journal=record.journal_id.display_name,
+                    ce=current[0], cp=current[1],
                 ))
 
     def action_post(self):
@@ -204,8 +236,82 @@ class L10nEcRetention(models.Model):
                     "La retención %s no tiene líneas: no hay nada que declarar al SRI.",
                     retention.display_name,
                 ))
+            # Validar ANTES de numerar. El secuencial sale de una secuencia de
+            # PostgreSQL, que no es transaccional: una retencion que se confirma y
+            # luego resulta que no se puede emitir se lleva su numero con ella, y
+            # deja un hueco en la serie que el SRI cuadra contra el ATS.
+            retention._l10n_ec_check_ready_to_emit()
             retention._l10n_ec_assign_number()
             retention.state = "posted"
+
+    @api.constrains("date_issue", "l10n_ec_sri_access_key")
+    def _check_issue_date_locked_after_emission(self):
+        """La fecha de emision no se toca una vez que hay clave de acceso.
+
+        Los ocho primeros digitos de la clave son `ddmmaaaa`. Cambiar la fecha
+        despues deja la clave y el cuerpo declarando dos dias distintos, que el SRI
+        rechaza. Estaba sin proteger: el campo seguia siendo editable.
+        """
+        for record in self:
+            key = record.l10n_ec_sri_access_key
+            if not key or not record.date_issue:
+                continue
+            if key[:8] != record.date_issue.strftime("%d%m%Y"):
+                raise ValidationError(_(
+                    "La clave de acceso de %(doc)s se emitio con fecha %(key)s y el "
+                    "comprobante declara %(current)s. El SRI rechaza el comprobante "
+                    "cuando la clave y el cuerpo no coinciden.",
+                    doc=record.display_name,
+                    key="%s/%s/%s" % (key[:2], key[2:4], key[4:8]),
+                    current=record.date_issue.strftime("%d/%m/%Y"),
+                ))
+
+    def _l10n_ec_check_ready_to_emit(self):
+        """Lo que el SRI va a exigir, comprobado antes de consumir el secuencial.
+
+        No exige el certificado: confirmar no es firmar, y una base sin firma
+        configurada debe poder registrar retenciones para emitirlas mas tarde.
+        """
+        self.ensure_one()
+        missing = []
+
+        if not self.invoice_id:
+            missing.append(_("factura que sustenta la retencion"))
+        elif not self.invoice_id.l10n_latam_document_type_id:
+            missing.append(_(
+                "tipo de documento en la factura %s (va en <codDocSustento>)",
+                self.invoice_id.display_name,
+            ))
+        elif not self.invoice_id.invoice_date:
+            missing.append(_("fecha de emision de la factura que sustenta"))
+
+        if not self.partner_id:
+            missing.append(_("sujeto retenido"))
+        elif not (self.partner_id.vat or "").strip():
+            missing.append(_(
+                "identificacion del sujeto retenido: la Ficha prohibe el consumidor "
+                "final (07) en una retencion"
+            ))
+
+        if not self.date_issue:
+            missing.append(_("fecha de emision"))
+
+        for line in self.tax_ids:
+            if not line.tax_id:
+                missing.append(_("impuesto en una de las lineas"))
+                continue
+            # Levanta ValidationError con su propio mensaje, que ya explica de donde
+            # sale cada codigo; se deja pasar tal cual en vez de resumirlo aqui.
+            line.tax_id.l10n_ec_get_retention_code(self.date_issue)
+            line.tax_id.l10n_ec_get_retention_type()
+
+        if missing:
+            raise UserError(_(
+                "Faltan datos obligatorios para emitir la retencion %(doc)s:"
+                "\n\n- %(list)s",
+                doc=self.display_name,
+                list="\n- ".join(missing),
+            ))
 
     def action_draft(self):
         """Devuelve a borrador una retención que el SRI rechazó.
@@ -221,11 +327,25 @@ class L10nEcRetention(models.Model):
                 ))
             retention.state = "draft"
 
+    def _l10n_ec_get_ride_values(self):
+        """Valores del RIDE. Lo llama la plantilla QWeb del informe."""
+        self.ensure_one()
+        return self.env["l10n_ec.sri.retention.xml"].get_ride_values(self)
+
     def action_send_sri(self):
         """
         Orchestrator for Retention: XML Gen -> Sign -> Send
         """
         for ret in self:
+            if ret.l10n_ec_sri_status == "rejected_final":
+                raise UserError(_(
+                    "El SRI rechazo definitivamente la retencion %(doc)s y su clave "
+                    "de acceso ya quedo registrada, asi que reenviarla no puede "
+                    "autorizarla.\n\nMotivo:\n%(error)s\n\nEmita una retencion "
+                    "nueva con la correccion.",
+                    doc=ret.display_name,
+                    error=ret.l10n_ec_sri_response or _("sin detalle"),
+                ))
             if ret.l10n_ec_sri_status in ["authorized", "sent"]:
                 continue
             if ret.state != "posted":
@@ -263,7 +383,8 @@ class L10nEcRetention(models.Model):
             # Igual que en la factura: los identificadores 43 ("clave de acceso
             # registrada") y 70 ("en procesamiento") NO son rechazos — el SRI ya
             # tiene el comprobante y la Ficha (§11) prohíbe reenviarlo.
-            already_at_sri = {"43", "70"} & set(response.get("identifiers", []))
+            already_at_sri = ALREADY_RECEIVED_CODES & set(
+                response.get("identifiers", []))
             if already_at_sri:
                 ret.l10n_ec_sri_status = "sent"
                 ret.l10n_ec_sri_retryable = False

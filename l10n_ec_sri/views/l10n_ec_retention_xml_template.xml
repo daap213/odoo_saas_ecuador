@@ -34,12 +34,11 @@
         <contribuyenteEspecial t-if="company.l10n_ec_special_resolution"
                                t-out="company.l10n_ec_special_resolution[:13]"/>
         <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
-        <!-- Tabla 6. La Ficha prohíbe consumidor final (07) en retenciones: hay que
-             identificar siempre al sujeto retenido. -->
-        <tipoIdentificacionSujetoRetenido
-            t-out="'05' if partner.l10n_ec_identifier_type == 'cedula' else ('06' if partner.l10n_ec_identifier_type == 'pasaporte' else '04')"/>
+        <!-- Tabla 6, resuelta en `_get_identification_code`. La Ficha prohíbe el
+             consumidor final (07) aquí: hay que identificar siempre al retenido. -->
+        <tipoIdentificacionSujetoRetenido t-out="subject_id_type"/>
         <razonSocialSujetoRetenido t-out="partner.name[:300]"/>
-        <identificacionSujetoRetenido t-out="partner.vat"/>
+        <identificacionSujetoRetenido t-out="subject_id"/>
         <periodoFiscal t-out="periodo_fiscal"/>
     </infoCompRetencion>
     <impuestos>
@@ -47,13 +46,17 @@
             <!-- Tabla 19: 1=Renta, 2=IVA, 6=ISD. Antes caía a '2' en silencio, así
                  que toda retención de renta se declaraba como IVA. -->
             <codigo t-out="line.tax_id.l10n_ec_get_retention_type()"/>
-            <codigoRetencion t-out="line.tax_id.l10n_ec_get_retention_code()"/>
+            <!-- La fecha decide el código del ISD (4580 / 4586 desde el 01-05-2025). -->
+            <codigoRetencion t-out="line.tax_id.l10n_ec_get_retention_code(record.date_issue)"/>
             <baseImponible t-out="'{:.2f}'.format(line.base_amount)"/>
             <!-- Los impuestos de retención se guardan con importe negativo en Odoo;
                  el SRI espera el porcentaje en positivo. -->
             <porcentajeRetener t-out="'{:.2f}'.format(abs(line.tax_id.amount))"/>
             <valorRetenido t-out="'{:.2f}'.format(abs(line.amount))"/>
-            <codDocSustento t-out="record.invoice_id.l10n_latam_document_type_id.code or '01'"/>
+            <!-- Sin respaldo a '01': declarar factura un documento de otro tipo es
+                 el mismo fallo silencioso que la clave de acceso ya no comete. La
+                 falta se detiene en `_check_emission_requirements`. -->
+            <codDocSustento t-out="sustento_cod_doc"/>
             <numDocSustento t-out="(record.invoice_id.l10n_latam_document_number or '').replace('-', '')"/>
             <fechaEmisionDocSustento t-out="record.invoice_id.invoice_date.strftime('%d/%m/%Y')"/>
         </impuesto>

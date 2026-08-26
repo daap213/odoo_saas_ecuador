@@ -5,6 +5,11 @@ import logging
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 
+# Una sola definicion de los codigos 43/70 para los tres emisores: estaban
+# reimplementados como literal en cada uno, asi que un cambio de la Ficha habria
+# que acordarse de aplicarlo tres veces.
+from odoo.addons.l10n_ec_edi.models.sri_service import ALREADY_RECEIVED_CODES
+
 _logger = logging.getLogger(__name__)
 
 
@@ -29,6 +34,32 @@ def l10n_ec_run_isolated(records, method_name):
                 "SRI: %s falló sobre %s: %s", method_name, record.display_name, exc
             )
     return processed
+
+
+def l10n_ec_flag_for_attention(record, summary, note):
+    """Abre una actividad sobre el comprobante para que alguien lo mire.
+
+    Hasta ahora, un comprobante que salia de las colas del cron —rechazo definitivo,
+    reintentos agotados, envio muy antiguo sin resolver— no dejaba ninguna senal: ni
+    chatter, ni actividad, ni filtro en la vista. Simplemente dejaba de moverse, y
+    nadie se enteraba hasta que el cliente reclamaba la factura.
+
+    Es idempotente: si ya hay una actividad abierta con el mismo resumen, no crea
+    otra. Un cron cada 30 minutos generaria 48 avisos diarios por documento.
+    """
+    existing = record.activity_ids.filtered(
+        lambda activity: activity.summary == summary
+    )
+    if existing:
+        return existing[:1]
+    return record.activity_schedule(
+        "mail.mail_activity_data_todo",
+        summary=summary,
+        note=note,
+        user_id=(record.invoice_user_id.id
+                 if "invoice_user_id" in record._fields and record.invoice_user_id
+                 else record.create_uid.id),
+    )
 
 
 class AccountMove(models.Model):
@@ -244,8 +275,23 @@ class AccountMove(models.Model):
     def action_send_sri(self):
         """Genera clave, XML, firma y transmite al SRI."""
         for move in self:
-            if move.l10n_ec_sri_status in ["authorized", "sent"]:
+            if move.l10n_ec_sri_status in ("authorized", "sent"):
                 continue
+
+            # Un rechazo definitivo no se reenvia: la clave ya esta registrada en el
+            # SRI y el reenvio solo devuelve el codigo 43. Hay que emitir un
+            # comprobante nuevo, con secuencial nuevo.
+            if move.l10n_ec_sri_status == "rejected_final":
+                raise UserError(_(
+                    "El SRI rechazo definitivamente %(doc)s y su clave de acceso ya "
+                    "quedo registrada: reenviarla solo devuelve el codigo 43 "
+                    "('clave de acceso registrada'), nunca una autorizacion.\n\n"
+                    "Motivo del rechazo:\n%(error)s\n\n"
+                    "Corrija el dato en un comprobante NUEVO: este ya consumio su "
+                    "secuencial.",
+                    doc=move.display_name,
+                    error=move.l10n_ec_sri_error or _("sin detalle"),
+                ))
 
             if move.state != "posted":
                 raise UserError(_(
@@ -303,7 +349,7 @@ class AccountMove(models.Model):
             self.l10n_ec_sri_retryable = False
             return
 
-        already_at_sri = {"43", "70"} & set(response.get("identifiers", []))
+        already_at_sri = ALREADY_RECEIVED_CODES & set(response.get("identifiers", []))
         if already_at_sri:
             self.l10n_ec_sri_status = "sent"
             self.l10n_ec_sri_retryable = False
@@ -357,8 +403,12 @@ class AccountMove(models.Model):
                 # que es uno de los dos adjuntos.
                 move._l10n_ec_try_send_to_customer()
             elif status in ("NO AUTORIZADO", "RECHAZADO"):
-                move.l10n_ec_sri_status = "rejected"
+                # Terminal, no "rejected": el SRI ya registro la clave. Ver el
+                # comentario del campo de estado.
+                move.l10n_ec_sri_status = "rejected_final"
+                move.l10n_ec_sri_retryable = False
                 move.l10n_ec_sri_error = "\n".join(response.get("messages", []))
+                move._l10n_ec_notify_terminal_rejection()
             else:
                 # EN PROCESO / PPR / PENDING / ERROR: el SRI puede tardar hasta 24 h
                 # (§7.5). Antes se ignoraban en silencio y el usuario no sabía nada.
@@ -367,6 +417,20 @@ class AccountMove(models.Model):
                     status or _("sin respuesta"),
                     " ".join(response.get("messages", [])),
                 )
+
+    def _l10n_ec_notify_terminal_rejection(self):
+        """Avisa de que el comprobante no se puede recuperar reenviandolo."""
+        self.ensure_one()
+        l10n_ec_flag_for_attention(
+            self,
+            _("El SRI rechazo definitivamente este comprobante"),
+            _(
+                "La clave de acceso ya quedo registrada en el SRI, asi que reenviar "
+                "este comprobante devolvera siempre el codigo 43. Hay que emitir uno "
+                "nuevo con la correccion.\n\nMotivo:\n%s",
+                self.l10n_ec_sri_error or _("sin detalle"),
+            ),
+        )
 
     def _sign_xml(self, xml_content):
         """
@@ -514,12 +578,31 @@ class AccountMove(models.Model):
         """
         cutoff = fields.Date.subtract(fields.Date.today(), days=max_age_days)
 
+        # La cola de consulta NO se acota por fecha. Antes se descartaban los envios
+        # de mas de `max_age_days`, con lo que un comprobante que el SRI hubiera
+        # autorizado el dia 31 se quedaba en 'sent' para siempre: el cron ya no
+        # volvia a preguntar por el nunca.
         pending = self.search([
             ("l10n_ec_sri_status", "=", "sent"),
             ("l10n_ec_sri_access_key", "!=", False),
-            ("invoice_date", ">=", cutoff),
-        ], limit=limit)
+        ], order="invoice_date asc", limit=limit)
         l10n_ec_run_isolated(pending, "action_check_sri")
+
+        # Lo que sigue sin resolverse pasado el plazo si merece que alguien lo mire:
+        # la Ficha da al SRI 24 h (7.5), no un mes.
+        for move in pending.filtered(
+            lambda m: m.l10n_ec_sri_status == "sent"
+            and m.invoice_date and m.invoice_date < cutoff
+        ):
+            l10n_ec_flag_for_attention(
+                move,
+                _("Comprobante enviado al SRI y sin resolver"),
+                _(
+                    "Se transmitio hace mas de %s dias y el SRI sigue sin autorizarlo "
+                    "ni negarlo. Conviene consultarlo en el portal del SRI con la "
+                    "clave de acceso %s.", max_age_days, move.l10n_ec_sri_access_key,
+                ),
+            )
 
         # §5.10: el reenvío usa la MISMA clave y secuencial, que ya están guardados.
         retryable = self.search([
@@ -531,5 +614,23 @@ class AccountMove(models.Model):
         for move in retryable:
             move.l10n_ec_sri_retry_count += 1
         l10n_ec_run_isolated(retryable, "action_send_sri")
+
+        # Los que agotaron los reintentos salen de la cola en silencio. Avisar.
+        exhausted = self.search([
+            ("l10n_ec_sri_status", "=", "rejected"),
+            ("l10n_ec_sri_retryable", "=", True),
+            ("l10n_ec_sri_retry_count", ">=", max_retries),
+        ], limit=limit)
+        for move in exhausted:
+            l10n_ec_flag_for_attention(
+                move,
+                _("Reintentos de envio al SRI agotados"),
+                _(
+                    "Se intento transmitir %(n)s veces sin exito. El cron ya no lo "
+                    "reintentara.\n\nUltimo error:\n%(error)s",
+                    n=move.l10n_ec_sri_retry_count,
+                    error=move.l10n_ec_sri_error or _("sin detalle"),
+                ),
+            )
 
         return len(pending) + len(retryable)

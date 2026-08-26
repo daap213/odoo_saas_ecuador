@@ -164,6 +164,20 @@ class SriSigner(models.AbstractModel):
                         f'</etsi:Cert>'
                     f'</etsi:SigningCertificate>'
                 f'</etsi:SignedSignatureProperties>'
+                # El ejemplo del Anexo 14 —la referencia contra la que valida el
+                # SRI— cierra SignedSignatureProperties y añade este bloque. No es
+                # obligatorio en XAdES-BES puro, pero es lo que el SRI publica, y
+                # omitirlo es el motivo más repetido de rechazo en certificación.
+                #
+                # `ObjectReference` apunta al Id de la ds:Reference del documento,
+                # que aquí es Ref0. Va DENTRO de SignedProperties, que se digesta y
+                # se firma, así que el digest lo recoge por construcción.
+                f'<etsi:SignedDataObjectProperties>'
+                    f'<etsi:DataObjectFormat ObjectReference="#Ref0">'
+                        f'<etsi:Description>contenido comprobante</etsi:Description>'
+                        f'<etsi:MimeType>text/xml</etsi:MimeType>'
+                    f'</etsi:DataObjectFormat>'
+                f'</etsi:SignedDataObjectProperties>'
             f'</etsi:SignedProperties>'
         )
 

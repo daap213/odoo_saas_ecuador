@@ -377,9 +377,19 @@ Hecho en la segunda tanda (agosto 2026), sobre una instancia Odoo 19 + PostgreSQ
 
 - **Anexo 26 en todos los comprobantes**, no sólo en la factura.
 
-- **Configurabilidad**: página "Ecuador — SRI" en los ajustes de Contabilidad. Los ~30
-  parámetros sólo se editaban en modo desarrollador, así que en la práctica nadie los
-  configuraba — el RUC del proveedor del Anexo 26 incluido.
+- **Configurabilidad — decisión deliberada de NO exponerlos.** Los ~30
+  `ir.config_parameter` regulatorios se quedan donde estaban: Ajustes > Técnico >
+  Parámetros del sistema, en modo desarrollador. Se llegó a construir una página
+  "Ecuador — SRI" en los ajustes de Contabilidad y se retiró: no son preferencias del
+  usuario, son valores que fija la ley. Alguien que baje el IVA al 12 % desde una
+  pantalla de ajustes no rompe nada visible — el sistema sigue emitiendo, y emite
+  comprobantes no conformes hasta que el SRI los rechaza. El modo desarrollador es la
+  barrera que garantiza que quien los cambia sabe qué resolución los respalda.
+
+  Lo que sí es decisión de la empresa —certificado, ambiente, obligado a llevar
+  contabilidad, resoluciones de contribuyente especial, agente de retención y Gran
+  Contribuyente— vive en la ficha de la compañía, pestaña "SRI Ecuador". El único que
+  faltaba ahí, la resolución de Gran Contribuyente (Anexo 24), se añadió.
 
 Pendiente, por orden:
 

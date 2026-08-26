@@ -55,12 +55,16 @@ export COMPOSE_FILE="docker-compose.yaml:docker-compose.test.yaml:${REL_LAB}/dev
 export COMPOSE_ENV_FILES=.env.test
 export ENV_FILE=.env.test
 export EC_ADDONS_PATH="$REPO_DIR"
-
 cd "$TEMPLATE_DIR" || exit 1
-
-# Un proceso Odoo ya tiene tomados 8069 y 8072: sin --no-http el segundo muere
-# con "Address already in use".
+# `--no-http` es imprescindible: el Odoo ya en marcha tiene tomados 8069 y 8072 y un
+# segundo proceso muere con "Address already in use".
+#
+# Sin límites de memoria ni de tiempo: `config/odoo.conf` los fija en 650/800 MB
+# pensando en workers de producción, y cargar el registro entero de `l10n_ec_full`
+# (medio ERP) los supera. El proceso muere **sin imprimir nada**, así que parece que
+# la orden "terminó" cuando en realidad la mataron.
 odoo_run() { docker compose exec -T odoo odoo -d "$DB" "$@" \
+    --limit-memory-soft=0 --limit-memory-hard=0 --limit-time-real=0 \
     --stop-after-init --no-http --workers=0 --max-cron-threads=0; }
 
 case "${1:-up}" in

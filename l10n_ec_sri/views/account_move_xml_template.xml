@@ -44,10 +44,15 @@
                                t-out="clip(company.l10n_ec_special_resolution, 13)"/>
         <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
         <tipoIdentificacionComprador t-out="buyer_id_type"/>
+        <!-- Anexo 3: va exactamente aqui, entre el tipo de identificacion y la
+             razon social. Obligatorio cuando la mercaderia viajo con guia. -->
+        <guiaRemision t-if="waybill" t-out="waybill"/>
         <razonSocialComprador t-out="clip(partner.name, 300)"/>
         <identificacionComprador t-out="clip(buyer_identification, 20)"/>
         <direccionComprador t-if="partner.street" t-out="clip(partner.street, 300)"/>
-        <totalSinImpuestos t-out="money(record.amount_untaxed)"/>
+        <!-- Suma de los detalles, no `amount_untaxed`: la propina esta dentro del
+             importe sin impuestos de Odoo y fuera de la base imponible del SRI. -->
+        <totalSinImpuestos t-out="untaxed_total"/>
         <totalDescuento t-out="total_discount"/>
         <totalConImpuestos>
             <totalImpuesto t-foreach="sri_totals" t-as="tot">
@@ -57,7 +62,7 @@
                 <valor t-out="tot['valor']"/>
             </totalImpuesto>
         </totalConImpuestos>
-        <propina>0.00</propina>
+        <propina t-out="tip"/>
         <importeTotal t-out="money(record.amount_total)"/>
         <moneda>DOLAR</moneda>
         <!-- Obligatorio. Su ausencia hacía fallar el esquema (error 35). -->
@@ -65,12 +70,14 @@
             <pago t-foreach="payments" t-as="pay">
                 <formaPago t-out="pay['formaPago']"/>
                 <total t-out="pay['total']"/>
+                <plazo t-if="pay['plazo']" t-out="pay['plazo']"/>
+                <unidadTiempo t-if="pay['unidadTiempo']" t-out="pay['unidadTiempo']"/>
             </pago>
         </pagos>
     </infoFactura>
     <detalles>
         <detalle t-foreach="lines" t-as="line">
-            <codigoPrincipal t-out="clip(line.product_id.default_code or 'GEN', 25)"/>
+            <codigoPrincipal t-out="clip(product_code(line.product_id), 25)"/>
             <codigoAuxiliar t-if="line.product_id.barcode"
                             t-out="clip(line.product_id.barcode, 25)"/>
             <descripcion t-out="clip(' '.join((line.name or '').split()), 300)"/>

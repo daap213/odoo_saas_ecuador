@@ -31,18 +31,16 @@ This module provides full SRI electronic invoicing:
     "license": "LGPL-3",
     "depends": [
         "l10n_ec_base",
-        "account_edi",
         # Chatter y actividades: el aviso de caducidad del certificado y la entrega
         # del comprobante al receptor (Ficha §4.7) los necesitan.
         "mail",
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/l10n_ec_edi_rules.xml",
         "views/l10n_ec_certificate_views.xml",
         "views/res_company_views.xml",
-        "views/res_config_settings_views.xml",
     ],
-    "images": ["static/description/banner.png"],
     "external_dependencies": {
         "python": ["zeep", "cryptography", "lxml", "requests"],
     },

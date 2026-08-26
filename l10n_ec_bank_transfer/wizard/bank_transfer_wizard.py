@@ -81,7 +81,10 @@ class L10nEcBankTransferWizard(models.TransientModel):
             # Format: REF \t BENEFICIARY \t ID \t AMOUNT \t ACC_TYPE \t ACC_NUM
             # Amount in cents? Usually floats in Pichincha Cash Mgmt are 2 decimals.
             amount_str = "{:.2f}".format(slip.net_wage)
-            line = f"{slip.number}\t{emp.name}\t{emp.identification_id}\t{amount_str}\t{acc_type}\t{acc_num}"
+            # `slip.name`, no `slip.number`: `l10n_ec.payslip` nunca ha declarado un
+            # campo `number`. Con el nombre viejo esto lanzaba AttributeError en el
+            # primer rol de pago, así que el TXT de pago masivo no se ha generado nunca.
+            line = f"{slip.name}\t{emp.name}\t{emp.identification_id}\t{amount_str}\t{acc_type}\t{acc_num}"
             lines.append(line)
             total += slip.net_wage
 

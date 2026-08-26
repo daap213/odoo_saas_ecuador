@@ -63,7 +63,7 @@
     </infoNotaCredito>
     <detalles>
         <detalle t-foreach="lines" t-as="line">
-            <codigoInterno t-out="clip(line.product_id.default_code or 'GEN', 25)"/>
+            <codigoInterno t-out="clip(product_code(line.product_id), 25)"/>
             <codigoAdicional t-if="line.product_id.barcode"
                              t-out="clip(line.product_id.barcode, 25)"/>
             <descripcion t-out="clip(line.name or line.product_id.name, 300)"/>

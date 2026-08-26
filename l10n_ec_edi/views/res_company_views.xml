@@ -25,6 +25,16 @@
                             <field name="l10n_ec_sri_reception_url" string="URL Recepción" placeholder="https://celcer.sri.gob.ec/.../RecepcionComprobantesOffline?wsdl"/>
                             <field name="l10n_ec_sri_authorization_url" string="URL Autorización" placeholder="https://celcer.sri.gob.ec/.../AutorizacionComprobantesOffline?wsdl"/>
                         </group>
+                        <group string="Gran Contribuyente">
+                            <group>
+                                <!-- Anexo 24: la leyenda y el número de resolución
+                                     viajan en la información adicional de cada
+                                     comprobante. Vacío = no se emite la etiqueta. -->
+                                <field name="l10n_ec_big_taxpayer_resolution"
+                                       string="Número de Resolución"
+                                       placeholder="NAC-DNCRASC00-00000001"/>
+                            </group>
+                        </group>
                         <group string="Retención">
                             <group>
                                 <field name="l10n_ec_withhold_agent" string="Agente de Retención"/>

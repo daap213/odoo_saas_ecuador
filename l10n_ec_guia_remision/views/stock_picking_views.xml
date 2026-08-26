@@ -7,7 +7,15 @@
             <field name="inherit_id" ref="stock.view_picking_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//header" position="inside">
-                   <button name="action_send_guia_sri" string="Send Guía SRI" type="object" class="oe_highlight" invisible="state != 'done' or l10n_ec_sri_status == 'authorized'"/>
+                   <!-- El envio se oculta tambien en 'sent' y en el rechazo
+                        definitivo: reenviar un comprobante que el SRI ya tiene solo
+                        devuelve el codigo 43. -->
+                   <button name="action_send_guia_sri" string="Enviar Guía al SRI"
+                           type="object" class="oe_highlight"
+                           invisible="state != 'done' or l10n_ec_sri_status in ('authorized', 'sent', 'rejected_final')"/>
+                   <button name="action_check_guia_sri" string="Consultar autorización"
+                           type="object"
+                           invisible="l10n_ec_sri_status not in ('sent', 'rejected')"/>
                 </xpath>
                 <xpath expr="//page[@name='extra']" position="after">
                     <page string="Transport Info (Guía de Remisión)" name="guia_remision" invisible="picking_type_code == 'incoming'">
@@ -33,7 +41,12 @@
                                 <field name="l10n_ec_guia_number" readonly="1"/>
                                 <field name="l10n_ec_sri_status"/>
                                 <field name="l10n_ec_sri_access_key" readonly="1"/>
-                                <field name="l10n_ec_sri_response" readonly="1"/>
+                                <field name="l10n_ec_authorization_date" readonly="1"
+                                       invisible="l10n_ec_sri_status != 'authorized'"/>
+                                <field name="l10n_ec_sri_error" readonly="1"
+                                       invisible="not l10n_ec_sri_error"/>
+                                <field name="l10n_ec_sri_retry_count" readonly="1"
+                                       invisible="l10n_ec_sri_retry_count == 0"/>
                             </group>
                         </group>
                     </page>

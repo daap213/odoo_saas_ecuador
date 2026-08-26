@@ -50,7 +50,6 @@ Complete payroll management for Ecuador (SBU 2026: $482):
         "views/l10n_ec_payslip_views.xml",
         "wizard/gastos_personales_wizard_view.xml",
     ],
-    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
 }

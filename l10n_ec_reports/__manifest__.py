@@ -44,7 +44,6 @@ SRI Tax reporting for Ecuador:
         "report/reports.xml",
         "wizard/l10n_ec_ats_wizard_views.xml",
     ],
-    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
     "auto_install": False,

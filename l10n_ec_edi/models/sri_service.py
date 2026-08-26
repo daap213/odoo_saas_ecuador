@@ -39,6 +39,12 @@ DEFAULT_URLS = {
 # §11 nota 2: ante estos códigos NO se debe reenviar ni regenerar la clave.
 ALREADY_RECEIVED_CODES = {"43", "70"}
 
+# La Ficha fija 1 MB para el envio individual y advierte que el limite practico
+# del servicio de recepcion es menor. Se comprueba antes de transmitir porque el
+# SRI responde a un comprobante demasiado grande con un rechazo generico que no
+# menciona el tamano, y la causa real se vuelve muy dificil de localizar.
+MAX_DOCUMENT_BYTES = 320 * 1024
+
 
 class SriService(models.AbstractModel):
     _name = "l10n_ec.sri.service"
@@ -88,6 +94,28 @@ class SriService(models.AbstractModel):
             )
         return texts, identifiers
 
+    def _check_document_size(self, signed_xml_bytes):
+        """Respuesta de rechazo si el comprobante excede el limite, o None.
+
+        Devuelve la misma forma que `send_document` —status, messages,
+        identifiers— para que el llamador no tenga que distinguir este caso del
+        rechazo del SRI: es un rechazo, sólo que detectado antes de gastar la
+        llamada. El identificador queda vacío porque no es un código del SRI.
+        """
+        size = len(signed_xml_bytes or b"")
+        if size <= MAX_DOCUMENT_BYTES:
+            return None
+        return {
+            "status": "DEVUELTA",
+            "messages": [_(
+                "El comprobante firmado ocupa %(size).0f kb y el envio individual "
+                "admite hasta %(limit).0f kb. Divida el documento en varios "
+                "comprobantes o reduzca el numero de lineas.",
+                size=size / 1024.0, limit=MAX_DOCUMENT_BYTES / 1024.0,
+            )],
+            "identifiers": [],
+        }
+
     def send_document(self, company, signed_xml_bytes):
         """Envía el comprobante firmado al servicio de recepción.
 
@@ -95,6 +123,10 @@ class SriService(models.AbstractModel):
         según la Ficha; los identificadores permiten al llamador reconocer los
         códigos 43 y 70.
         """
+        oversize = self._check_document_size(signed_xml_bytes)
+        if oversize:
+            return oversize
+
         url = self._get_service_url(company, "reception")
         client = self._get_client(url)
 

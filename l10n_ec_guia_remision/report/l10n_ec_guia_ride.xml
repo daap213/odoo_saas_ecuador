@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    RIDE de la guía de remisión (06).
+
+    Reutiliza el marco común de `l10n_ec_sri.report_ride_document`: sólo aporta el
+    cuerpo, que en la guía no lleva importes sino datos de transporte y la mercadería
+    que viaja.
+-->
+<odoo>
+
+<template id="report_ride_body_waybill">
+    <div style="border:1px solid #000; padding:6px; margin-top:6px;">
+        <div class="row">
+            <div class="col-6">
+                <div>Transportista: <strong t-out="v['carrier_name']"/></div>
+                <div>Identificación: <span t-out="v['carrier_id']"/></div>
+                <div>Placa: <span t-out="v['plate']"/></div>
+            </div>
+            <div class="col-6">
+                <div>Fecha Inicio Transporte: <span t-out="v['start_date']"/></div>
+                <div>Fecha Fin Transporte: <span t-out="v['end_date']"/></div>
+                <div>Motivo del Traslado: <span t-out="v['transport_reason']"/></div>
+            </div>
+        </div>
+        <div t-if="v['route']">Ruta: <span t-out="v['route']"/></div>
+    </div>
+
+    <table class="table table-sm" style="margin-top:6px; font-size:8pt;">
+        <thead>
+            <tr>
+                <th>Cod. Interno</th>
+                <th>Cantidad</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr t-foreach="v['moves']" t-as="move">
+                <td t-out="v['product_code'](move.product_id)"/>
+                <td t-out="v['quantity'](move.product_uom_qty)"/>
+                <td t-out="move.product_id.display_name"/>
+            </tr>
+        </tbody>
+    </table>
+</template>
+
+<template id="report_guia_ride">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-set="v" t-value="o._l10n_ec_get_ride_values()"/>
+            <t t-call="l10n_ec_sri.report_ride_document"/>
+        </t>
+    </t>
+</template>
+
+<record id="action_report_guia_ride" model="ir.actions.report">
+    <field name="name">RIDE (Guía de Remisión)</field>
+    <field name="model">stock.picking</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ec_guia_remision.report_guia_ride</field>
+    <field name="report_file">l10n_ec_guia_remision.report_guia_ride</field>
+    <field name="print_report_name">
+        'RIDE Guía - %s' % (object.name or '').replace('/', '-')
+    </field>
+</record>
+
+</odoo>

@@ -110,7 +110,6 @@ Desarrollado por Somatech.dev
     "demo": [
         "demo/l10n_ec_demo_data.xml",
     ],
-    "images": ["static/description/banner.png"],
     "installable": True,
     "application": True,
     "auto_install": False,

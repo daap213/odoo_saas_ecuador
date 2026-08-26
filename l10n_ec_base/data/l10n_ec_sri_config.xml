@@ -1,11 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    SRI Ecuador Configuration Parameters - Datos Abiertos
+    Parámetros regulatorios del SRI — Datos Abiertos
 
-    Todos los valores regulatorios configurables via Ajustes.
-    NINGÚN VALOR HARDCODEADO.
+    NINGÚN VALOR HARDCODEADO: todo lo que fija una resolución del SRI vive aquí, no
+    en el código, para que un cambio de normativa (una tarifa de IVA nueva, otro
+    límite de consumidor final, otro plazo de anulación) sea un cambio de dato.
+
+    DÓNDE SE TOCAN: Ajustes > Técnico > Parámetros del sistema, **en modo
+    desarrollador**, y a propósito. No están en la página de Ajustes de Contabilidad.
+
+    El motivo no es comodidad sino riesgo: no son preferencias del usuario, son
+    valores que fija la ley. Un contador que baje el IVA al 12 % o suba el límite de
+    consumidor final desde una pantalla de ajustes no rompe nada visible — sigue
+    emitiendo, y emite comprobantes no conformes hasta que el SRI los rechaza o,
+    peor, los autoriza mal. Cambiarlos exige saber qué resolución los respalda, y
+    modo desarrollador es la barrera que garantiza que quien entra lo sabe.
+
+    Lo que SÍ es decisión de la empresa —certificado de firma, ambiente, si está
+    obligada a llevar contabilidad, sus resoluciones de contribuyente especial o de
+    agente de retención— vive en la ficha de la compañía, pestaña "SRI Ecuador".
 
     Referencia: https://www.sri.gob.ec/datos-abiertos
+    Ficha Técnica de comprobantes electrónicos, versión 2.34 (julio 2026)
     Resolución: NAC-DGERCGC25-00000017
 -->
 <odoo>
@@ -206,6 +222,48 @@
             <field name="value">0.15</field>
         </record>
 
+
+        <!-- Jornada mensual en horas: 8 h × 30 días (Código de Trabajo Art. 47).
+             Es el divisor con el que se obtiene el valor de la hora ordinaria, y
+             estaba escrito como un `240` dentro de la fórmula de la nómina. -->
+        <record id="l10n_ec_jornada_mensual_horas" model="ir.config_parameter">
+            <field name="key">l10n_ec.jornada_mensual_horas</field>
+            <field name="value">240</field>
+        </record>
+
+        <!-- Tabla 20: el código de retención del ISD pasó de 4580 a 4586 con el 2,5 %
+             vigente desde esta fecha. Se siembra como parámetro porque es una fecha
+             de vigencia normativa: si cambia, cambia el dato, no el código. -->
+        <record id="l10n_ec_isd_code_4586_from" model="ir.config_parameter">
+            <field name="key">l10n_ec.isd_code_4586_from</field>
+            <field name="value">2025-05-01</field>
+        </record>
+
+        <!-- Penalización por retraso en contratación con el Estado (DE 045-2025).
+             `purchase_order._compute_penalty` LEE estos dos parámetros y nadie los
+             sembraba: el defecto "0" hacía que el método saliera por `continue` y
+             desactivara toda la penalización, sin un solo error. Ahora están a cero
+             explícitamente, que es lo correcto para quien no contrata con el Estado,
+             y quien sí lo hace tiene dónde poner su tasa.
+
+             La tasa es POR MIL diario sobre el monto del contrato; el tope, un
+             porcentaje del mismo monto. -->
+        <record id="l10n_ec_penalty_rate_daily" model="ir.config_parameter">
+            <field name="key">l10n_ec.penalty_rate_daily</field>
+            <field name="value">0</field>
+        </record>
+
+        <record id="l10n_ec_penalty_cap_percent" model="ir.config_parameter">
+            <field name="key">l10n_ec.penalty_cap_percent</field>
+            <field name="value">0</field>
+        </record>
+
+        <!-- Tope mensual de horas extra (Art. 55: 12 semanales x 4 semanas). Es una
+             aproximación sobre un rol mensual, por eso se deja ajustable. -->
+        <record id="l10n_ec_horas_extra_tope_mensual" model="ir.config_parameter">
+            <field name="key">l10n_ec.horas_extra_tope_mensual</field>
+            <field name="value">48</field>
+        </record>
     </data>
 </odoo>
 

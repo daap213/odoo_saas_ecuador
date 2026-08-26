@@ -44,10 +44,11 @@
         <dirEstablecimiento t-out="clip(picking.picking_type_id.warehouse_id.partner_id.street or company.street, 300)"/>
         <dirPartida t-out="clip(picking.picking_type_id.warehouse_id.partner_id.street or company.street, 300)"/>
         <razonSocialTransportista t-out="clip(driver.name, 300)"/>
-        <tipoIdentificacionTransportista
-            t-out="{'cedula': '05', 'pasaporte': '06'}.get(driver.identification_type, '04')"/>
+        <!-- Tabla 6, resuelta en `_get_identification_code` como en los demás
+             comprobantes: incluye el 08 del transportista del exterior. -->
+        <tipoIdentificacionTransportista t-out="carrier_id_type"/>
         <!-- La IDENTIFICACIÓN del transportista, no su licencia de conducir. -->
-        <rucTransportista t-out="clip(driver.identification_number, 13)"/>
+        <rucTransportista t-out="clip(carrier_id, 13)"/>
         <obligadoContabilidad t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
         <contribuyenteEspecial t-if="company.l10n_ec_special_resolution"
                                t-out="clip(company.l10n_ec_special_resolution, 13)"/>
@@ -76,7 +77,7 @@
             </t>
             <detalles>
                 <detalle t-foreach="picking.move_ids" t-as="move">
-                    <codigoInterno t-out="clip(move.product_id.default_code or 'GEN', 25)"/>
+                    <codigoInterno t-out="clip(product_code(move.product_id), 25)"/>
                     <codigoAdicional t-if="move.product_id.barcode"
                                      t-out="clip(move.product_id.barcode, 25)"/>
                     <descripcion t-out="clip(move.product_id.name, 300)"/>

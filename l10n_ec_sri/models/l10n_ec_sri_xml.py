@@ -276,8 +276,12 @@ class L10nEcSriXml(models.AbstractModel):
         ))
 
     @api.model
-    def _compute_sri_taxes(self, record):
+    def _compute_sri_taxes(self, record, lines=None):
         """Totales e impuestos por línea.
+
+        `lines` permite acotar el cálculo a un subconjunto. Lo usa la factura para
+        dejar fuera la propina, que no tributa: si el importe entrara aquí, la base
+        del IVA saldría inflada y el SRI devolvería el error 52.
 
         Regla de la Ficha (num. 9.16, tabla 21) que antes no se aplicaba: **el ICE
         forma parte de la base imponible del IVA**. Se calcula primero el ICE de la
@@ -286,7 +290,9 @@ class L10nEcSriXml(models.AbstractModel):
         totals = {}
         line_taxes = {}
 
-        for line in self._get_product_lines(record):
+        if lines is None:
+            lines = self._get_product_lines(record)
+        for line in lines:
             base = abs(line.price_subtotal)
             entries = []
 
@@ -366,30 +372,38 @@ class L10nEcSriXml(models.AbstractModel):
     # ------------------------------------------------------------------
 
     @api.model
-    def _get_buyer_identification(self, record):
-        """(tipoIdentificacionComprador, identificacionComprador) — tabla 6.
+    def _get_identification_code(self, identifier_type, vat, country_code=None,
+                                 allow_final_consumer=True):
+        """Codigo de la tabla 6 a partir de datos sueltos.
 
         04 RUC · 05 Cédula · 06 Pasaporte · 07 Consumidor Final · 08 Exterior.
-        Se usa el tipo declarado en el contacto, no la longitud del VAT: antes un
-        pasaporte de 13 caracteres se enviaba como RUC.
+
+        Existe como función propia porque la tabla 6 estaba resuelta **tres veces**:
+        aquí, con un ternario dentro de la plantilla de la retención y con un `dict.get`
+        dentro de la de la guía. Las dos versiones del QWeb caían a `04` para un sujeto
+        del exterior, es decir declaraban como RUC ecuatoriano justo el caso —el no
+        residente— en que se aplica el ISD.
+
+        `allow_final_consumer` en False para los comprobantes en que la Ficha prohíbe
+        el 07 (retención y guía): ahí no hay a quién retener ni a quién despachar sin
+        identificar.
         """
-        partner = record.partner_id
-        vat = (partner.vat or "").strip()
+        vat = (vat or "").strip()
 
-        consumidor_final_ruc = self.env["ir.config_parameter"].sudo().get_param(
-            "l10n_ec.consumidor_final_ruc", "9999999999999"
-        )
-        if not vat or vat == consumidor_final_ruc:
-            return "07", consumidor_final_ruc
+        if allow_final_consumer:
+            consumidor_final_ruc = self.env["ir.config_parameter"].sudo().get_param(
+                "l10n_ec.consumidor_final_ruc", "9999999999999"
+            )
+            if not vat or vat == consumidor_final_ruc:
+                return "07", consumidor_final_ruc
 
-        identifier_type = partner.l10n_ec_identifier_type
         if identifier_type == "ruc":
             return "04", vat
         if identifier_type == "cedula":
             return "05", vat
         if identifier_type == "pasaporte":
             return "06", vat
-        if partner.country_id and partner.country_id.code != "EC":
+        if country_code and country_code != "EC":
             return "08", vat
 
         # Sin tipo declarado: se infiere por longitud como último recurso.
@@ -400,13 +414,127 @@ class L10nEcSriXml(models.AbstractModel):
         return "06", vat
 
     @api.model
+    def _get_buyer_identification(self, record):
+        """(tipoIdentificacionComprador, identificacionComprador) — tabla 6.
+
+        Se usa el tipo declarado en el contacto, no la longitud del VAT: antes un
+        pasaporte de 13 caracteres se enviaba como RUC.
+        """
+        partner = record.partner_id
+        return self._get_identification_code(
+            partner.l10n_ec_identifier_type,
+            partner.vat,
+            country_code=partner.country_id.code or None,
+        )
+
+    @api.model
+    def _get_partner_identification(self, partner, allow_final_consumer=True):
+        """Igual que la anterior, pero sobre un contacto suelto.
+
+        La usan la retención (sujeto retenido) y la guía (destinatario), que no
+        parten de un `account.move`.
+        """
+        return self._get_identification_code(
+            partner.l10n_ec_identifier_type,
+            partner.vat,
+            country_code=partner.country_id.code or None,
+            allow_final_consumer=allow_final_consumer,
+        )
+
+    @api.model
+    def _split_tip_lines(self, record):
+        """(líneas facturables, importe de propina).
+
+        La propina NO forma parte de la base imponible: el SRI valida
+        `importeTotal = totalSinImpuestos + impuestos + propina`, así que dejar la
+        línea de propina dentro de `<detalles>` la contaría dos veces y devolvería el
+        error 52.
+
+        Se separa aquí y no en `_get_product_lines` porque ese filtro lo comparten los
+        seis comprobantes y sólo la factura tiene `<propina>`: una nota de crédito que
+        anule una venta con propina debe seguir llevando esa línea en su detalle.
+        """
+        lines = self._get_product_lines(record)
+        tip_lines = lines.filtered(lambda line: line.product_id.l10n_ec_is_tip)
+        tip_amount = getattr(record, "l10n_ec_tip", 0.0) or sum(
+            tip_lines.mapped("price_subtotal")
+        )
+        return lines - tip_lines, tip_amount
+
+    @api.model
     def _get_payment_details(self, record):
-        """Bloque <pagos> — obligatorio. formaPago conforme tabla 24."""
+        """Bloque <pagos> — obligatorio, y REPETIBLE (Anexo 3, tabla 24).
+
+        Tres fuentes, en orden de precisión:
+
+        1. `l10n_ec_payment_ids`, si el usuario detalló la venta mixta.
+        2. Los vencimientos del plazo de pago, que dan el `<plazo>` real de la venta
+           a crédito. Emitir siempre un pago de contado por el total —lo que se hacía
+           hasta ahora— declara al SRI que se cobró el día de la emisión.
+        3. Un pago único por el total con la forma de pago de la cabecera.
+
+        `<plazo>`/`<unidadTiempo>` sólo se emiten cuando hay días de por medio: en una
+        venta de contado son "Obligatorio cuando corresponda" y no corresponde.
+        """
+        detailed = getattr(record, "l10n_ec_payment_ids", False)
+        if detailed:
+            return [
+                {
+                    "formaPago": payment.payment_method_id.code,
+                    "total": "%.2f" % payment.amount,
+                    "plazo": str(payment.term_days) if payment.term_days else None,
+                    "unidadTiempo": payment.time_unit if payment.term_days else None,
+                }
+                for payment in detailed
+            ]
+
         method = record.l10n_ec_payment_method_id
         code = method.code if method else self.env["ir.config_parameter"].sudo().get_param(
             "l10n_ec.default_payment_method_code", "01"
         )
-        return [{"formaPago": code, "total": "%.2f" % record.amount_total}]
+
+        installments = self._get_credit_installments(record)
+        if installments:
+            return [
+                {
+                    "formaPago": code,
+                    "total": "%.2f" % amount,
+                    "plazo": str(days),
+                    "unidadTiempo": "dias",
+                }
+                for amount, days in installments
+            ]
+
+        return [{
+            "formaPago": code,
+            "total": "%.2f" % record.amount_total,
+            "plazo": None,
+            "unidadTiempo": None,
+        }]
+
+    @api.model
+    def _get_credit_installments(self, record):
+        """[(importe, días de plazo)] de una venta a crédito, o [] si es de contado.
+
+        Sale de los apuntes por cobrar/pagar, que es donde Odoo materializa el plazo
+        de pago ya resuelto a fechas. Un vencimiento el mismo día de la emisión es
+        contado, por mucho que el plazo se llame "Inmediato".
+        """
+        emission = self._get_emission_date(record)
+        if not emission:
+            return []
+        receivables = record.line_ids.filtered(
+            lambda line: line.display_type == "payment_term" and line.date_maturity
+        )
+        installments = []
+        for line in receivables:
+            days = (line.date_maturity - emission).days
+            if days <= 0:
+                continue
+            amount = abs(line.balance)
+            if amount:
+                installments.append((amount, days))
+        return installments
 
     @api.model
     def _get_additional_info(self, record):
@@ -587,15 +715,38 @@ class L10nEcSriXml(models.AbstractModel):
                 list="\n- ".join(missing),
             ))
 
+
+    @api.model
+    def _get_product_code(self, product):
+        """Código del producto para <codigoPrincipal> / <codigoInterno>.
+
+        La Ficha lo declara obligatorio pero no impone formato, así que hay que dar
+        algo siempre. Se venía emitiendo el literal `'GEN'` para todo producto sin
+        referencia interna: XML válido y detalle inservible, porque el mismo código
+        identificaba productos distintos en la misma factura y en el ATS.
+
+        La cascada baja de lo que el emisor eligió a lo que el sistema puede
+        garantizar único: referencia interna → código de barras → identificador del
+        producto. `SERV` sólo queda para una línea sin producto (un texto suelto),
+        donde no hay nada que identificar.
+        """
+        if not product:
+            return "SERV"
+        return (
+            (product.default_code or "").strip()
+            or (product.barcode or "").strip()
+            or "P%d" % product.id
+        )
+
     @api.model
     def _get_invoice_values(self, record):
         self._check_emission_requirements(record)
         components = self._get_document_components(record)
-        sri_totals, sri_line_taxes = self._compute_sri_taxes(record)
+        product_lines, tip = self._split_tip_lines(record)
+        sri_totals, sri_line_taxes = self._compute_sri_taxes(record, lines=product_lines)
         id_type, identification = self._get_buyer_identification(record)
         company = record.company_id
 
-        product_lines = self._get_product_lines(record)
         total_discount = sum(
             line.price_unit * line.quantity * (line.discount or 0.0) / 100.0
             for line in product_lines
@@ -614,11 +765,16 @@ class L10nEcSriXml(models.AbstractModel):
             "payments": self._get_payment_details(record),
             "additional_info": self._get_additional_info(record),
             "total_discount": "%.2f" % total_discount,
+            "tip": "%.2f" % tip,
+            "untaxed_total": "%.2f" % sum(product_lines.mapped("price_subtotal")),
+            "waybill": (getattr(record, "l10n_ec_waybill_number", "") or "").strip()
+                       or record._l10n_ec_find_waybill(),
             "lines": product_lines,
             "rimpe_legend": company.l10n_ec_rimpe_legend(),
             "money": lambda value: "%.2f" % (value or 0.0),
             "quantity": lambda value: "%.6f" % (value or 0.0),
             "clip": lambda value, size: (value or "")[:size],
+            "product_code": self._get_product_code,
         }
 
     @api.model
@@ -653,6 +809,7 @@ class L10nEcSriXml(models.AbstractModel):
             "money": lambda value: "%.2f" % (value or 0.0),
             "quantity": lambda value: "%.6f" % (value or 0.0),
             "clip": lambda value, size: (value or "")[:size],
+            "product_code": self._get_product_code,
         }
 
     @api.model
@@ -696,6 +853,7 @@ class L10nEcSriXml(models.AbstractModel):
             "money": lambda value: "%.2f" % (value or 0.0),
             "quantity": lambda value: "%.6f" % (value or 0.0),
             "clip": lambda value, size: (value or "")[:size],
+            "product_code": self._get_product_code,
             "uom": lambda line: (line.product_uom_id.name or "U")[:50],
         }
 
@@ -753,6 +911,7 @@ class L10nEcSriXml(models.AbstractModel):
             "motivos": self._get_debit_note_reasons(record),
             "money": lambda value: "%.2f" % (value or 0.0),
             "clip": lambda value, size: (value or "")[:size],
+            "product_code": self._get_product_code,
         }
 
     @api.model
@@ -857,6 +1016,95 @@ class L10nEcSriXml(models.AbstractModel):
         }
 
     @api.model
+    def _get_ride_payments(self, record):
+        """Formas de pago con su etiqueta legible (tabla 24)."""
+        methods = {
+            method.code: method.name
+            for method in self.env["l10n_ec.payment.method"].search([])
+        }
+        payments = []
+        for payment in self._get_payment_details(record):
+            code = payment["formaPago"]
+            payments.append(dict(payment, label=methods.get(code) or code))
+        return payments
+
+    @api.model
+    def _get_ride_renderers(self):
+        """{codDoc: (plantilla del cuerpo, metodo que anade sus valores)}.
+
+        Mismo patron que `_get_document_renderers()`, y por el mismo motivo: un addon
+        que anada un comprobante anade tambien su RIDE con un `super()`.
+
+        Existe porque habia UN solo informe, sobre `account.move`, cuya cabecera
+        escribia el literal "FACTURA". Impreso sobre una nota de credito, el papel
+        —que segun el Anexo 2 tiene validez tributaria y juridica— se declaraba
+        factura; y ese mismo PDF es el que se adjunta al correo de entrega.
+        """
+        return {
+            "01": ("l10n_ec_sri.report_ride_body_invoice", "_get_ride_invoice_extra"),
+            "03": ("l10n_ec_sri.report_ride_body_invoice",
+                   "_get_ride_liquidation_extra"),
+            "04": ("l10n_ec_sri.report_ride_body_credit_note",
+                   "_get_ride_credit_note_extra"),
+            "05": ("l10n_ec_sri.report_ride_body_debit_note",
+                   "_get_ride_debit_note_extra"),
+        }
+
+    @api.model
+    def _get_ride_document_code(self, record):
+        """codDoc del registro, para elegir el cuerpo del RIDE.
+
+        La guia y la retencion no son `account.move` y no tienen
+        `l10n_latam_document_type_id`, asi que declaran su codigo en el propio
+        modelo. Se pregunta primero por ahi.
+        """
+        own = getattr(record, "l10n_ec_document_code", None)
+        if own:
+            return own
+        raw = (record.l10n_latam_document_type_id.code or "").strip()
+        return raw.zfill(2) if raw else ""
+
+    @api.model
+    def _get_ride_invoice_extra(self, record, values):
+        """La factura no anade nada al marco comun: es el caso base."""
+        return {}
+
+    @api.model
+    def _get_ride_liquidation_extra(self, record, values):
+        """La liquidacion la emite el COMPRADOR, asi que la contraparte es el
+        proveedor y su identificacion se resuelve con la funcion del proveedor.
+
+        El RIDE usaba `_get_buyer_identification` para los cuatro comprobantes, que
+        en la liquidacion devuelve consumidor final cuando el proveedor no tiene VAT
+        —justo el caso para el que existe este comprobante—.
+        """
+        id_type, identification = self._get_supplier_identification(record)
+        return {
+            "counterparty_label": "Proveedor",
+            "counterparty_id_label": "Identificación",
+            "buyer_id_type": id_type,
+            "buyer_identification": identification,
+        }
+
+    @api.model
+    def _get_ride_credit_note_extra(self, record, values):
+        """La nota de credito no lleva formas de pago y si el documento modificado."""
+        return {
+            "show_payments": False,
+            "modified": self._get_modified_document_values(record),
+        }
+
+    @api.model
+    def _get_ride_debit_note_extra(self, record, values):
+        """La nota de debito no lleva detalle de lineas: lleva <motivos>."""
+        return {
+            "show_payments": True,
+            "show_lines": False,
+            "modified": self._get_modified_document_values(record),
+            "motivos": self._get_debit_note_reasons(record),
+        }
+
+    @api.model
     def get_ride_values(self, record):
         """Datos del RIDE (Anexo 2), derivados de la MISMA fuente que el XML.
 
@@ -901,11 +1149,36 @@ class L10nEcSriXml(models.AbstractModel):
             if total["codigo"] == L10N_EC_TAX_CODE_ICE
         )
 
-        return {
+        code = self._get_ride_document_code(record)
+        body_template, extra_method = self._get_ride_renderers().get(
+            code, ("l10n_ec_sri.report_ride_body_invoice", "_get_ride_invoice_extra")
+        )
+
+        values = {
             "record": record,
             "company": company,
             "partner": record.partner_id,
             "components": components,
+            # Titulo real del comprobante, de la tabla 3. Sustituye al literal
+            # "FACTURA" que la plantilla escribia para cualquier tipo.
+            "document_title": L10N_EC_DOCUMENT_NAMES.get(code, "COMPROBANTE").upper(),
+            "document_code": code,
+            "body_template": body_template,
+            # Valores por defecto del marco; cada tipo los corrige en su `extra`.
+            "counterparty_label": "Razón Social / Nombres y Apellidos",
+            "counterparty_id_label": "Identificación",
+            "show_payments": True,
+            "show_lines": True,
+            "show_totals": True,
+            "modified": False,
+            "motivos": [],
+            # El marco NO lee campos del registro: no todos los comprobantes son
+            # `account.move`. La retencion y la guia reusan el mismo marco con sus
+            # propias fechas y sin bloque de totales.
+            "emission_date": self._get_emission_date(record) or "",
+            "authorization_date": getattr(
+                record, "l10n_ec_authorization_date", False) or "",
+            "total_amount": "%.2f" % (getattr(record, "amount_total", 0.0) or 0.0),
             "access_key": record.l10n_ec_sri_access_key or "",
             "document_number": "%s-%s-%s" % (
                 components["establishment"],
@@ -925,13 +1198,19 @@ class L10nEcSriXml(models.AbstractModel):
             # Precalculado: en QWeb no conviene depender de que `float()` esté en el
             # contexto de evaluación para decidir si se pinta la fila.
             "has_ice": ice_amount > 0,
-            "payments": self._get_payment_details(record),
+            # Con el nombre resuelto: el XML lleva el codigo de la tabla 24 porque lo
+            # exige el SRI, pero un papel que dice "20" en vez de "Otros con
+            # utilizacion del sistema financiero" no informa a nadie.
+            "payments": self._get_ride_payments(record),
             "additional_info": self._get_additional_info(record),
             "rimpe_legend": company.l10n_ec_rimpe_legend(),
             "barcode": self._get_access_key_barcode(record.l10n_ec_sri_access_key),
             "money": lambda value: "%.2f" % (value or 0.0),
             "quantity": lambda value: "%.6f" % (value or 0.0),
+            "product_code": self._get_product_code,
         }
+        values.update(getattr(self, extra_method)(record, values))
+        return values
 
     @api.model
     def _get_access_key_barcode(self, access_key):

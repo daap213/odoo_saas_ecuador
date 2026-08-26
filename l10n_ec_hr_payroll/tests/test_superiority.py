@@ -53,8 +53,10 @@ class TestSuperiorityFeatures(TransactionCase):
             }
         )
 
-        # Trigger Computation (which calls _compute_totals -> _compute_overtime_from_attendance)
-        payslip._compute_totals()
+        # Las horas extra ya no se derivan dentro de un compute —eso hacía un
+        # `search()` por rol de pago y pisaba las correcciones manuales del usuario—
+        # sino con una acción explícita.
+        payslip.action_compute_overtime_from_attendance()
 
         # Assertions
         # Weekday: 10h total -> 2h excess -> 50% Overtime

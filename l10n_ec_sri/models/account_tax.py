@@ -31,9 +31,17 @@ L10N_EC_VAT_WITHHOLD_CODE_BY_RATE = {
     100.0: "3",
 }
 
-# Tabla 20 — retención de ISD. 4586 para el 2,5 % vigente desde el 01-05-2025
-# (Decreto Ejecutivo 589); 4580 cubre los tramos históricos hasta el 31-03-2024.
-L10N_EC_ISD_WITHHOLD_CODE = "4586"
+# Tabla 20 — retención de ISD. El código depende de la FECHA del comprobante, no
+# del porcentaje: la tabla asigna 4580 a todos los tramos históricos (del 5 % al
+# 3,5 %, hasta el 31-03-2024) y 4586 al 2,5 % vigente desde el 01-05-2025.
+#
+# Estaba fijado a "4586", así que reemitir o corregir un comprobante de un
+# período anterior lo declaraba con un código que aún no existía. El límite es
+# configurable porque es una fecha de vigencia normativa, no una constante del
+# formato.
+L10N_EC_ISD_CODE_HISTORIC = "4580"
+L10N_EC_ISD_CODE_CURRENT = "4586"
+L10N_EC_ISD_CURRENT_FROM = "2025-05-01"
 
 # Clasificación de grupos del addon oficial `l10n_ec` → impuesto de la tabla 19.
 L10N_EC_GROUP_TYPE_TO_RETENTION_TAX = {
@@ -117,11 +125,29 @@ class AccountTax(models.Model):
             ))
         return retention_tax
 
-    def l10n_ec_get_retention_code(self):
+    def _l10n_ec_isd_code(self, date=None):
+        """Código de ISD vigente en `date` (tabla 20).
+
+        Sin fecha se usa hoy, que es lo correcto para una emisión normal; la
+        retención pasa la suya para que un comprobante de un período cerrado
+        salga con el código que regía entonces.
+        """
+        threshold = self.env["ir.config_parameter"].sudo().get_param(
+            "l10n_ec.isd_code_4586_from", L10N_EC_ISD_CURRENT_FROM
+        )
+        reference = date or fields.Date.context_today(self)
+        if fields.Date.to_string(reference) >= threshold:
+            return L10N_EC_ISD_CODE_CURRENT
+        return L10N_EC_ISD_CODE_HISTORIC
+
+    def l10n_ec_get_retention_code(self, date=None):
         """<codigoRetencion>, resuelto en cascada.
 
         Antes la plantilla caía a '000' cuando faltaba, lo que produce un comprobante
         que el SRI rechaza sin explicar por qué. Es preferible fallar al emitir.
+
+        `date` es la fecha del comprobante, y sólo la usa el ISD, cuyo código
+        cambió de 4580 a 4586 el 01-05-2025.
         """
         self.ensure_one()
 
@@ -142,7 +168,7 @@ class AccountTax(models.Model):
             if derived:
                 return derived
         elif retention_tax == L10N_EC_RETENTION_TAX_ISD:
-            return L10N_EC_ISD_WITHHOLD_CODE
+            return self._l10n_ec_isd_code(date)
 
         raise ValidationError(_(
             "El impuesto de retención '%(tax)s' no tiene código SRI y no se puede "
@@ -150,7 +176,11 @@ class AccountTax(models.Model):
             "Asígnelo en Contabilidad > Configuración > Impuestos, campo "
             "'Código de Retención SRI'. Los códigos de retención de renta salen del "
             "Catálogo del ATS (303 honorarios, 312 bienes, 320 arriendos…); los de "
-            "IVA, de la tabla 20 de la Ficha Técnica.",
+            "IVA, de la tabla 20 de la Ficha Técnica.\n\n"
+            "Si el porcentaje es 0,00 %% hay que elegir a mano entre los dos "
+            "códigos que comparten esa tarifa y no se pueden distinguir por ella: "
+            "7 (retención en cero, Disp. Transitoria Única de la Res. "
+            "NAC-DGERCGC15-00000284) y 8 (no procede retención).",
             tax=self.display_name,
             rate=("%.2f" % rate).rstrip("0").rstrip("."),
         ))

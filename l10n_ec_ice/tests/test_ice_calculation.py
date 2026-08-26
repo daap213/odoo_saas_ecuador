@@ -35,6 +35,18 @@ class TestICECalculation(TransactionCase):
         cls.ice_plastic = cls.env.ref("l10n_ec_ice.ice_3680")  # specific 0.08
         cls.ice_perfume = cls.env.ref("l10n_ec_ice.ice_3072")  # ad_valorem 20 %
 
+        # `tax_group_id` es NOT NULL en `account_tax` desde Odoo 19: sin él la INSERT
+        # revienta y se cae el setUpClass entero, así que estos tests nunca llegaron a
+        # ejecutarse ni una vez.
+        group = cls.env["account.tax.group"].search(
+            [("company_id", "=", cls.company.id)], limit=1
+        ) or cls.env["account.tax.group"].search([], limit=1)
+        if not group:
+            group = cls.env["account.tax.group"].create({
+                "name": "ICE de prueba", "company_id": cls.company.id,
+            })
+        cls.tax_group = group
+
         Tax = cls.env["account.tax"]
         cls.tax_ice_alcohol = Tax.create({
             "name": "ICE Alcohol 3031",
@@ -42,6 +54,7 @@ class TestICECalculation(TransactionCase):
             "amount": 0.0,  # la tarifa la aporta la categoría
             "l10n_ec_ice_category_id": cls.ice_alcohol.id,
             "country_id": ecuador.id,
+            "tax_group_id": cls.tax_group.id,
         })
         cls.tax_ice_plastic = Tax.create({
             "name": "ICE Fundas 3680",
@@ -49,6 +62,7 @@ class TestICECalculation(TransactionCase):
             "amount": 0.0,
             "l10n_ec_ice_category_id": cls.ice_plastic.id,
             "country_id": ecuador.id,
+            "tax_group_id": cls.tax_group.id,
         })
         cls.tax_ice_perfume = Tax.create({
             "name": "ICE Perfumes 3072",
@@ -56,6 +70,7 @@ class TestICECalculation(TransactionCase):
             "amount": 0.0,
             "l10n_ec_ice_category_id": cls.ice_perfume.id,
             "country_id": ecuador.id,
+            "tax_group_id": cls.tax_group.id,
         })
 
         Product = cls.env["product.product"]
